@@ -1,0 +1,60 @@
+{
+    "name": "node-red-contrib-controltimer",
+    "version": "0.0.1",
+    "description": "A do-it-all node-red timer node...",
+    "scripts": {
+        "build": "rimraf dist && npm run lint && npm run -s build:ts && npm run render-html",
+        "watch": "rimraf dist && npm run lint && npm run -s watch:ts && npm run render-html",
+        "build:ts": "tsc",
+        "watch:ts": "tsc -w",
+        "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
+        "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix",
+        "lint-ci": "npm run format && npm run lint --silent && npm run build:ts --silent",
+        "render-html": "ts-node src/render-html.ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Writech/node-red-contrib-controltimer.git"
+    },
+    "author": "Robert Vane <robertvane@gmail.com>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Writech/node-red-contrib-controltimer/issues"
+    },
+    "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
+    "devDependencies": {
+        "@types/ejs": "^3.0.4",
+        "@types/node": "^14.0.27",
+        "@types/node-red": "^0.20.1",
+        "@typescript-eslint/eslint-plugin": "^3.7.1",
+        "@typescript-eslint/parser": "^3.7.1",
+        "ejs": "^3.1.3",
+        "eslint": "^7.5.0",
+        "eslint-config-prettier": "^6.11.0",
+        "eslint-plugin-prettier": "^3.1.4",
+        "husky": "^4.2.5",
+        "lint-staged": "^10.2.11",
+        "prettier": "^2.0.5",
+        "rimraf": "^3.0.2",
+        "ts-node": "^8.10.2",
+        "typescript": "^3.9.7"
+    },
+    "engines": {
+        "node": ">=12.17.0"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "*.{js,jsx,ts,tsx}": [
+            "eslint --fix"
+        ]
+    },
+    "node-red": {
+        "nodes": {
+            "controltimer": "dist/controltimer.js"
+        }
+    }
+}
