@@ -38,222 +38,222 @@ Change directory to your node red installation:
 
 ```json
 [
-     {
-         "id": "e3c81493.d9d2f8",
-         "type": "tab",
-         "label": "Controltimer",
-         "disabled": false,
-         "info": ""
-     },
-     {
-         "id": "e9565a66.765b58",
-         "type": "inject",
-         "z": "e3c81493.d9d2f8",
-         "name": "",
-         "props": [
-             {
-                 "p": "payload"
-             },
-             {
-                 "p": "topic",
-                 "vt": "str"
-             }
-         ],
-         "repeat": "",
-         "crontab": "",
-         "once": false,
-         "onceDelay": 0.1,
-         "topic": "",
-         "payload": "START",
-         "payloadType": "str",
-         "x": 110,
-         "y": 40,
-         "wires": [
-             [
-                 "28b4e7da.de0758"
-             ]
-         ]
-     },
-     {
-         "id": "87b98e47.b188c",
-         "type": "debug",
-         "z": "e3c81493.d9d2f8",
-         "name": "TIMER TRIGGERED",
-         "active": true,
-         "tosidebar": true,
-         "console": false,
-         "tostatus": false,
-         "complete": "true",
-         "targetType": "full",
-         "statusVal": "",
-         "statusType": "auto",
-         "x": 540,
-         "y": 100,
-         "wires": []
-     },
-     {
-         "id": "6f03d8e2.43ef98",
-         "type": "inject",
-         "z": "e3c81493.d9d2f8",
-         "name": "",
-         "props": [
-             {
-                 "p": "payload"
-             },
-             {
-                 "p": "topic",
-                 "vt": "str"
-             }
-         ],
-         "repeat": "",
-         "crontab": "",
-         "once": false,
-         "onceDelay": 0.1,
-         "topic": "",
-         "payload": "STOP",
-         "payloadType": "str",
-         "x": 110,
-         "y": 80,
-         "wires": [
-             [
-                 "28b4e7da.de0758"
-             ]
-         ]
-     },
-     {
-         "id": "80765310.41236",
-         "type": "inject",
-         "z": "e3c81493.d9d2f8",
-         "name": "",
-         "props": [
-             {
-                 "p": "payload"
-             },
-             {
-                 "p": "topic",
-                 "vt": "str"
-             }
-         ],
-         "repeat": "",
-         "crontab": "",
-         "once": false,
-         "onceDelay": 0.1,
-         "topic": "",
-         "payload": "RESET",
-         "payloadType": "str",
-         "x": 110,
-         "y": 120,
-         "wires": [
-             [
-                 "28b4e7da.de0758"
-             ]
-         ]
-     },
-     {
-         "id": "8efa6f10.34b82",
-         "type": "inject",
-         "z": "e3c81493.d9d2f8",
-         "name": "",
-         "props": [
-             {
-                 "p": "payload"
-             },
-             {
-                 "p": "topic",
-                 "vt": "str"
-             }
-         ],
-         "repeat": "",
-         "crontab": "",
-         "once": false,
-         "onceDelay": 0.1,
-         "topic": "",
-         "payload": "PAUSE",
-         "payloadType": "str",
-         "x": 110,
-         "y": 160,
-         "wires": [
-             [
-                 "28b4e7da.de0758"
-             ]
-         ]
-     },
-     {
-         "id": "dc1a826a.162c",
-         "type": "inject",
-         "z": "e3c81493.d9d2f8",
-         "name": "CONTINUE",
-         "props": [
-             {
-                 "p": "payload"
-             },
-             {
-                 "p": "topic",
-                 "vt": "str"
-             }
-         ],
-         "repeat": "",
-         "crontab": "",
-         "once": false,
-         "onceDelay": 0.1,
-         "topic": "",
-         "payload": "CONTINUE",
-         "payloadType": "str",
-         "x": 130,
-         "y": 200,
-         "wires": [
-             [
-                 "28b4e7da.de0758"
-             ]
-         ]
-     },
-     {
-         "id": "4452e395.eca39c",
-         "type": "debug",
-         "z": "e3c81493.d9d2f8",
-         "name": "TIMER HALTED",
-         "active": true,
-         "tosidebar": true,
-         "console": false,
-         "tostatus": false,
-         "complete": "true",
-         "targetType": "full",
-         "statusVal": "",
-         "statusType": "auto",
-         "x": 520,
-         "y": 140,
-         "wires": []
-     },
-     {
-         "id": "28b4e7da.de0758",
-         "type": "controltimer",
-         "z": "e3c81493.d9d2f8",
-         "name": "",
-         "isConsecutiveStartActionTimerResetAllowed": false,
-         "isRunningTimerProgressVisible": false,
-         "outputReceivedMessageOnTimerTrigger": false,
-         "outputReceivedMessageOnTimerHalt": false,
-         "timerType": "delay",
-         "timerDurationUnit": "second",
-         "timerDurationType": "num",
-         "timerDuration": "5",
-         "actionPropertyNameType": "msg",
-         "actionPropertyName": "payload",
-         "startActionName": "START",
-         "resetActionName": "RESET",
-         "pauseActionName": "PAUSE",
-         "continueActionName": "CONTINUE",
-         "stopActionName": "STOP",
-         "x": 320,
-         "y": 120,
-         "wires": [
-             [
-                 "87b98e47.b188c"
-             ],
-             [
-                 "4452e395.eca39c"
-             ]
-         ]
-     }
- ]
+    {
+        "id": "e3c81493.d9d2f8",
+        "type": "tab",
+        "label": "Controltimer",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "e9565a66.765b58",
+        "type": "inject",
+        "z": "e3c81493.d9d2f8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "START",
+        "payloadType": "str",
+        "x": 110,
+        "y": 40,
+        "wires": [
+            [
+                "28b4e7da.de0758"
+            ]
+        ]
+    },
+    {
+        "id": "87b98e47.b188c",
+        "type": "debug",
+        "z": "e3c81493.d9d2f8",
+        "name": "TIMER TRIGGERED",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "6f03d8e2.43ef98",
+        "type": "inject",
+        "z": "e3c81493.d9d2f8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "STOP",
+        "payloadType": "str",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "28b4e7da.de0758"
+            ]
+        ]
+    },
+    {
+        "id": "80765310.41236",
+        "type": "inject",
+        "z": "e3c81493.d9d2f8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "RESET",
+        "payloadType": "str",
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "28b4e7da.de0758"
+            ]
+        ]
+    },
+    {
+        "id": "8efa6f10.34b82",
+        "type": "inject",
+        "z": "e3c81493.d9d2f8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "PAUSE",
+        "payloadType": "str",
+        "x": 110,
+        "y": 160,
+        "wires": [
+            [
+                "28b4e7da.de0758"
+            ]
+        ]
+    },
+    {
+        "id": "dc1a826a.162c",
+        "type": "inject",
+        "z": "e3c81493.d9d2f8",
+        "name": "CONTINUE",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "CONTINUE",
+        "payloadType": "str",
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "28b4e7da.de0758"
+            ]
+        ]
+    },
+    {
+        "id": "4452e395.eca39c",
+        "type": "debug",
+        "z": "e3c81493.d9d2f8",
+        "name": "TIMER HALTED",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "28b4e7da.de0758",
+        "type": "controltimer",
+        "z": "e3c81493.d9d2f8",
+        "name": "",
+        "isConsecutiveStartActionTimerResetAllowed": false,
+        "isRunningTimerProgressVisible": false,
+        "outputReceivedMessageOnTimerTrigger": true,
+        "outputReceivedMessageOnTimerHalt": true,
+        "timerType": "delay",
+        "timerDurationUnit": "second",
+        "timerDurationType": "num",
+        "timerDuration": "5",
+        "actionPropertyNameType": "msg",
+        "actionPropertyName": "payload",
+        "startActionName": "START",
+        "resetActionName": "RESET",
+        "pauseActionName": "PAUSE",
+        "continueActionName": "CONTINUE",
+        "stopActionName": "STOP",
+        "x": 320,
+        "y": 120,
+        "wires": [
+            [
+                "87b98e47.b188c"
+            ],
+            [
+                "4452e395.eca39c"
+            ]
+        ]
+    }
+]
 ```
