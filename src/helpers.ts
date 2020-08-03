@@ -24,14 +24,22 @@ export type ActionPropertyNameType = 'msg' | 'flow' | 'global';
 
 export interface RawProps {
     name: string;
-    isConsecutiveStartActionTimerResetAllowed: boolean;
-    isRunningTimerProgressVisible: boolean;
-    outputReceivedMessageOnTimerTrigger: boolean;
-    outputReceivedMessageOnTimerHalt: boolean;
     timerType: TIMER_TYPE;
     timerDurationUnit: TimerDurationUnit;
     timerDurationType: TimerDurationType;
     timerDuration: string;
+    isConsecutiveStartActionTimerResetAllowed: boolean;
+    isRunningTimerProgressVisible: boolean;
+    outputReceivedMessageOnTimerTrigger: boolean;
+    outputReceivedMessageOnTimerHalt: boolean;
+    startTimerOnReceivalOfUnknownMessage: boolean;
+    resetTimerOnReceivalOfUnknownMessage: boolean;
+    isStartActionEnabled: boolean;
+    isResetActionEnabled: boolean;
+    isStopActionEnabled: boolean;
+    isPauseActionEnabled: boolean;
+    isContinueActionEnabled: boolean;
+    isDebugModeEnabled: boolean;
     actionPropertyNameType: ActionPropertyNameType;
     actionPropertyName: string;
     startActionName: string;
@@ -43,14 +51,22 @@ export interface RawProps {
 
 export interface Props {
     name: string;
-    isConsecutiveStartActionTimerResetAllowed: boolean;
-    isRunningTimerProgressVisible: boolean;
-    outputReceivedMessageOnTimerTrigger: boolean;
-    outputReceivedMessageOnTimerHalt: boolean;
     timerType: TIMER_TYPE;
     timerDurationUnit: TimerDurationUnit;
     timerDurationType: TimerDurationType;
     timerDuration: number;
+    isConsecutiveStartActionTimerResetAllowed: boolean;
+    isRunningTimerProgressVisible: boolean;
+    outputReceivedMessageOnTimerTrigger: boolean;
+    outputReceivedMessageOnTimerHalt: boolean;
+    startTimerOnReceivalOfUnknownMessage: boolean;
+    resetTimerOnReceivalOfUnknownMessage: boolean;
+    isStartActionEnabled: boolean;
+    isResetActionEnabled: boolean;
+    isStopActionEnabled: boolean;
+    isPauseActionEnabled: boolean;
+    isContinueActionEnabled: boolean;
+    isDebugModeEnabled: boolean;
     actionPropertyNameType: ActionPropertyNameType;
     actionPropertyName: string;
     startActionName: string;
@@ -68,14 +84,22 @@ export const nodeName = 'controltimer';
 
 export const defaults: RawProps = {
     name: '',
-    isConsecutiveStartActionTimerResetAllowed: false,
-    isRunningTimerProgressVisible: false,
-    outputReceivedMessageOnTimerTrigger: true,
-    outputReceivedMessageOnTimerHalt: true,
     timerType: TIMER_TYPE.DELAY,
     timerDurationUnit: TimerDurationUnit.SECOND,
     timerDurationType: 'num',
     timerDuration: '5',
+    isConsecutiveStartActionTimerResetAllowed: false,
+    isRunningTimerProgressVisible: false,
+    outputReceivedMessageOnTimerTrigger: true,
+    outputReceivedMessageOnTimerHalt: true,
+    startTimerOnReceivalOfUnknownMessage: false,
+    resetTimerOnReceivalOfUnknownMessage: false,
+    isStartActionEnabled: true,
+    isResetActionEnabled: true,
+    isStopActionEnabled: true,
+    isPauseActionEnabled: true,
+    isContinueActionEnabled: true,
+    isDebugModeEnabled: false,
     actionPropertyNameType: 'msg',
     actionPropertyName: 'payload',
     startActionName: 'START',
