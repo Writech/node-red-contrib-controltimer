@@ -1,16 +1,16 @@
-## ControlTimer
+# ControlTimer
 
 A customizable Node-RED timer node which you use as a delay or as a loop. The timer can be interacted with by action strings (configurable) specified in received message action property (configurable).
 
 The timer can be started and stopped. Timer can be reset (timer will restart countdown from beginning) explicitly by the `Reset action` or when `Is consecutive start action timer reset allowed` option is enabled timer will be reset every time a `Start action` is received in addition to received `Reset actions`. Timer can be paused and later continued - it will count down the remaining duration.
 
-### Installation
+## Installation
  
 Change directory to your node red installation:
 
     $ npm install --save node-red-contrib-controltimer
  
-### Configuration 
+## Configuration 
 
 | Option        | Description                                                              | DEFAULT
 | --------------- | ------------------------------------------------------------------------ | -----
@@ -28,11 +28,11 @@ Change directory to your node red installation:
 | `Continue action name` | Defines the action string that will CONTINUE the paused timer. | `CONTINUE`
 | `Stop action name` | Defines the action string that will STOP the timer. | `STOP`
 
-### State diagram
+## State diagram
 
 ![controltimer state diagram](https://github.com/Writech/node-red-contrib-controltimer/raw/master/img/state-diagram.png)
 
-### Example
+## Example
 
 ![controltimer example flow](https://github.com/Writech/node-red-contrib-controltimer/raw/master/img/example-flow.png)
 
