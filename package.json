@@ -1,10 +1,10 @@
 {
     "name": "node-red-contrib-controltimer",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "A controllable Node-RED timer node. Start, Stop, Reset, Pause and Continue the timer. Use the timer as a loop or a delay.",
     "scripts": {
-        "build": "rimraf dist && npm run lint && npm run -s build:ts && npm run render-html",
-        "watch": "rimraf dist && npm run lint && npm run -s watch:ts && npm run render-html",
+        "build": "rimraf dist && npm run lint && npm run -s build:ts && npm run render-html && npm run copy-icons",
+        "watch": "rimraf dist && npm run lint && npm run -s watch:ts && npm run render-html && npm run copy-icons",
         "build:ts": "tsc",
         "watch:ts": "tsc -w",
         "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
@@ -13,7 +13,8 @@
         "render-html": "ts-node src/render-html.ts",
         "test-watch": "watch 'npm run rebuild' src",
         "rebuild": "echo '### Changes detected. Rebuilding... ###' && npm run delete-artifacts && npm run build && npm pack && echo '### Build done ###'",
-        "delete-artifacts": "rimraf 'node-red-contrib-controltimer-*.tgz' && rimraf package"
+        "delete-artifacts": "rimraf 'node-red-contrib-controltimer-*.tgz' && rimraf package",
+        "copy-icons": "rsync -a src/icons/ dist/icons/"
     },
     "repository": {
         "type": "git",
@@ -23,7 +24,11 @@
     "license": "MIT",
     "keywords": [
         "node-red",
-        "timer"
+        "timer",
+        "delay",
+        "loop",
+        "timeout",
+        "interval"
     ],
     "bugs": {
         "url": "https://github.com/Writech/node-red-contrib-controltimer/issues"

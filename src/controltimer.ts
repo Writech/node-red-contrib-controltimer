@@ -7,18 +7,28 @@ module.exports = function (RED: Red) {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const node: NodeConfig = this;
 
-        node.isConsecutiveStartActionTimerResetAllowed =
-            config.isConsecutiveStartActionTimerResetAllowed ?? defaults.isConsecutiveStartActionTimerResetAllowed;
-        node.isRunningTimerProgressVisible = config.isRunningTimerProgressVisible ?? defaults.isRunningTimerProgressVisible;
-        node.outputReceivedMessageOnTimerTrigger =
-            config.outputReceivedMessageOnTimerTrigger ?? defaults.outputReceivedMessageOnTimerTrigger;
-        node.outputReceivedMessageOnTimerHalt = config.outputReceivedMessageOnTimerHalt ?? defaults.outputReceivedMessageOnTimerHalt;
         node.timerType = config.timerType || defaults.timerType;
         node.timerDurationUnit = config.timerDurationUnit || defaults.timerDurationUnit;
         node.timerDurationType = config.timerDurationType || defaults.timerDurationType;
         node.timerDuration =
             parseInt(RED.util.evaluateNodeProperty(config.timerDuration, this.timerDurationType, this, null), 10) ||
             Number(defaults.timerDuration);
+        node.isConsecutiveStartActionTimerResetAllowed =
+            config.isConsecutiveStartActionTimerResetAllowed ?? defaults.isConsecutiveStartActionTimerResetAllowed;
+        node.isRunningTimerProgressVisible = config.isRunningTimerProgressVisible ?? defaults.isRunningTimerProgressVisible;
+        node.outputReceivedMessageOnTimerTrigger =
+            config.outputReceivedMessageOnTimerTrigger ?? defaults.outputReceivedMessageOnTimerTrigger;
+        node.outputReceivedMessageOnTimerHalt = config.outputReceivedMessageOnTimerHalt ?? defaults.outputReceivedMessageOnTimerHalt;
+        node.startTimerOnReceivalOfUnknownMessage =
+            config.startTimerOnReceivalOfUnknownMessage ?? defaults.startTimerOnReceivalOfUnknownMessage;
+        node.resetTimerOnReceivalOfUnknownMessage =
+            config.resetTimerOnReceivalOfUnknownMessage ?? defaults.resetTimerOnReceivalOfUnknownMessage;
+        node.isStartActionEnabled = config.isStartActionEnabled ?? defaults.isStartActionEnabled;
+        node.isResetActionEnabled = config.isResetActionEnabled ?? defaults.isResetActionEnabled;
+        node.isStopActionEnabled = config.isStopActionEnabled ?? defaults.isStopActionEnabled;
+        node.isPauseActionEnabled = config.isPauseActionEnabled ?? defaults.isPauseActionEnabled;
+        node.isContinueActionEnabled = config.isContinueActionEnabled ?? defaults.isContinueActionEnabled;
+        node.isDebugModeEnabled = config.isDebugModeEnabled ?? defaults.isDebugModeEnabled;
         node.actionPropertyNameType = config.actionPropertyNameType || defaults.actionPropertyNameType;
         node.actionPropertyName =
             RED.util.evaluateNodeProperty(config.actionPropertyName, this.actionPropertyNameType, this, null) ||
@@ -73,6 +83,7 @@ module.exports = function (RED: Red) {
         }
 
         let clockTimerId: NodeJS.Timeout;
+        let stopIdleTimerId: NodeJS.Timeout;
 
         function startClockTimer() {
             if (!node.isRunningTimerProgressVisible) {
@@ -120,11 +131,30 @@ module.exports = function (RED: Red) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         node.on('input', (message, send, done) => {
-            const isStartActionMessage = message[node.actionPropertyName] === node.startActionName;
-            const isResetActionMessage = message[node.actionPropertyName] === node.resetActionName;
-            const isPauseActionMessage = message[node.actionPropertyName] === node.pauseActionName;
-            const isContinueActionMessage = message[node.actionPropertyName] === node.continueActionName;
-            const isStopActionMessage = message[node.actionPropertyName] === node.stopActionName;
+            const isStartActionMessage = message[node.actionPropertyName] === node.startActionName && node.isStartActionEnabled;
+            const isResetActionMessage = message[node.actionPropertyName] === node.resetActionName && node.isResetActionEnabled;
+            const isPauseActionMessage = message[node.actionPropertyName] === node.pauseActionName && node.isPauseActionEnabled;
+            const isContinueActionMessage = message[node.actionPropertyName] === node.continueActionName && node.isContinueActionEnabled;
+            const isStopActionMessage = message[node.actionPropertyName] === node.stopActionName && node.isStopActionEnabled;
+            const isUnknownMessage = !(
+                isStartActionMessage ||
+                isResetActionMessage ||
+                isPauseActionMessage ||
+                isContinueActionMessage ||
+                isStopActionMessage
+            );
+
+            function startStoppedIdleTimer() {
+                stopStoppedIdleTimer();
+                stopIdleTimerId = setTimeout(() => {
+                    finishTimer();
+                }, 1000 * 10);
+            }
+
+            function stopStoppedIdleTimer() {
+                clearTimeout(stopIdleTimerId);
+                stopIdleTimerId = undefined;
+            }
 
             function finishTimer() {
                 stopClockTimer();
@@ -171,6 +201,7 @@ module.exports = function (RED: Red) {
             }
 
             function startTimer() {
+                stopStoppedIdleTimer();
                 destroyTimer();
 
                 timerId = createAndGetTimer();
@@ -198,6 +229,8 @@ module.exports = function (RED: Red) {
                     const outputMessage = node.outputReceivedMessageOnTimerHalt ? RED.util.cloneMessage(message) : {};
                     node.send([null, outputMessage]);
                 }
+
+                startStoppedIdleTimer();
             }
 
             function pauseTimer() {
@@ -245,6 +278,12 @@ module.exports = function (RED: Red) {
                     done();
                     return;
                 }
+
+                if (node.startTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
+                    startTimer();
+                    done();
+                    return;
+                }
             }
 
             if (currentState === STATE.RUNNING) {
@@ -255,6 +294,12 @@ module.exports = function (RED: Red) {
                 }
 
                 if (isResetActionMessage) {
+                    resetTimer();
+                    done();
+                    return;
+                }
+
+                if (node.resetTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
                     resetTimer();
                     done();
                     return;
@@ -279,6 +324,12 @@ module.exports = function (RED: Red) {
                     done();
                     return;
                 }
+
+                if (node.startTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
+                    startTimer();
+                    done();
+                    return;
+                }
             }
 
             if (currentState === STATE.PAUSED) {
@@ -289,6 +340,12 @@ module.exports = function (RED: Red) {
                 }
 
                 if (isResetActionMessage) {
+                    resetTimer();
+                    done();
+                    return;
+                }
+
+                if (node.resetTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
                     resetTimer();
                     done();
                     return;
@@ -307,7 +364,9 @@ module.exports = function (RED: Red) {
                 }
             }
 
-            sendError(new Error(`Can't trigger "${message[node.actionPropertyName]}" action while state is "${currentState}"!`));
+            if (node.isDebugModeEnabled) {
+                sendError(new Error(`Can't trigger "${message[node.actionPropertyName]}" action while state is "${currentState}"!`));
+            }
         });
 
         node.on('close', (done) => {
