@@ -10,6 +10,9 @@ module.exports = function (RED: Red) {
         node.isConsecutiveStartActionTimerResetAllowed =
             config.isConsecutiveStartActionTimerResetAllowed ?? defaults.isConsecutiveStartActionTimerResetAllowed;
         node.isRunningTimerProgressVisible = config.isRunningTimerProgressVisible ?? defaults.isRunningTimerProgressVisible;
+        node.outputReceivedMessageOnTimerTrigger =
+            config.outputReceivedMessageOnTimerTrigger ?? defaults.outputReceivedMessageOnTimerTrigger;
+        node.outputReceivedMessageOnTimerHalt = config.outputReceivedMessageOnTimerHalt ?? defaults.outputReceivedMessageOnTimerHalt;
         node.timerType = config.timerType || defaults.timerType;
         node.timerDurationUnit = config.timerDurationUnit || defaults.timerDurationUnit;
         node.timerDurationType = config.timerDurationType || defaults.timerDurationType;
@@ -137,7 +140,8 @@ module.exports = function (RED: Red) {
             function createAndGetTimer(durationInMillisecondsOverride?: number) {
                 if (node.timerType === TIMER_TYPE.LOOP) {
                     return setInterval(() => {
-                        node.send([RED.util.cloneMessage(message), null]);
+                        const outputMessage = node.outputReceivedMessageOnTimerTrigger ? RED.util.cloneMessage(message) : {};
+                        node.send([outputMessage, null]);
                         timerStartedAtUnixTimestamp = Date.now();
                         pausedTimerRunningMilliseconds = undefined;
 
@@ -149,7 +153,8 @@ module.exports = function (RED: Red) {
 
                 if (node.timerType === TIMER_TYPE.DELAY) {
                     return setTimeout(() => {
-                        node.send([RED.util.cloneMessage(message), null]);
+                        const outputMessage = node.outputReceivedMessageOnTimerTrigger ? RED.util.cloneMessage(message) : {};
+                        node.send([outputMessage, null]);
                         finishTimer();
                     }, durationInMillisecondsOverride ?? timerDurationInMilliseconds);
                 }
@@ -190,7 +195,8 @@ module.exports = function (RED: Red) {
                 node.status({ fill: 'red', shape: 'dot', text: 'Stopped' });
 
                 if (timerWasRunning) {
-                    node.send([null, RED.util.cloneMessage(message)]);
+                    const outputMessage = node.outputReceivedMessageOnTimerHalt ? RED.util.cloneMessage(message) : {};
+                    node.send([null, outputMessage]);
                 }
             }
 
@@ -204,7 +210,9 @@ module.exports = function (RED: Red) {
 
                 currentState = STATE.PAUSED;
                 node.status({ fill: 'yellow', shape: 'dot', text: `Paused${getPausedTimerProgress()}` });
-                node.send([null, RED.util.cloneMessage(message)]);
+
+                const outputMessage = node.outputReceivedMessageOnTimerHalt ? RED.util.cloneMessage(message) : {};
+                node.send([null, outputMessage]);
             }
 
             function resetTimer() {

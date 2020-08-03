@@ -26,6 +26,8 @@ export interface RawProps {
     name: string;
     isConsecutiveStartActionTimerResetAllowed: boolean;
     isRunningTimerProgressVisible: boolean;
+    outputReceivedMessageOnTimerTrigger: boolean;
+    outputReceivedMessageOnTimerHalt: boolean;
     timerType: TIMER_TYPE;
     timerDurationUnit: TimerDurationUnit;
     timerDurationType: TimerDurationType;
@@ -43,6 +45,8 @@ export interface Props {
     name: string;
     isConsecutiveStartActionTimerResetAllowed: boolean;
     isRunningTimerProgressVisible: boolean;
+    outputReceivedMessageOnTimerTrigger: boolean;
+    outputReceivedMessageOnTimerHalt: boolean;
     timerType: TIMER_TYPE;
     timerDurationUnit: TimerDurationUnit;
     timerDurationType: TimerDurationType;
@@ -66,6 +70,8 @@ export const defaults: RawProps = {
     name: '',
     isConsecutiveStartActionTimerResetAllowed: false,
     isRunningTimerProgressVisible: false,
+    outputReceivedMessageOnTimerTrigger: true,
+    outputReceivedMessageOnTimerHalt: true,
     timerType: TIMER_TYPE.DELAY,
     timerDurationUnit: TimerDurationUnit.SECOND,
     timerDurationType: 'num',

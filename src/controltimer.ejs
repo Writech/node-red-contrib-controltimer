@@ -6,6 +6,8 @@
 			name: { value: '<%= defaults.name %>', required: false },
 			isConsecutiveStartActionTimerResetAllowed: { value: <%= defaults.isConsecutiveStartActionTimerResetAllowed %> },
 			isRunningTimerProgressVisible: { value: <%= defaults.isRunningTimerProgressVisible %> },
+			outputReceivedMessageOnTimerTrigger: { value: <%= defaults.outputReceivedMessageOnTimerTrigger %> },
+			outputReceivedMessageOnTimerHalt: { value: <%= defaults.outputReceivedMessageOnTimerHalt %> },
 			timerType: { value: '<%= defaults.timerType %>' },
 			timerDurationUnit: { value: '<%= defaults.timerDurationUnit %>' },
 			timerDurationType: { value: '<%= defaults.timerDurationType %>' },
@@ -29,6 +31,18 @@
         },
         outputLabels: ['timer-triggered', 'timer-halted'],
         oneditprepare: function () {
+            // Initialize "isConsecutiveStartActionTimerResetAllowed" checkbox
+			$('#node-input-isConsecutiveStartActionTimerResetAllowed').prop('checked', typeof this.isConsecutiveStartActionTimerResetAllowed === 'boolean' ? this.isConsecutiveStartActionTimerResetAllowed : defaults.isConsecutiveStartActionTimerResetAllowed);
+
+			// Initialize "isRunningTimerProgressVisible" checkbox
+			$('#node-input-isRunningTimerProgressVisible').prop('checked', typeof this.isRunningTimerProgressVisible === 'boolean' ? this.isRunningTimerProgressVisible : defaults.isRunningTimerProgressVisible);
+
+			// Initialize "outputReceivedMessageOnTimerTrigger" checkbox
+			$('#node-input-outputReceivedMessageOnTimerTrigger').prop('checked', typeof this.outputReceivedMessageOnTimerTrigger === 'boolean' ? this.outputReceivedMessageOnTimerTrigger : defaults.outputReceivedMessageOnTimerTrigger);
+
+			// Initialize "outputReceivedMessageOnTimerHalt" checkbox
+			$('#node-input-outputReceivedMessageOnTimerHalt').prop('checked', typeof this.outputReceivedMessageOnTimerHalt === 'boolean' ? this.outputReceivedMessageOnTimerHalt : defaults.outputReceivedMessageOnTimerHalt);
+
             // Initialize "timerType" select element
             this.timerType = Boolean(this.timerType) ? this.timerType : '<%= defaults.timerType %>';
             $('#node-input-timerType').val(this.timerType);
@@ -66,6 +80,10 @@
             $('#node-input-actionPropertyNameType').val(this.actionPropertyNameType);
         },
         oneditsave: function () {
+			this.isConsecutiveStartActionTimerResetAllowed = $('#node-input-isConsecutiveStartActionTimerResetAllowed').is(":checked");
+			this.isRunningTimerProgressVisible = $('#node-input-isRunningTimerProgressVisible').is(":checked");
+			this.outputReceivedMessageOnTimerTrigger = $('#node-input-node-input-outputReceivedMessageOnTimerTrigger').is(":checked");
+			this.outputReceivedMessageOnTimerHalt = $('#node-input-outputReceivedMessageOnTimerHalt').is(":checked");
             this.timerType = $('#node-input-timerType').val();
             this.timerDurationUnit = $('#node-input-timerDurationUnit').val();
             this.timerDurationType = $('#node-input-timerDurationType').val();
@@ -90,6 +108,16 @@
     <div class="form-row">
         <label for="node-input-isRunningTimerProgressVisible"><i class="fa fa-tag"></i> Is running timer progress visible</label>
         <input type="checkbox" id="node-input-isRunningTimerProgressVisible">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-outputReceivedMessageOnTimerTrigger"><i class="fa fa-tag"></i> Output received message on timer trigger</label>
+        <input type="checkbox" id="node-input-outputReceivedMessageOnTimerTrigger">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-outputReceivedMessageOnTimerHalt"><i class="fa fa-tag"></i> Output received message on timer halt</label>
+        <input type="checkbox" id="node-input-outputReceivedMessageOnTimerHalt">
     </div>
 
     <div class="form-row">
