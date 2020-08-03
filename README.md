@@ -40,11 +40,11 @@ Change directory to your node red installation:
 
 ## State diagram
 
-![controltimer state diagram](https://github.com/Writech/node-red-contrib-controltimer/raw/master/img/state-diagram.png)
+![controltimer state diagram](img/state-diagram.png?raw=true)
 
 ## Example
 
-![controltimer example flow](https://github.com/Writech/node-red-contrib-controltimer/raw/master/img/example-flow.png)
+![controltimer example flow](img/example-flow.png?raw=true)
 
 ```json
 [
