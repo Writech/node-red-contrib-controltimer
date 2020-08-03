@@ -113,3 +113,4 @@ typings/
 tsconfig.json
 src/
 package/
+*.tgz
