@@ -2,7 +2,7 @@
 
 A customizable Node-RED timer node which you use as a delay or as a loop. The timer can be interacted with by action strings (configurable) specified in received message action property (configurable).
 
-The timer can be started and stopped. Timer can be reset (timer will restart countdown from beginning) explicitly by the `Reset action` or when `Is consecutive start action timer reset allowed` option is enabled timer will be reset every time a `Start action` is received in addition to received `Reset actions`. Timer can be paused and later continued - it will count down the remaining duration.
+The timer can be started and stopped. Timer can be reset (timer will restart countdown from beginning) explicitly by the `Reset action` or when `Is consecutive start action timer reset allowed` option is enabled in addition to received `Reset actions` timer will be reset also every time a `Start action` is received. Timer can be paused and later continued - it will count down the remaining duration.
 
 ## Installation
  
