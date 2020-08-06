@@ -2,13 +2,13 @@
 
 A customizable Node-RED timer node which offers both looping and delay behaviour. The timer can be interacted with by action messages. Timer can be started, reset, stopped, paused and continued. The timer has two outputs - the first one outputs the message when timer is triggered (delay expires or interval is triggered) and the second one outputs the message when the running timer is stopped or paused.
 
-Timer can be reset (timer will restart countdown from beginning) explicitly by the `Reset action` or when `Is consecutive start action timer reset allowed` option is enabled in addition to received `Reset actions` timer will be reset also every time a `Start action` is received. When `Reset timer on receival of unknown message` option is enabled the timer will be reset when it recieves an unknown** message.
+Timer can be reset (timer will restart countdown from beginning) explicitly by the `Reset action` or when `Is consecutive start action timer reset allowed` option is enabled in addition to received `Reset actions` timer will be reset also every time a `Start action` is received. When `Reset timer on receival of unknown message` option is enabled the timer will be reset when it recieves an unknown* message.
 
 Timer can be paused and later continued. This applies to both looping and delay behaviour. Upon continuing it will count down the remaining duration.
 
 For debugging or just to get an overview of timer progress you can enable `Is running timer progress visible` option. This will show timer progress in percentage of the total duration in the nodes status area. 
 
-You can disable specific actions for node. For example disable Reset, Pause and Continue actions. Now when a node recieves any of the aforementioned actions it will treat them as unknown** messages.
+You can disable specific actions for node. For example disable Reset, Pause and Continue actions. Now when a node recieves any of the aforementioned actions it will treat them as unknown* messages.
 
 
 ## Example flow diagram
