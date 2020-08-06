@@ -1,8 +1,20 @@
 # ControlTimer
 
-A customizable Node-RED timer node which you use as a delay or as a loop. The timer can be interacted with by action strings (configurable) specified in received message action property (configurable).
+A customizable Node-RED timer node which offers both looping and delay behaviour. The timer can be interacted with by action messages. Timer can be started, reset, stopped, paused and continued. The timer has two outputs - the first one outputs the message when timer is triggered (delay expires or interval is triggered) and the second one outputs the message when the running timer is stopped or paused.
 
-The timer can be started and stopped. Timer can be reset (timer will restart countdown from beginning) explicitly by the `Reset action` or when `Is consecutive start action timer reset allowed` option is enabled in addition to received `Reset actions` timer will be reset also every time a `Start action` is received. Timer can be paused and later continued - it will count down the remaining duration.
+Timer can be reset (timer will restart countdown from beginning) explicitly by the `Reset action` or when `Is consecutive start action timer reset allowed` option is enabled in addition to received `Reset actions` timer will be reset also every time a `Start action` is received. When `Reset timer on receival of unknown message` option is enabled the timer will be reset when it recieves an unknown** message.
+
+Timer can be paused and later continued. This applies to both looping and delay behaviour. Upon continuing it will count down the remaining duration.
+
+For debugging or just to get an overview of timer progress you can enable `Is running timer progress visible` option. This will show timer progress in percentage of the total duration in the nodes status area. 
+
+You can disable specific actions for node. For example disable Reset, Pause and Continue actions. Now when a node recieves any of the aforementioned actions it will treat them as unknown** messages.
+
+
+## Example flow diagram
+See the flow JSON after Configuration section to test it out yourself.
+
+![controltimer example flow](img/example-flow.png?raw=true)
 
 ## Installation
  
@@ -42,9 +54,7 @@ Change directory to your node red installation:
 
 ![controltimer state diagram](img/state-diagram.png?raw=true)
 
-## Example
-
-![controltimer example flow](img/example-flow.png?raw=true)
+## Example flow
 
 ```json
 [
@@ -305,5 +315,11 @@ Change directory to your node red installation:
     }
 ]
 ```
+
+## TODO
+* Timeout for looping behaviour after which the timer is stopped.
+* Max loops for looping behaviour after which timer is stopped.
+* Allow configuring timer type (loop or delay) and duration (amount and unit) via received message.
+* Improve the node configuration view.
 
 <a target="_blank" href="https://icons8.com/icons/set/future">Future icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
