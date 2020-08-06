@@ -29,24 +29,31 @@ Change directory to your node red installation:
 | `Timer type` | Defines the timer behaviour. Available options are `Delay` and `Loop`. | `Delay`
 | `Timer duration unit` | Defines the timer duration unit. Available options are `Milliseconds`, `Seconds`, `Minutes` and `Hours`. | `Seconds`
 | `Timer duration` | Defines the timer duration in specified (`Timer duration unit`) units. | `5`
+| `Loop timeout unit` | Defines timer loop timeout unit. Available options are `Milliseconds`, `Seconds`, `Minutes` and `Hours`. | `Seconds`
+| `Loop timeout` | Defines the timer loop timeout in specified (`Loop timeout unit`) units. `0` means no timeout. | `0`
+| `Loop timeout message` | Defines message that is emitted via `timer-halted` output upon timeout. | `LOOP_TIMEOUT`
+| `Loop max iterations` | Defines timer loop max iterations limit. `0` means no limit. | `0`
+| `Loop max iterations message` | Defines message that is emitted via `timer-halted` output upon max iterations are reached. | `MAX_LOOP_ITERATIONS`
 | `Is consecutive start action timer reset allowed` | If `true` it will reset the timer when it receives a `Start action`. | `false`
 | `Is running timer progress visible` | If `true` it will display the timer's progress in node's status area as percentages. A good option for debugging long running tasks. | `false`
 | `Output received message on timer trigger` | If `true` it will emit the message the node received when timer triggers. If `false` it will emit an empty message. | `true`
 | `Output received message on timer halt` | If `true` it will emit the message the node received when timer is halted. If `false` it will emit an empty message. | `true`
 | `Start timer on receival of unknown message` | If `true` node will start the timer upon receival of unknown* message | `false`
 | `Reset timer on receival of unknown message` | If `true` node will reset the timer upon receival of unknown* message | `false`
+| `Is debug mode enabled` | If `true` node will log errors into debug console | `false`
+| `Timer triggered message` | Defines message that is emitted via `timer-triggered` output when timer is triggered and if `Output received message on timer trigger` is not enabled. | `TIMER_TRIGGERED`
+| `Timer triggered message` | Defines message that is emitted via `timer-halted` output when timer is halted and if `Output received message on timer halt` is not enabled. | `TIMER_HALTED`
 | `Is start action enabled` | If `true` node is permitted to receive Start actions | `true`
-| `Is reset action enabled` | If `true` node is permitted to receive Reset actions | `true`
 | `Is stop action enabled` | If `true` node is permitted to receive Stop actions | `true`
+| `Is reset action enabled` | If `true` node is permitted to receive Reset actions | `true`
 | `Is pause action enabled` | If `true` node is permitted to receive Pause actions | `true`
 | `Is continue action enabled` | If `true` node is permitted to receive Continue actions | `true`
-| `Is debug mode enabled` | If `true` node will log errors into debug console | `false`
 | `Action property name` | Defines the property on a received message on which the action string to interact with timer can be found. | `payload`
 | `Start action name` | Defines the action string that will START the timer. | `START`
+| `Stop action name` | Defines the action string that will STOP the timer. | `STOP`
 | `Reset action name`  | Defines the action string that will RESET the timer. | `RESET`
 | `Pause action name` | Defines the action string that will PAUSE the timer. | `PAUSE`
 | `Continue action name` | Defines the action string that will CONTINUE the paused timer. | `CONTINUE`
-| `Stop action name` | Defines the action string that will STOP the timer. | `STOP`
 
 **Unknown message is a message with a payload that's not in the set of defined and enabled action strings. Ex. message with no defined `Action property name` or a message with `Action property name` contents which doesn't match any of the enabled action names. Ex. if Pause action is received but it's disabled in the settings it's regarded as unknown message.*
 
@@ -317,9 +324,7 @@ Change directory to your node red installation:
 ```
 
 ## TODO
-* Timeout for looping behaviour after which the timer is stopped.
-* Max loops for looping behaviour after which timer is stopped.
 * Allow configuring timer type (loop or delay) and duration (amount and unit) via received message.
-* Improve the node configuration view.
+* ...
 
 <a target="_blank" href="https://icons8.com/icons/set/future">Future icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
