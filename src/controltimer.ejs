@@ -7,26 +7,47 @@
 			timerType: { value: '<%= defaults.timerType %>' },
 			timerDurationUnit: { value: '<%= defaults.timerDurationUnit %>' },
 			timerDurationType: { value: '<%= defaults.timerDurationType %>' },
-			timerDuration: { value: '<%= defaults.timerDuration %>', required: true, validate: RED.validators.typedInput('timerDurationType') },
+			timerDuration: { value: <%= defaults.timerDuration %>, required: true, validate: RED.validators.typedInput('timerDurationType') },
+
+			timerLoopTimeoutUnit: { value: '<%= defaults.timerLoopTimeoutUnit %>' },
+			timerLoopTimeoutType: { value: '<%= defaults.timerLoopTimeoutType %>' },
+			timerLoopTimeout: { value: <%= defaults.timerLoopTimeout %>, required: true, validate: RED.validators.typedInput('timerLoopTimeoutType') },
+			loopTimeoutMessageType: { value: '<%= defaults.loopTimeoutMessageType %>' },
+			loopTimeoutMessage: { value: '<%= defaults.loopTimeoutMessage %>', required: true, validate: RED.validators.typedInput('loopTimeoutMessageType') },
+            timerMaxLoopIterationsType: { value: '<%= defaults.timerMaxLoopIterationsType %>' },
+			timerMaxLoopIterations: { value: <%= defaults.timerMaxLoopIterations %>, required: true, validate: RED.validators.typedInput('timerMaxLoopIterationsType') },
+			loopMaxIterationsMessageType: { value: '<%= defaults.loopMaxIterationsMessageType %>' },
+			loopMaxIterationsMessage: { value: '<%= defaults.loopMaxIterationsMessage %>', required: true, validate: RED.validators.typedInput('loopMaxIterationsMessageType') },
+
 			isConsecutiveStartActionTimerResetAllowed: { value: <%= defaults.isConsecutiveStartActionTimerResetAllowed %> },
 			isRunningTimerProgressVisible: { value: <%= defaults.isRunningTimerProgressVisible %> },
 			outputReceivedMessageOnTimerTrigger: { value: <%= defaults.outputReceivedMessageOnTimerTrigger %> },
 			outputReceivedMessageOnTimerHalt: { value: <%= defaults.outputReceivedMessageOnTimerHalt %> },
 			startTimerOnReceivalOfUnknownMessage: { value: <%= defaults.startTimerOnReceivalOfUnknownMessage %> },
 			resetTimerOnReceivalOfUnknownMessage: { value: <%= defaults.resetTimerOnReceivalOfUnknownMessage %> },
-			isStartActionEnabled: { value: <%= defaults.isStartActionEnabled %> },
-			isResetActionEnabled: { value: <%= defaults.isResetActionEnabled %> },
+			isDebugModeEnabled: { value: <%= defaults.isDebugModeEnabled %> },
+			timerTriggeredMessageType: { value: '<%= defaults.timerTriggeredMessageType %>' },
+			timerTriggeredMessage: { value: '<%= defaults.timerTriggeredMessage %>', required: true, validate: RED.validators.typedInput('timerTriggeredMessageType') },
+			timerHaltedMessageType: { value: '<%= defaults.timerHaltedMessageType %>' },
+			timerHaltedMessage: { value: '<%= defaults.timerHaltedMessage %>', required: true, validate: RED.validators.typedInput('timerHaltedMessageType') },
+
+            isStartActionEnabled: { value: <%= defaults.isStartActionEnabled %> },
 			isStopActionEnabled: { value: <%= defaults.isStopActionEnabled %> },
+			isResetActionEnabled: { value: <%= defaults.isResetActionEnabled %> },
 			isPauseActionEnabled: { value: <%= defaults.isPauseActionEnabled %> },
 			isContinueActionEnabled: { value: <%= defaults.isContinueActionEnabled %> },
-			isDebugModeEnabled: { value: <%= defaults.isDebugModeEnabled %> },
 			actionPropertyNameType: { value: '<%= defaults.actionPropertyNameType %>' },
 			actionPropertyName: { value: '<%= defaults.actionPropertyName %>', required: true, validate: RED.validators.typedInput('actionPropertyNameType') },
-			startActionName: { value: '<%= defaults.startActionName %>', required: true, validate: RED.validators.regex(/[a-zA-Z]+/) },
-			resetActionName: { value: '<%= defaults.resetActionName %>', required: true, validate: RED.validators.regex(/[a-zA-Z]+/) },
-			pauseActionName: { value: '<%= defaults.pauseActionName %>', required: true, validate: RED.validators.regex(/[a-zA-Z]+/) },
-			continueActionName: { value: '<%= defaults.continueActionName %>', required: true, validate: RED.validators.regex(/[a-zA-Z]+/) },
-			stopActionName: { value: '<%= defaults.stopActionName %>', required: true, validate: RED.validators.regex(/[a-zA-Z]+/) },
+			startActionNameType: { value: '<%= defaults.startActionNameType %>' },
+			startActionName: { value: '<%= defaults.startActionName %>', required: true, validate: RED.validators.typedInput('startActionNameType') },
+			stopActionNameType: { value: '<%= defaults.stopActionNameType %>' },
+			stopActionName: { value: '<%= defaults.stopActionName %>', required: true, validate: RED.validators.typedInput('stopActionNameType') },
+			resetActionNameType: { value: '<%= defaults.resetActionNameType %>' },
+			resetActionName: { value: '<%= defaults.resetActionName %>', required: true, validate: RED.validators.typedInput('resetActionNameType') },
+			pauseActionNameType: { value: '<%= defaults.pauseActionNameType %>' },
+			pauseActionName: { value: '<%= defaults.pauseActionName %>', required: true, validate: RED.validators.typedInput('pauseActionNameType') },
+			continueActionNameType: { value: '<%= defaults.continueActionNameType %>' },
+			continueActionName: { value: '<%= defaults.continueActionName %>', required: true, validate: RED.validators.typedInput('continueActionNameType') },
 		},
 		inputs: 1,
 		outputs: 2,
@@ -39,111 +60,322 @@
         },
         outputLabels: ['timer-triggered', 'timer-halted'],
         oneditprepare: function () {
-            // Initialize "timerType" select element
-            this.timerType = Boolean(this.timerType) ? this.timerType : '<%= defaults.timerType %>';
-            $('#node-input-timerType').val(this.timerType);
+			const that = this;
+			const elementDefaults = <%- JSON.stringify(defaults, null, 4) %>;
 
-            // Initialize "timerDurationUnit" select element
-            this.timerDurationUnit = Boolean(this.timerDurationUnit) ? this.timerDurationUnit : '<%= defaults.timerDurationUnit %>';
-            $('#node-input-timerDurationUnit').val(this.timerDurationUnit);
+			function initializeNodeRedTypedTextInput(valuePropertyName, availableTypes = []) {
+				const valueTypePropertyName = `${valuePropertyName}Type`;
+				that[valueTypePropertyName] = that[valueTypePropertyName] === null || that[valueTypePropertyName] === undefined ? elementDefaults[valueTypePropertyName] : that[valueTypePropertyName];
+				that[valuePropertyName] = that[valuePropertyName] === null || that[valuePropertyName] === undefined ? elementDefaults[valuePropertyName] : that[valuePropertyName];
 
-            // Initialize "timerDurationType" and "timerDuration" elements
-            this.timerDurationType = Boolean(this.timerDurationType) ? this.timerDurationType : '<%= defaults.timerDurationType %>';
-            this.timerDuration = Boolean(this.timerDuration) ? this.timerDuration : '<%= defaults.timerDuration %>';
+				const valuePropertyElement = $(`#node-input-${valuePropertyName}`);
+				const valueTypePropertyElement = $(`#node-input-${valueTypePropertyName}`);
 
-            $('#node-input-timerDuration').typedInput({
-                default: '<%= defaults.timerDuration %>',
-                typeField: $('#node-input-timerDurationType'),
-                types: ['num'],
+				valuePropertyElement.val(that[valuePropertyName]);
+				valueTypePropertyElement.val(that[valueTypePropertyName]);
+
+				valuePropertyElement.typedInput({
+					type: elementDefaults[valueTypePropertyName],
+					typeField: valueTypePropertyElement,
+					types: availableTypes,
+				});
+
+				valuePropertyElement.typedInput('type', that[valueTypePropertyName]);
+			}
+
+			function initializeNodeRedCheckbox(valuePropertyName) {
+				that[valuePropertyName] = typeof that[valuePropertyName] === 'boolean' ? that[valuePropertyName] : elementDefaults[valuePropertyName]
+				$(`#node-input-${valuePropertyName}`).prop('checked', that[valuePropertyName]);
+			}
+
+			function initializeNodeRedSelect(valuePropertyName) {
+				that[valuePropertyName] = that[valuePropertyName] === null || that[valuePropertyName] === undefined ? elementDefaults[valuePropertyName] : that[valuePropertyName];
+				$(`#node-input-${valuePropertyName}`).val(that[valuePropertyName]);
+			}
+
+			function initializeAccordion() {
+				$('.controltimer-settings-accordion').each((index, element) => {
+					const accordionPanel = $(element).next();
+					const statusSpan = $(element).children('span.status');
+
+					if ($(element).hasClass('controltimer-settings-accordion-active')) {
+						accordionPanel.css('max-height', `${accordionPanel.prop('scrollHeight')}px`);
+						statusSpan.text('(Click to hide)');
+                    } else {
+						statusSpan.text('(Click to show)');
+                    }
+
+					$(element).on('click', function() {
+						$(element).toggleClass('controltimer-settings-accordion-active');
+
+                        if (accordionPanel.css('max-height') !== '0px') {
+							accordionPanel.css('max-height', '0px');
+							statusSpan.text('(Click to show)');
+                        } else {
+							accordionPanel.css('max-height', `${accordionPanel.prop('scrollHeight')}px`);
+							statusSpan.text('(Click to hide)');
+                        }
+					});
+                })
+            }
+
+            function initializeInputs() {
+				// ####################################
+				// ### General Controltimer Options ###
+				// ####################################
+
+				initializeNodeRedSelect('timerType');
+				initializeNodeRedSelect('timerDurationUnit');
+				initializeNodeRedTypedTextInput('timerDuration', ['num']);
+
+				// #################################
+				// ### Controltimer Loop Options ###
+				// #################################
+
+				initializeNodeRedSelect('timerLoopTimeoutUnit');
+				initializeNodeRedTypedTextInput('timerLoopTimeout', ['num']);
+				initializeNodeRedTypedTextInput('loopTimeoutMessage', ['str']);
+				initializeNodeRedTypedTextInput('timerMaxLoopIterations', ['num']);
+				initializeNodeRedTypedTextInput('loopMaxIterationsMessage', ['str']);
+
+				// #####################################
+				// ### Advanced Controltimer Options ###
+				// #####################################
+
+				initializeNodeRedCheckbox('isConsecutiveStartActionTimerResetAllowed');
+				initializeNodeRedCheckbox('isRunningTimerProgressVisible');
+				initializeNodeRedCheckbox('outputReceivedMessageOnTimerTrigger');
+				initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
+				initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
+				initializeNodeRedCheckbox('startTimerOnReceivalOfUnknownMessage');
+				initializeNodeRedCheckbox('resetTimerOnReceivalOfUnknownMessage');
+				initializeNodeRedCheckbox('isDebugModeEnabled');
+				initializeNodeRedTypedTextInput('timerTriggeredMessage', ['str', 'num']);
+				initializeNodeRedTypedTextInput('timerHaltedMessage', ['str', 'num']);
+
+				// ####################################
+				// ### Controltimer Actions Options ###
+				// ####################################
+
+				initializeNodeRedCheckbox('isStartActionEnabled');
+				initializeNodeRedCheckbox('isStopActionEnabled');
+				initializeNodeRedCheckbox('isResetActionEnabled');
+				initializeNodeRedCheckbox('isPauseActionEnabled');
+				initializeNodeRedCheckbox('isContinueActionEnabled');
+				initializeNodeRedTypedTextInput('actionPropertyName', ['str']);
+				initializeNodeRedTypedTextInput('startActionName', ['str']);
+				initializeNodeRedTypedTextInput('stopActionName', ['str']);
+				initializeNodeRedTypedTextInput('resetActionName', ['str']);
+				initializeNodeRedTypedTextInput('pauseActionName', ['str']);
+				initializeNodeRedTypedTextInput('continueActionName', ['str']);
+            }
+
+			initializeInputs();
+			initializeAccordion();
+
+			$('#node-input-timerType').change(() => {
+				const selectedTimerType = $('#node-input-timerType').val();
+
+				if (selectedTimerType === '<%= TIMER_TYPE.LOOP %>') {
+					$('.loop-options').show();
+                }
+
+				if (selectedTimerType === '<%= TIMER_TYPE.DELAY %>') {
+					$('.loop-options').hide();
+				}
+			});
+
+			$('#reset-to-default').on('click', () => {
+				this.timerType = elementDefaults.timerType;
+				this.timerDurationUnit = elementDefaults.timerDurationUnit;
+				this.timerDurationType = elementDefaults.timerDurationType;
+				this.timerDuration = elementDefaults.timerDuration;
+
+				this.timerLoopTimeoutUnit = elementDefaults.timerLoopTimeoutUnit;
+				this.timerLoopTimeoutType = elementDefaults.timerLoopTimeoutType;
+				this.timerLoopTimeout = elementDefaults.timerLoopTimeout;
+				this.loopTimeoutMessageType = elementDefaults.loopTimeoutMessageType;
+				this.loopTimeoutMessage = elementDefaults.loopTimeoutMessage;
+				this.timerMaxLoopIterationsType = elementDefaults.timerMaxLoopIterationsType;
+				this.timerMaxLoopIterations = elementDefaults.timerMaxLoopIterations;
+				this.loopMaxIterationsMessageType = elementDefaults.loopMaxIterationsMessageType;
+				this.loopMaxIterationsMessage = elementDefaults.loopMaxIterationsMessage;
+
+				this.isConsecutiveStartActionTimerResetAllowed = elementDefaults.isConsecutiveStartActionTimerResetAllowed;
+				this.isRunningTimerProgressVisible = elementDefaults.isRunningTimerProgressVisible;
+				this.outputReceivedMessageOnTimerTrigger = elementDefaults.outputReceivedMessageOnTimerTrigger;
+				this.outputReceivedMessageOnTimerHalt = elementDefaults.outputReceivedMessageOnTimerHalt;
+				this.startTimerOnReceivalOfUnknownMessage = elementDefaults.startTimerOnReceivalOfUnknownMessage;
+				this.resetTimerOnReceivalOfUnknownMessage = elementDefaults.resetTimerOnReceivalOfUnknownMessage;
+				this.isDebugModeEnabled = elementDefaults.isDebugModeEnabled;
+				this.timerTriggeredMessageType = elementDefaults.timerTriggeredMessageType;
+				this.timerTriggeredMessage = elementDefaults.timerTriggeredMessage;
+				this.timerHaltedMessageType = elementDefaults.timerHaltedMessageType;
+				this.timerHaltedMessage = elementDefaults.timerHaltedMessage;
+
+				this.isStartActionEnabled = elementDefaults.isStartActionEnabled;
+				this.isResetActionEnabled = elementDefaults.isResetActionEnabled;
+				this.isStopActionEnabled = elementDefaults.isStopActionEnabled;
+				this.isPauseActionEnabled = elementDefaults.isPauseActionEnabled;
+				this.isContinueActionEnabled = elementDefaults.isContinueActionEnabled;
+				this.actionPropertyNameType = elementDefaults.actionPropertyNameType;
+				this.actionPropertyName = elementDefaults.actionPropertyName;
+				this.startActionNameType =elementDefaults.startActionNameType;
+				this.startActionName = elementDefaults.startActionName;
+				this.stopActionNameType = elementDefaults.stopActionNameType;
+				this.stopActionName = elementDefaults.stopActionName;
+				this.resetActionNameType = elementDefaults.resetActionNameType;
+				this.resetActionName = elementDefaults.resetActionName;
+				this.pauseActionNameType = elementDefaults.pauseActionNameType;
+				this.pauseActionName = elementDefaults.pauseActionName;
+				this.continueActionNameType = elementDefaults.continueActionNameType;
+				this.continueActionName = elementDefaults.continueActionName;
+
+				initializeInputs();
             });
-
-            $('#node-input-timerDuration').typedInput('type', this.timerDurationType);
-            $('#node-input-timerDuration').val(this.timerDuration);
-            $('#node-input-timerDurationType').val(this.timerDurationType);
-
-			// Initialize "isConsecutiveStartActionTimerResetAllowed" checkbox
-			$('#node-input-isConsecutiveStartActionTimerResetAllowed').prop('checked', typeof this.isConsecutiveStartActionTimerResetAllowed === 'boolean' ? this.isConsecutiveStartActionTimerResetAllowed : defaults.isConsecutiveStartActionTimerResetAllowed);
-
-			// Initialize "isRunningTimerProgressVisible" checkbox
-			$('#node-input-isRunningTimerProgressVisible').prop('checked', typeof this.isRunningTimerProgressVisible === 'boolean' ? this.isRunningTimerProgressVisible : defaults.isRunningTimerProgressVisible);
-
-			// Initialize "outputReceivedMessageOnTimerTrigger" checkbox
-			$('#node-input-outputReceivedMessageOnTimerTrigger').prop('checked', typeof this.outputReceivedMessageOnTimerTrigger === 'boolean' ? this.outputReceivedMessageOnTimerTrigger : defaults.outputReceivedMessageOnTimerTrigger);
-
-			// Initialize "outputReceivedMessageOnTimerHalt" checkbox
-			$('#node-input-outputReceivedMessageOnTimerHalt').prop('checked', typeof this.outputReceivedMessageOnTimerHalt === 'boolean' ? this.outputReceivedMessageOnTimerHalt : defaults.outputReceivedMessageOnTimerHalt);
-
-			// Initialize "outputReceivedMessageOnTimerHalt" checkbox
-			$('#node-input-outputReceivedMessageOnTimerHalt').prop('checked', typeof this.outputReceivedMessageOnTimerHalt === 'boolean' ? this.outputReceivedMessageOnTimerHalt : defaults.outputReceivedMessageOnTimerHalt);
-
-			// Initialize "startTimerOnReceivalOfUnknownMessage" checkbox
-			$('#node-input-startTimerOnReceivalOfUnknownMessage').prop('checked', typeof this.startTimerOnReceivalOfUnknownMessage === 'boolean' ? this.startTimerOnReceivalOfUnknownMessage : defaults.startTimerOnReceivalOfUnknownMessage);
-
-			// Initialize "resetTimerOnReceivalOfUnknownMessage" checkbox
-			$('#node-input-resetTimerOnReceivalOfUnknownMessage').prop('checked', typeof this.resetTimerOnReceivalOfUnknownMessage === 'boolean' ? this.resetTimerOnReceivalOfUnknownMessage : defaults.resetTimerOnReceivalOfUnknownMessage);
-
-            // Initialize "isStartActionEnabled" checkbox
-			$('#node-input-isStartActionEnabled').prop('checked', typeof this.isStartActionEnabled === 'boolean' ? this.isStartActionEnabled : defaults.isStartActionEnabled);
-
-			// Initialize "isResetActionEnabled" checkbox
-			$('#node-input-isResetActionEnabled').prop('checked', typeof this.isResetActionEnabled === 'boolean' ? this.isResetActionEnabled : defaults.isResetActionEnabled);
-
-			// Initialize "isStopActionEnabled" checkbox
-			$('#node-input-isStopActionEnabled').prop('checked', typeof this.isStopActionEnabled === 'boolean' ? this.isStopActionEnabled : defaults.isStopActionEnabled);
-
-			// Initialize "isPauseActionEnabled" checkbox
-			$('#node-input-isPauseActionEnabled').prop('checked', typeof this.isPauseActionEnabled === 'boolean' ? this.isPauseActionEnabled : defaults.isPauseActionEnabled);
-
-			// Initialize "isContinueActionEnabled" checkbox
-			$('#node-input-isContinueActionEnabled').prop('checked', typeof this.isContinueActionEnabled === 'boolean' ? this.isContinueActionEnabled : defaults.isContinueActionEnabled);
-
-			// Initialize "isDebugModeEnabled" checkbox
-			$('#node-input-isDebugModeEnabled').prop('checked', typeof this.isDebugModeEnabled === 'boolean' ? this.isDebugModeEnabled : defaults.isDebugModeEnabled);
-
-			// Initialize "actionPropertyNameType" and "actionPropertyName" elements
-            this.actionPropertyNameType = Boolean(this.actionPropertyNameType) ? this.actionPropertyNameType : '<%= defaults.actionPropertyNameType %>';
-            this.actionPropertyName = Boolean(this.actionPropertyName) ? this.actionPropertyName : '<%= defaults.actionPropertyName %>';
-
-            $('#node-input-actionPropertyName').typedInput({
-                type: '<%= defaults.actionPropertyNameType %>',
-                typeField: $('#node-input-actionPropertyNameType'),
-                types: ['msg', 'flow', 'global'],
-            });
-
-            $('#node-input-actionPropertyName').typedInput('type', this.actionPropertyNameType);
-            $('#node-input-actionPropertyName').val(this.actionPropertyName);
-            $('#node-input-actionPropertyNameType').val(this.actionPropertyNameType);
         },
         oneditsave: function () {
+			function getAndEnsurePositiveInteger(jqueryElement) {
+				const integer = parseInt(jqueryElement.val(), 10) || 0;
+				const positiveInteger = Math.max(0, integer);
+				jqueryElement.val(positiveInteger);
+				return positiveInteger;
+            }
+
+            function getAndEnsurePositiveNonNullInteger(jqueryElement, defaultValue) {
+				const integer = parseInt(jqueryElement.val(), 10) || 0;
+				const positiveNonNullInteger = Math.max(0, integer) === 0 ? defaultValue : Math.max(0, integer);
+				jqueryElement.val(positiveNonNullInteger);
+				return positiveNonNullInteger;
+            }
+
             this.timerType = $('#node-input-timerType').val();
             this.timerDurationUnit = $('#node-input-timerDurationUnit').val();
             this.timerDurationType = $('#node-input-timerDurationType').val();
-            this.timerDuration = $('#node-input-timerDuration').val();
+            this.timerDuration = getAndEnsurePositiveNonNullInteger($('#node-input-timerDuration'), <%= defaults.timerDuration %>);
+
+			this.timerLoopTimeoutUnit = $('#node-input-timerLoopTimeoutUnit').val();
+			this.timerLoopTimeoutType = $('#node-input-timerLoopTimeoutType').val();
+			this.timerLoopTimeout = getAndEnsurePositiveInteger($('#node-input-timerLoopTimeout'));
+			this.loopTimeoutMessageType = $('#node-input-loopTimeoutMessageType').val();
+			this.loopTimeoutMessage = $('#node-input-loopTimeoutMessage').val();
+			this.timerMaxLoopIterationsType = $('#node-input-timerMaxLoopIterationsType').val();
+			this.timerMaxLoopIterations = getAndEnsurePositiveInteger($('#node-input-timerMaxLoopIterations'));
+			this.loopMaxIterationsMessageType = $('#node-input-loopMaxIterationsMessageType').val();
+			this.loopMaxIterationsMessage = $('#node-input-loopMaxIterationsMessage').val();
+
 			this.isConsecutiveStartActionTimerResetAllowed = $('#node-input-isConsecutiveStartActionTimerResetAllowed').is(":checked");
 			this.isRunningTimerProgressVisible = $('#node-input-isRunningTimerProgressVisible').is(":checked");
-			this.outputReceivedMessageOnTimerTrigger = $('#node-input-node-input-outputReceivedMessageOnTimerTrigger').is(":checked");
+			this.outputReceivedMessageOnTimerTrigger = $('#node-input-outputReceivedMessageOnTimerTrigger').is(":checked");
 			this.outputReceivedMessageOnTimerHalt = $('#node-input-outputReceivedMessageOnTimerHalt').is(":checked");
 			this.startTimerOnReceivalOfUnknownMessage = $('#node-input-startTimerOnReceivalOfUnknownMessage').is(":checked");
 			this.resetTimerOnReceivalOfUnknownMessage = $('#node-input-resetTimerOnReceivalOfUnknownMessage').is(":checked");
+			this.isDebugModeEnabled = $('#node-input-isDebugModeEnabled').is(":checked");
+			this.timerTriggeredMessageType = $('#node-input-timerTriggeredMessageType').val();
+			this.timerTriggeredMessage = $('#node-input-timerTriggeredMessage').val();
+			this.timerHaltedMessageType = $('#node-input-timerHaltedMessageType').val();
+			this.timerHaltedMessage = $('#node-input-timerHaltedMessage').val();
+
 			this.isStartActionEnabled = $('#node-input-isStartActionEnabled').is(":checked");
 			this.isResetActionEnabled = $('#node-input-isResetActionEnabled').is(":checked");
 			this.isStopActionEnabled = $('#node-input-isStopActionEnabled').is(":checked");
 			this.isPauseActionEnabled = $('#node-input-isPauseActionEnabled').is(":checked");
 			this.isContinueActionEnabled = $('#node-input-isContinueActionEnabled').is(":checked");
-			this.isDebugModeEnabled = $('#node-input-isDebugModeEnabled').is(":checked");
             this.actionPropertyNameType = $('#node-input-actionPropertyNameType').val();
             this.actionPropertyName = $('#node-input-actionPropertyName').val();
+			this.startActionNameType = $('#node-input-startActionNameType').val();
+			this.startActionName = $('#node-input-startActionName').val();
+			this.stopActionNameType = $('#node-input-stopActionNameType').val();
+			this.stopActionName = $('#node-input-stopActionName').val();
+			this.resetActionNameType = $('#node-input-resetActionNameType').val();
+			this.resetActionName = $('#node-input-resetActionName').val();
+			this.pauseActionNameType = $('#node-input-pauseActionNameType').val();
+			this.pauseActionName = $('#node-input-pauseActionName').val();
+			this.continueActionNameType = $('#node-input-continueActionNameType').val();
+			this.continueActionName = $('#node-input-continueActionName').val();
         },
     });
 </script>
 
 <script type="text/html" data-template-name="<%= nodeName %>">
-    <div class="form-row">
+    <style>
+        .controltimer-input-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .controltimer-input-row label {
+            display: flex !important;
+            width: auto !important;
+            flex-shrink: 0;
+            flex-grow: 1;
+            margin-bottom: 0;
+        }
+
+        .controltimer-input-row label i {
+            margin-right: 4px;
+        }
+
+        .controltimer-input-row-checkbox-wrapper {
+            display: flex !important;
+            width: 100px !important;
+            margin-left: auto;
+        }
+
+        .controltimer-input-row-checkbox-wrapper input[type="checkbox"] {
+            margin-top: 0;
+        }
+
+        .controltimer-input-row .red-ui-typedInput-container {
+            width: 220px !important;
+        }
+
+        .controltimer-input-row select {
+            width: 220px !important;
+        }
+
+        /* ################ */
+        /* ## Accordions ## */
+        /* ################ */
+
+        .controltimer-settings-accordion {
+            background-color: #eee;
+            color: #444;
+            cursor: pointer;
+            padding: 5px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            transition: 0.4s;
+        }
+
+        .controltimer-settings-accordion-active, .controltimer-settings-accordion:hover {
+            background-color: #ccc;
+        }
+
+        .controltimer-settings-accordion-panel {
+            padding: 5px 5px 0 5px;
+            background-color: white;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+        }
+    </style>
+
+
+
+    <!-- #################################### -->
+    <!-- ### General Controltimer Options ### -->
+    <!-- #################################### -->
+
+    <div class="form-row controltimer-input-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <input type="text" id="node-input-name" placeholder="Name" style="width: 300px;">
     </div>
 
-    <div class="form-row">
+    <div class="form-row controltimer-input-row">
         <label for="node-input-timerType"><i class="fa fa-tag"></i> Timer type</label>
         <select id="node-input-timerType">
             <option value="<%= TIMER_TYPE.DELAY %>">Delay</option>
@@ -151,111 +383,220 @@
         </select>
     </div>
 
-    <div class="form-row">
+    <div class="form-row controltimer-input-row">
         <label for="node-input-timerDurationUnit"><i class="fa fa-tag"></i> Timer duration unit</label>
         <select id="node-input-timerDurationUnit">
-            <option value="<%= TimerDurationUnit.MILLISECOND %>">Milliseconds</option>
-            <option value="<%= TimerDurationUnit.SECOND %>">Seconds</option>
-            <option value="<%= TimerDurationUnit.MINUTE %>">Minutes</option>
-            <option value="<%= TimerDurationUnit.HOUR %>">Hours</option>
+            <option value="<%= DurationUnit.MILLISECOND %>">Milliseconds</option>
+            <option value="<%= DurationUnit.SECOND %>">Seconds</option>
+            <option value="<%= DurationUnit.MINUTE %>">Minutes</option>
+            <option value="<%= DurationUnit.HOUR %>">Hours</option>
         </select>
     </div>
 
-    <div class="form-row">
+    <div class="form-row controltimer-input-row">
         <label for="node-input-timerDuration"><i class="fa fa-tag"></i> Timer duration</label>
         <input type="hidden" id="node-input-timerDurationType">
         <input type="text" id="node-input-timerDuration" placeholder="Timer duration">
     </div>
 
-    <div class="form-row">
-        <label for="node-input-isConsecutiveStartActionTimerResetAllowed"><i class="fa fa-tag"></i> Is consecutive start action timer reset allowed</label>
-        <input type="checkbox" id="node-input-isConsecutiveStartActionTimerResetAllowed">
+
+
+    <!-- ################################# -->
+    <!-- ### Controltimer Loop Options ### -->
+    <!-- ################################# -->
+
+    <button class="controltimer-settings-accordion controltimer-settings-accordion-active loop-options"><i class="fa fa-cog"></i> Loop options <span class="status"></span></button>
+
+    <div class="controltimer-settings-accordion-panel loop-options">
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-timerLoopTimeoutUnit"><i class="fa fa-tag"></i> Loop timeout unit</label>
+            <select id="node-input-timerLoopTimeoutUnit">
+                <option value="<%= DurationUnit.MILLISECOND %>">Milliseconds</option>
+                <option value="<%= DurationUnit.SECOND %>">Seconds</option>
+                <option value="<%= DurationUnit.MINUTE %>">Minutes</option>
+                <option value="<%= DurationUnit.HOUR %>">Hours</option>
+            </select>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-timerLoopTimeout"><i class="fa fa-tag"></i> Loop timeout</label>
+            <input type="hidden" id="node-input-timerLoopTimeoutType">
+            <input type="text" id="node-input-timerLoopTimeout" placeholder="Loop timeout">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-loopTimeoutMessage"><i class="fa fa-tag"></i> Loop timeout message</label>
+            <input type="hidden" id="node-input-loopTimeoutMessageType">
+            <input type="text" id="node-input-loopTimeoutMessage" placeholder="Loop timeout message">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-timerMaxLoopIterations"><i class="fa fa-tag"></i> Loop max iterations</label>
+            <input type="hidden" id="node-input-timerMaxLoopIterationsType">
+            <input type="text" id="node-input-timerMaxLoopIterations" placeholder="Loop max iterations">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-loopMaxIterationsMessage"><i class="fa fa-tag"></i> Loop max iterations message</label>
+            <input type="hidden" id="node-input-loopMaxIterationsMessageType">
+            <input type="text" id="node-input-loopMaxIterationsMessage" placeholder="Loop max iterations message">
+        </div>
     </div>
 
-    <div class="form-row">
-        <label for="node-input-isRunningTimerProgressVisible"><i class="fa fa-tag"></i> Is running timer progress visible</label>
-        <input type="checkbox" id="node-input-isRunningTimerProgressVisible">
+
+
+    <!-- ##################################### -->
+    <!-- ### Advanced Controltimer Options ### -->
+    <!-- ##################################### -->
+
+    <button class="controltimer-settings-accordion controltimer-settings-accordion-active"><i class="fa fa-cog"></i> Advanced options <span class="status"></span></button>
+
+    <div class="controltimer-settings-accordion-panel">
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-isConsecutiveStartActionTimerResetAllowed"><i class="fa fa-tag"></i> Is consecutive start action timer reset allowed</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-isConsecutiveStartActionTimerResetAllowed">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-isRunningTimerProgressVisible"><i class="fa fa-tag"></i> Is running timer progress visible</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-isRunningTimerProgressVisible">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-outputReceivedMessageOnTimerTrigger"><i class="fa fa-tag"></i> Output received message on timer trigger</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-outputReceivedMessageOnTimerTrigger">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-outputReceivedMessageOnTimerHalt"><i class="fa fa-tag"></i> Output received message on timer halt</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-outputReceivedMessageOnTimerHalt">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-startTimerOnReceivalOfUnknownMessage"><i class="fa fa-tag"></i> Start timer on receival of unknown message</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-startTimerOnReceivalOfUnknownMessage">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-resetTimerOnReceivalOfUnknownMessage"><i class="fa fa-tag"></i> Reset timer on receival of unknown message</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-resetTimerOnReceivalOfUnknownMessage">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-isDebugModeEnabled"><i class="fa fa-tag"></i> Is debug mode enabled</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-isDebugModeEnabled">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-timerTriggeredMessage"><i class="fa fa-tag"></i> Timer triggered message</label>
+            <input type="hidden" id="node-input-timerTriggeredMessageType">
+            <input type="text" id="node-input-timerTriggeredMessage" placeholder="Timer triggered message">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-timerHaltedMessage"><i class="fa fa-tag"></i> Timer halted message</label>
+            <input type="hidden" id="node-input-timerHaltedMessageType">
+            <input type="text" id="node-input-timerHaltedMessage" placeholder="Timer halted message">
+        </div>
     </div>
 
-    <div class="form-row">
-        <label for="node-input-outputReceivedMessageOnTimerTrigger"><i class="fa fa-tag"></i> Output received message on timer trigger</label>
-        <input type="checkbox" id="node-input-outputReceivedMessageOnTimerTrigger">
+
+
+    <!-- #################################### -->
+    <!-- ### Controltimer Actions Options ### -->
+    <!-- #################################### -->
+
+    <button class="controltimer-settings-accordion"><i class="fa fa-cog"></i> Action options <span class="status"></span></button>
+
+    <div class="controltimer-settings-accordion-panel">
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-isStartActionEnabled"><i class="fa fa-tag"></i> Is start action enabled</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-isStartActionEnabled">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-isStopActionEnabled"><i class="fa fa-tag"></i> Is stop action enabled</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-isStopActionEnabled">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-isResetActionEnabled"><i class="fa fa-tag"></i> Is reset action enabled</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-isResetActionEnabled">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-isPauseActionEnabled"><i class="fa fa-tag"></i> Is pause action enabled</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-isPauseActionEnabled">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-isContinueActionEnabled"><i class="fa fa-tag"></i> Is continue action enabled</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-isContinueActionEnabled">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-actionPropertyName"><i class="fa fa-tag"></i> Action property name</label>
+            <input type="hidden" id="node-input-actionPropertyNameType">
+            <input type="text" id="node-input-actionPropertyName" placeholder="Action property name">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-startActionName"><i class="fa fa-tag"></i> Start action name</label>
+            <input type="hidden" id="node-input-startActionNameType">
+            <input type="text" id="node-input-startActionName" placeholder="Start action name">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-stopActionName"><i class="fa fa-tag"></i> Stop action name</label>
+            <input type="hidden" id="node-input-stopActionNameType">
+            <input type="text" id="node-input-stopActionName" placeholder="Stop action name">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-resetActionName"><i class="fa fa-tag"></i> Reset action name</label>
+            <input type="hidden" id="node-input-resetActionNameType">
+            <input type="text" id="node-input-resetActionName" placeholder="Reset action name">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-pauseActionName"><i class="fa fa-tag"></i> Pause action name</label>
+            <input type="hidden" id="node-input-pauseActionNameType">
+            <input type="text" id="node-input-pauseActionName" placeholder="Pause action name">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-continueActionName"><i class="fa fa-tag"></i> Continue action name</label>
+            <input type="hidden" id="node-input-continueActionNameType">
+            <input type="text" id="node-input-continueActionName" placeholder="Continue action name">
+        </div>
     </div>
 
-    <div class="form-row">
-        <label for="node-input-outputReceivedMessageOnTimerHalt"><i class="fa fa-tag"></i> Output received message on timer halt</label>
-        <input type="checkbox" id="node-input-outputReceivedMessageOnTimerHalt">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-startTimerOnReceivalOfUnknownMessage"><i class="fa fa-tag"></i> Start timer on receival of unknown message</label>
-        <input type="checkbox" id="node-input-startTimerOnReceivalOfUnknownMessage">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-resetTimerOnReceivalOfUnknownMessage"><i class="fa fa-tag"></i> Reset timer on receival of unknown message</label>
-        <input type="checkbox" id="node-input-resetTimerOnReceivalOfUnknownMessage">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-isStartActionEnabled"><i class="fa fa-tag"></i> Is start action enabled</label>
-        <input type="checkbox" id="node-input-isStartActionEnabled">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-isResetActionEnabled"><i class="fa fa-tag"></i> Is reset action enabled</label>
-        <input type="checkbox" id="node-input-isResetActionEnabled">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-isStopActionEnabled"><i class="fa fa-tag"></i> Is stop action enabled</label>
-        <input type="checkbox" id="node-input-isStopActionEnabled">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-isPauseActionEnabled"><i class="fa fa-tag"></i> Is pause action enabled</label>
-        <input type="checkbox" id="node-input-isPauseActionEnabled">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-isContinueActionEnabled"><i class="fa fa-tag"></i> Is continue action enabled</label>
-        <input type="checkbox" id="node-input-isContinueActionEnabled">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-isDebugModeEnabled"><i class="fa fa-tag"></i> Is debug mode enabled</label>
-        <input type="checkbox" id="node-input-isDebugModeEnabled">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-actionPropertyName"><i class="fa fa-tag"></i> Action property name</label>
-        <input type="hidden" id="node-input-actionPropertyNameType">
-        <input type="text" id="node-input-actionPropertyName" placeholder="Action property name">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-startActionName"><i class="fa fa-tag"></i> Start action name</label>
-        <input type="text" id="node-input-startActionName" placeholder="Start action name">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-resetActionName"><i class="fa fa-tag"></i> Reset action name</label>
-        <input type="text" id="node-input-resetActionName" placeholder="Reset action name">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-pauseActionName"><i class="fa fa-tag"></i> Pause action name</label>
-        <input type="text" id="node-input-pauseActionName" placeholder="Pause action name">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-continueActionName"><i class="fa fa-tag"></i> Continue action name</label>
-        <input type="text" id="node-input-continueActionName" placeholder="Continue action name">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-stopActionName"><i class="fa fa-tag"></i> Stop action name</label>
-        <input type="text" id="node-input-stopActionName" placeholder="Stop action name">
+    <div class="form-row controltimer-input-row">
+        <button type="button" class="red-ui-button" id="reset-to-default">Reset to Default settings</button>
     </div>
 </script>
 
