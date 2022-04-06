@@ -15,8 +15,8 @@
         "rebuild": "echo '### Changes detected. Rebuilding... ###' && npm run delete-artifacts && npm run build && npm pack && npm run reinstall && echo '### Build done ###'",
         "delete-artifacts": "rimraf 'node-red-contrib-controltimer-*.tgz' && rimraf package",
         "copy-icons": "rsync -a src/icons/ dist/icons/",
-        "run-docker": "docker stop node-red-testing || true && docker rm node-red-testing || true && docker run -d --rm -p 1880:1880 -v ~/.node-red:/data --name node-red-testing nodered/node-red:1.1.0-12",
-        "reinstall": "cd ~/.node-red && npm uninstall --save node-red-contrib-controltimer && npm install --save ~/Projects/node-red-contrib-controltimer/node-red-contrib-controltimer-0.1.0.tgz && docker restart node-red-testing"
+        "run-docker": "docker stop node-red-testing || true && docker rm node-red-testing || true && docker run -d --rm -p 1880:1880 -v ~/.node-red:/data --name node-red-testing nodered/node-red:2.1.6-14",
+        "reinstall": "cd ~/.node-red && npm uninstall --save node-red-contrib-controltimer && npm install --save ~/GithubProjects/node-red-contrib-controltimer/node-red-contrib-controltimer-0.1.0.tgz && docker restart node-red-testing"
     },
     "repository": {
         "type": "git",
