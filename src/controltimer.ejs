@@ -5,6 +5,7 @@
 		defaults: {
 			name: { value: '<%= defaults.name %>', required: false },
 			timerType: { value: '<%= defaults.timerType %>' },
+
 			timerDurationUnit: { value: '<%= defaults.timerDurationUnit %>' },
 			timerDurationType: { value: '<%= defaults.timerDurationType %>' },
 			timerDuration: { value: <%= defaults.timerDuration %>, required: true, validate: RED.validators.typedInput('timerDurationType') },
@@ -12,7 +13,8 @@
 			timerLoopTimeoutUnit: { value: '<%= defaults.timerLoopTimeoutUnit %>' },
 			timerLoopTimeoutType: { value: '<%= defaults.timerLoopTimeoutType %>' },
 			timerLoopTimeout: { value: <%= defaults.timerLoopTimeout %>, required: true, validate: RED.validators.typedInput('timerLoopTimeoutType') },
-			loopTimeoutMessageType: { value: '<%= defaults.loopTimeoutMessageType %>' },
+
+            loopTimeoutMessageType: { value: '<%= defaults.loopTimeoutMessageType %>' },
 			loopTimeoutMessage: { value: '<%= defaults.loopTimeoutMessage %>', required: true, validate: RED.validators.typedInput('loopTimeoutMessageType') },
             timerMaxLoopIterationsType: { value: '<%= defaults.timerMaxLoopIterationsType %>' },
 			timerMaxLoopIterations: { value: <%= defaults.timerMaxLoopIterations %>, required: true, validate: RED.validators.typedInput('timerMaxLoopIterationsType') },
@@ -48,7 +50,7 @@
 			pauseActionName: { value: '<%= defaults.pauseActionName %>', required: true, validate: RED.validators.typedInput('pauseActionNameType') },
 			continueActionNameType: { value: '<%= defaults.continueActionNameType %>' },
 			continueActionName: { value: '<%= defaults.continueActionName %>', required: true, validate: RED.validators.typedInput('continueActionNameType') },
-		},
+        },
 		inputs: 1,
 		outputs: 2,
 		icon: "controltimer.png",
@@ -187,6 +189,7 @@
 
 			$('#reset-to-default').on('click', () => {
 				this.timerType = elementDefaults.timerType;
+
 				this.timerDurationUnit = elementDefaults.timerDurationUnit;
 				this.timerDurationType = elementDefaults.timerDurationType;
 				this.timerDuration = elementDefaults.timerDuration;
@@ -194,6 +197,7 @@
 				this.timerLoopTimeoutUnit = elementDefaults.timerLoopTimeoutUnit;
 				this.timerLoopTimeoutType = elementDefaults.timerLoopTimeoutType;
 				this.timerLoopTimeout = elementDefaults.timerLoopTimeout;
+
 				this.loopTimeoutMessageType = elementDefaults.loopTimeoutMessageType;
 				this.loopTimeoutMessage = elementDefaults.loopTimeoutMessage;
 				this.timerMaxLoopIterationsType = elementDefaults.timerMaxLoopIterationsType;
@@ -220,7 +224,7 @@
 				this.isContinueActionEnabled = elementDefaults.isContinueActionEnabled;
 				this.actionPropertyNameType = elementDefaults.actionPropertyNameType;
 				this.actionPropertyName = elementDefaults.actionPropertyName;
-				this.startActionNameType =elementDefaults.startActionNameType;
+				this.startActionNameType = elementDefaults.startActionNameType;
 				this.startActionName = elementDefaults.startActionName;
 				this.stopActionNameType = elementDefaults.stopActionNameType;
 				this.stopActionName = elementDefaults.stopActionName;
