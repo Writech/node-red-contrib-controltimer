@@ -36,6 +36,7 @@ export type ContinueActionNameType = 'str';
 export interface RawProps {
     name: string;
     timerType: TIMER_TYPE;
+
     timerDurationUnit: DurationUnit;
     timerDurationType: TimerDurationType;
     timerDuration: string;
@@ -43,6 +44,7 @@ export interface RawProps {
     timerLoopTimeoutUnit: DurationUnit;
     timerLoopTimeoutType: TimerLoopTimeoutType;
     timerLoopTimeout: string;
+
     loopTimeoutMessageType: LoopTimeoutMessageType;
     loopTimeoutMessage: string;
     timerMaxLoopIterationsType: TimerMaxLoopIterationsType;
@@ -84,6 +86,7 @@ export interface RawProps {
 export interface Props {
     name: string;
     timerType: TIMER_TYPE;
+
     timerDurationUnit: DurationUnit;
     timerDurationType: TimerDurationType;
     timerDuration: number;
@@ -91,6 +94,7 @@ export interface Props {
     timerLoopTimeoutUnit: DurationUnit;
     timerLoopTimeoutType: TimerLoopTimeoutType;
     timerLoopTimeout: number;
+
     loopTimeoutMessageType: LoopTimeoutMessageType;
     loopTimeoutMessage: string;
     timerMaxLoopIterationsType: TimerMaxLoopIterationsType;
@@ -131,13 +135,14 @@ export interface Props {
 
 export type NodeConfigRaw = NodeProperties & RawProps;
 export type NodeConfig = Node & Props;
-export type OutputMessage = [null | any, null | any];
+export type OutputMessage = [null | unknown, null | unknown];
 
 export const nodeName = 'controltimer';
 
 export const defaults: RawProps = {
     name: '',
     timerType: TIMER_TYPE.DELAY,
+
     timerDurationUnit: DurationUnit.SECOND,
     timerDurationType: 'num',
     timerDuration: '5',
@@ -145,6 +150,7 @@ export const defaults: RawProps = {
     timerLoopTimeoutUnit: DurationUnit.SECOND,
     timerLoopTimeoutType: 'num',
     timerLoopTimeout: '0',
+
     loopTimeoutMessageType: 'str',
     loopTimeoutMessage: 'LOOP_TIMEOUT',
     timerMaxLoopIterationsType: 'num',
@@ -181,4 +187,10 @@ export const defaults: RawProps = {
     pauseActionName: 'PAUSE',
     continueActionNameType: 'str',
     continueActionName: 'CONTINUE',
+};
+
+export const constants = {
+    timerTypeOverridePropertyName: 'timerType',
+    timerDurationOverridePropertyName: 'timerDuration',
+    timerDurationUnitOverridePropertyName: 'timerDurationUnit',
 };
