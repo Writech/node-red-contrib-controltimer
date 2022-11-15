@@ -1,5 +1,5 @@
 import { Red } from 'node-red';
-import { NodeConfig, NodeConfigRaw, defaults, nodeName, STATE, TIMER_TYPE, DurationUnit } from './helpers';
+import { NodeConfig, NodeConfigRaw, defaults, nodeName, STATE, TIMER_TYPE, DurationUnit, constants } from './helpers';
 
 module.exports = function (RED: Red) {
     RED.nodes.registerType(nodeName, function (config: NodeConfigRaw) {
@@ -14,6 +14,7 @@ module.exports = function (RED: Red) {
         }
 
         node.timerType = config.timerType || defaults.timerType;
+
         node.timerDurationUnit = config.timerDurationUnit || defaults.timerDurationUnit;
         node.timerDurationType = config.timerDurationType || defaults.timerDurationType;
         node.timerDuration = getEvaluatedProperty(config.timerDuration, node.timerDurationType, defaults.timerDuration);
@@ -21,6 +22,7 @@ module.exports = function (RED: Red) {
         node.timerLoopTimeoutUnit = config.timerLoopTimeoutUnit || defaults.timerLoopTimeoutUnit;
         node.timerLoopTimeoutType = config.timerLoopTimeoutType || defaults.timerLoopTimeoutType;
         node.timerLoopTimeout = getEvaluatedProperty(config.timerLoopTimeout, node.timerLoopTimeoutType, defaults.timerLoopTimeout);
+
         node.loopTimeoutMessageType = config.loopTimeoutMessageType || defaults.loopTimeoutMessageType;
         node.loopTimeoutMessage = getEvaluatedProperty(config.loopTimeoutMessage, node.loopTimeoutMessageType, defaults.loopTimeoutMessage);
         node.timerMaxLoopIterationsType = config.timerMaxLoopIterationsType || defaults.timerMaxLoopIterationsType;
@@ -81,8 +83,9 @@ module.exports = function (RED: Red) {
 
         node.status({ fill: 'grey', shape: 'ring', text: 'Idle' });
         let currentState = STATE.IDLE;
+        let override: { timerType: TIMER_TYPE; duration: number; durationUnit: DurationUnit; durationInMilliseconds: number } | null = null;
 
-        let timerId: any;
+        let timerId: NodeJS.Timeout;
         let pausedTimerRunningMilliseconds: number;
         let timerStartedAtUnixTimestamp: number;
 
@@ -91,9 +94,13 @@ module.exports = function (RED: Red) {
                 return '';
             }
 
+            const durationMilliseconds = override?.durationInMilliseconds ?? timerDurationInMilliseconds;
+            const duration = override?.duration ?? node.timerDuration;
+            const durationUnit = override?.durationUnit ?? node.timerDurationUnit;
+
             const previousRunningDurationInMilliseconds = pausedTimerRunningMilliseconds ?? 0;
-            const timerPercentageCompletion = (100 * (Date.now() - timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds)) / timerDurationInMilliseconds;
-            return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${node.timerDuration} ${node.timerDurationUnit}(s)`;
+            const timerPercentageCompletion = (100 * (Date.now() - timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds)) / durationMilliseconds;
+            return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${duration} ${durationUnit}(s)`;
         }
 
         function getPausedTimerProgress() {
@@ -101,8 +108,12 @@ module.exports = function (RED: Red) {
                 return '';
             }
 
-            const timerPercentageCompletion = (100 * pausedTimerRunningMilliseconds) / timerDurationInMilliseconds;
-            return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${node.timerDuration} ${node.timerDurationUnit}(s)`;
+            const durationMilliseconds = override?.durationInMilliseconds ?? timerDurationInMilliseconds;
+            const duration = override?.duration ?? node.timerDuration;
+            const durationUnit = override?.durationUnit ?? node.timerDurationUnit;
+
+            const timerPercentageCompletion = (100 * pausedTimerRunningMilliseconds) / durationMilliseconds;
+            return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${duration} ${durationUnit}(s)`;
         }
 
         let clockTimerId: NodeJS.Timeout;
@@ -140,14 +151,8 @@ module.exports = function (RED: Red) {
                 return;
             }
 
-            if (node.timerType === TIMER_TYPE.LOOP) {
-                clearInterval(timerId);
-            }
-
-            if (node.timerType === TIMER_TYPE.DELAY) {
-                clearTimeout(timerId);
-            }
-
+            clearInterval(timerId);
+            clearTimeout(timerId);
             timerId = undefined;
         }
 
@@ -162,6 +167,21 @@ module.exports = function (RED: Red) {
             const isContinueActionMessage = message[node.actionPropertyName] === node.continueActionName && node.isContinueActionEnabled;
             const isStopActionMessage = message[node.actionPropertyName] === node.stopActionName && node.isStopActionEnabled;
             const isUnknownMessage = !(isStartActionMessage || isResetActionMessage || isPauseActionMessage || isContinueActionMessage || isStopActionMessage);
+
+            const timerTypeOverride = message[constants.timerTypeOverridePropertyName] ?? null;
+            const timerDurationOverride = message[constants.timerDurationOverridePropertyName] ?? null;
+            const timerDurationUnitOverride = message[constants.timerDurationUnitOverridePropertyName] ?? null;
+
+            const isStartActionExternalOverrideMessage = isStartActionMessage && timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
+
+            if (isStartActionExternalOverrideMessage) {
+                override = {
+                    timerType: timerTypeOverride,
+                    duration: timerDurationOverride,
+                    durationUnit: timerDurationUnitOverride,
+                    durationInMilliseconds: getDurationInMilliseconds(timerDurationOverride, timerDurationUnitOverride),
+                };
+            }
 
             function startStoppedIdleTimer() {
                 stopStoppedIdleTimer();
@@ -196,6 +216,7 @@ module.exports = function (RED: Red) {
             }
 
             function finishTimer() {
+                override = null;
                 stopLoopTimeoutTimer();
                 stopClockTimer();
                 destroyTimer();
@@ -220,7 +241,9 @@ module.exports = function (RED: Red) {
                 startLoopTimeoutTimer();
                 currentLoopIteration = 0;
 
-                if (node.timerType === TIMER_TYPE.LOOP) {
+                const durationInMilliseconds = durationInMillisecondsOverride ?? override?.durationInMilliseconds ?? timerDurationInMilliseconds;
+
+                if ((override !== null && override.timerType === TIMER_TYPE.LOOP) || (override === null && node.timerType === TIMER_TYPE.LOOP)) {
                     return setInterval(() => {
                         const outputMessage = node.outputReceivedMessageOnTimerTrigger ? RED.util.cloneMessage(message) : { [node.actionPropertyName]: node.timerTriggeredMessage };
                         node.send([outputMessage, null]);
@@ -232,15 +255,15 @@ module.exports = function (RED: Red) {
                         }
 
                         handleLoopMaxIterations();
-                    }, durationInMillisecondsOverride ?? timerDurationInMilliseconds);
+                    }, durationInMilliseconds);
                 }
 
-                if (node.timerType === TIMER_TYPE.DELAY) {
+                if ((override !== null && override.timerType === TIMER_TYPE.DELAY) || (override === null && node.timerType === TIMER_TYPE.DELAY)) {
                     return setTimeout(() => {
                         const outputMessage = node.outputReceivedMessageOnTimerTrigger ? RED.util.cloneMessage(message) : { [node.actionPropertyName]: node.timerTriggeredMessage };
                         node.send([outputMessage, null]);
                         finishTimer();
-                    }, durationInMillisecondsOverride ?? timerDurationInMilliseconds);
+                    }, durationInMilliseconds);
                 }
             }
 
@@ -270,6 +293,7 @@ module.exports = function (RED: Red) {
             }
 
             function stopTimer(timerWasRunning: boolean, stopMessage?: string) {
+                override = null;
                 stopLoopTimeoutTimer();
                 stopClockTimer();
                 destroyTimer();
@@ -329,7 +353,7 @@ module.exports = function (RED: Red) {
             }
 
             function continueTimer() {
-                timerId = createAndGetTimer(timerDurationInMilliseconds - pausedTimerRunningMilliseconds);
+                timerId = createAndGetTimer((override?.durationInMilliseconds ?? timerDurationInMilliseconds) - pausedTimerRunningMilliseconds);
                 timerStartedAtUnixTimestamp = Date.now();
 
                 startClockTimer();
@@ -353,7 +377,7 @@ module.exports = function (RED: Red) {
             }
 
             if (currentState === STATE.RUNNING) {
-                if (isStartActionMessage && node.isConsecutiveStartActionTimerResetAllowed) {
+                if ((isStartActionMessage && node.isConsecutiveStartActionTimerResetAllowed) || isStartActionExternalOverrideMessage) {
                     resetTimer();
                     done();
                     return;
@@ -436,6 +460,7 @@ module.exports = function (RED: Red) {
         });
 
         node.on('close', (done) => {
+            override = null;
             clearInterval(clockTimerId);
             clearInterval(loopTimeoutTimerId);
             stopClockTimer();
