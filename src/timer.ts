@@ -238,7 +238,7 @@ export class Timer extends EventEmitter {
         }
 
         if ((this.config.timerType === TIMER_TYPE.DELAY && !this.configOverride) || this.configOverride?.timerType === TIMER_TYPE.DELAY) {
-            this.pausedTimerRunningMilliseconds = undefined;
+            this.pausedTimerRunningMilliseconds = durationInMillisecondsOverride ? this.pausedTimerRunningMilliseconds : undefined;
             this.timerStartedAtUnixTimestamp = Date.now();
 
             return setTimeout(() => {

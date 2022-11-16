@@ -4,7 +4,9 @@
 
 Change the type, duration and duration unit of controltimer by sending it a START message with additional data. See the example flow below for examples. All the other functionality (pausing, continuing, resetting) works as well for this.
 
-**FYI:** The override options remain active until controltimer is manually stopped or it finishes itself. If it's later manually started without overriding the options again it will take the type, duration and duration unit from controltimer configuration.
+The override options remain active until controltimer is manually stopped or it finishes itself. If it's later manually started without overriding the options again it will take the type, duration and duration unit from controltimer configuration.
+
+You will not see the info on the node itself updated when you override it's config. Controltimer will run by your sent configuration but the visible info on the node itself will not be updated. You can ensure controltimer runs by your sent configuration if you look at the timer progress status below the node.
 
 ```javascript
 {
@@ -25,7 +27,7 @@ Timer can be paused and later continued. This applies to both looping and delay 
 
 For debugging or just to get an overview of timer progress you can enable `Is running timer progress visible` option. This will show timer progress in percentage of the total duration in the nodes status area.
 
-You can disable specific actions for node. For example disable Reset, Pause and Continue actions. Now when a node recieves any of the aforementioned actions it will treat them as unknown\* messages.
+You can disable specific actions for node. For example disable Reset, Pause and Continue actions. Now when a node recieves any of the aforementioned actions it will treat them as unknown messages.
 
 ## Example flow diagram
 
