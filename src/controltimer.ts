@@ -1,62 +1,69 @@
-import { Red } from 'node-red';
-import { NodeConfig, NodeConfigRaw, defaults, nodeName, STATE, TIMER_TYPE, DurationUnit } from './helpers';
+import { NodeAPI, Node, NodeMessageInFlow } from 'node-red';
+import { defaults, nodeName, STATE, TIMER_TYPE, DurationUnit, constants, ControlTimerNodeDef, Props } from './helpers';
 
-module.exports = function (RED: Red) {
-    RED.nodes.registerType(nodeName, function (config: NodeConfigRaw) {
+type NodeMessage = NodeMessageInFlow;
+
+export = (RED: NodeAPI): void => {
+    RED.nodes.registerType(nodeName, function (config: ControlTimerNodeDef) {
         RED.nodes.createNode(this, config);
+
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const node: NodeConfig = this;
+        const node: Node = this;
 
         function getEvaluatedProperty(property: string | number, propertyType: 'num' | 'str', defaultProperty: string | number) {
             return propertyType === 'num'
-                ? parseInt(RED.util.evaluateNodeProperty(property, propertyType, this, null), 10) || Number(defaultProperty)
-                : RED.util.evaluateNodeProperty(property, propertyType, this, null) || defaultProperty;
+                ? parseInt(RED.util.evaluateNodeProperty(String(property), propertyType, this, null), 10) || Number(defaultProperty)
+                : RED.util.evaluateNodeProperty(String(property), propertyType, this, null) || defaultProperty;
         }
 
-        node.timerType = config.timerType || defaults.timerType;
-        node.timerDurationUnit = config.timerDurationUnit || defaults.timerDurationUnit;
-        node.timerDurationType = config.timerDurationType || defaults.timerDurationType;
-        node.timerDuration = getEvaluatedProperty(config.timerDuration, node.timerDurationType, defaults.timerDuration);
+        const setting: Partial<Props> = {};
 
-        node.timerLoopTimeoutUnit = config.timerLoopTimeoutUnit || defaults.timerLoopTimeoutUnit;
-        node.timerLoopTimeoutType = config.timerLoopTimeoutType || defaults.timerLoopTimeoutType;
-        node.timerLoopTimeout = getEvaluatedProperty(config.timerLoopTimeout, node.timerLoopTimeoutType, defaults.timerLoopTimeout);
-        node.loopTimeoutMessageType = config.loopTimeoutMessageType || defaults.loopTimeoutMessageType;
-        node.loopTimeoutMessage = getEvaluatedProperty(config.loopTimeoutMessage, node.loopTimeoutMessageType, defaults.loopTimeoutMessage);
-        node.timerMaxLoopIterationsType = config.timerMaxLoopIterationsType || defaults.timerMaxLoopIterationsType;
-        node.timerMaxLoopIterations = getEvaluatedProperty(config.timerMaxLoopIterations, node.timerMaxLoopIterationsType, defaults.timerMaxLoopIterations);
-        node.loopMaxIterationsMessageType = config.loopMaxIterationsMessageType || defaults.loopMaxIterationsMessageType;
-        node.loopMaxIterationsMessage = getEvaluatedProperty(config.loopMaxIterationsMessage, node.loopMaxIterationsMessageType, defaults.loopMaxIterationsMessage);
+        setting.timerType = config.timerType || defaults.timerType;
 
-        node.isConsecutiveStartActionTimerResetAllowed = config.isConsecutiveStartActionTimerResetAllowed ?? defaults.isConsecutiveStartActionTimerResetAllowed;
-        node.isRunningTimerProgressVisible = config.isRunningTimerProgressVisible ?? defaults.isRunningTimerProgressVisible;
-        node.outputReceivedMessageOnTimerTrigger = config.outputReceivedMessageOnTimerTrigger ?? defaults.outputReceivedMessageOnTimerTrigger;
-        node.outputReceivedMessageOnTimerHalt = config.outputReceivedMessageOnTimerHalt ?? defaults.outputReceivedMessageOnTimerHalt;
-        node.startTimerOnReceivalOfUnknownMessage = config.startTimerOnReceivalOfUnknownMessage ?? defaults.startTimerOnReceivalOfUnknownMessage;
-        node.resetTimerOnReceivalOfUnknownMessage = config.resetTimerOnReceivalOfUnknownMessage ?? defaults.resetTimerOnReceivalOfUnknownMessage;
-        node.isDebugModeEnabled = config.isDebugModeEnabled ?? defaults.isDebugModeEnabled;
-        node.timerTriggeredMessageType = config.timerTriggeredMessageType || defaults.timerTriggeredMessageType;
-        node.timerTriggeredMessage = getEvaluatedProperty(config.timerTriggeredMessage, node.timerTriggeredMessageType, defaults.timerTriggeredMessage);
-        node.timerHaltedMessageType = config.timerHaltedMessageType || defaults.timerHaltedMessageType;
-        node.timerHaltedMessage = getEvaluatedProperty(config.timerHaltedMessage, node.timerHaltedMessageType, defaults.timerHaltedMessage);
+        setting.timerDurationUnit = config.timerDurationUnit || defaults.timerDurationUnit;
+        setting.timerDurationType = config.timerDurationType || defaults.timerDurationType;
+        setting.timerDuration = getEvaluatedProperty(config.timerDuration, setting.timerDurationType, defaults.timerDuration);
 
-        node.isStartActionEnabled = config.isStartActionEnabled ?? defaults.isStartActionEnabled;
-        node.isStopActionEnabled = config.isStopActionEnabled ?? defaults.isStopActionEnabled;
-        node.isResetActionEnabled = config.isResetActionEnabled ?? defaults.isResetActionEnabled;
-        node.isPauseActionEnabled = config.isPauseActionEnabled ?? defaults.isPauseActionEnabled;
-        node.isContinueActionEnabled = config.isContinueActionEnabled ?? defaults.isContinueActionEnabled;
-        node.actionPropertyNameType = config.actionPropertyNameType || defaults.actionPropertyNameType;
-        node.actionPropertyName = getEvaluatedProperty(config.actionPropertyName, node.actionPropertyNameType, defaults.actionPropertyName);
-        node.startActionNameType = config.startActionNameType || defaults.startActionNameType;
-        node.startActionName = getEvaluatedProperty(config.startActionName, node.startActionNameType, defaults.startActionName);
-        node.stopActionNameType = config.stopActionNameType || defaults.stopActionNameType;
-        node.stopActionName = getEvaluatedProperty(config.stopActionName, node.stopActionNameType, defaults.stopActionName);
-        node.resetActionNameType = config.resetActionNameType || defaults.resetActionNameType;
-        node.resetActionName = getEvaluatedProperty(config.resetActionName, node.resetActionNameType, defaults.resetActionName);
-        node.pauseActionNameType = config.pauseActionNameType || defaults.pauseActionNameType;
-        node.pauseActionName = getEvaluatedProperty(config.pauseActionName, node.pauseActionNameType, defaults.pauseActionName);
-        node.continueActionNameType = config.continueActionNameType || defaults.continueActionNameType;
-        node.continueActionName = getEvaluatedProperty(config.continueActionName, node.continueActionNameType, defaults.continueActionName);
+        setting.timerLoopTimeoutUnit = config.timerLoopTimeoutUnit || defaults.timerLoopTimeoutUnit;
+        setting.timerLoopTimeoutType = config.timerLoopTimeoutType || defaults.timerLoopTimeoutType;
+        setting.timerLoopTimeout = getEvaluatedProperty(config.timerLoopTimeout, setting.timerLoopTimeoutType, defaults.timerLoopTimeout);
+
+        setting.loopTimeoutMessageType = config.loopTimeoutMessageType || defaults.loopTimeoutMessageType;
+        setting.loopTimeoutMessage = getEvaluatedProperty(config.loopTimeoutMessage, setting.loopTimeoutMessageType, defaults.loopTimeoutMessage);
+        setting.timerMaxLoopIterationsType = config.timerMaxLoopIterationsType || defaults.timerMaxLoopIterationsType;
+        setting.timerMaxLoopIterations = getEvaluatedProperty(config.timerMaxLoopIterations, setting.timerMaxLoopIterationsType, defaults.timerMaxLoopIterations);
+        setting.loopMaxIterationsMessageType = config.loopMaxIterationsMessageType || defaults.loopMaxIterationsMessageType;
+        setting.loopMaxIterationsMessage = getEvaluatedProperty(config.loopMaxIterationsMessage, setting.loopMaxIterationsMessageType, defaults.loopMaxIterationsMessage);
+
+        setting.isConsecutiveStartActionTimerResetAllowed = config.isConsecutiveStartActionTimerResetAllowed ?? defaults.isConsecutiveStartActionTimerResetAllowed;
+        setting.isRunningTimerProgressVisible = config.isRunningTimerProgressVisible ?? defaults.isRunningTimerProgressVisible;
+        setting.outputReceivedMessageOnTimerTrigger = config.outputReceivedMessageOnTimerTrigger ?? defaults.outputReceivedMessageOnTimerTrigger;
+        setting.outputReceivedMessageOnTimerHalt = config.outputReceivedMessageOnTimerHalt ?? defaults.outputReceivedMessageOnTimerHalt;
+        setting.startTimerOnReceivalOfUnknownMessage = config.startTimerOnReceivalOfUnknownMessage ?? defaults.startTimerOnReceivalOfUnknownMessage;
+        setting.resetTimerOnReceivalOfUnknownMessage = config.resetTimerOnReceivalOfUnknownMessage ?? defaults.resetTimerOnReceivalOfUnknownMessage;
+        setting.isDebugModeEnabled = config.isDebugModeEnabled ?? defaults.isDebugModeEnabled;
+        setting.timerTriggeredMessageType = config.timerTriggeredMessageType || defaults.timerTriggeredMessageType;
+        setting.timerTriggeredMessage = getEvaluatedProperty(config.timerTriggeredMessage, setting.timerTriggeredMessageType, defaults.timerTriggeredMessage);
+        setting.timerHaltedMessageType = config.timerHaltedMessageType || defaults.timerHaltedMessageType;
+        setting.timerHaltedMessage = getEvaluatedProperty(config.timerHaltedMessage, setting.timerHaltedMessageType, defaults.timerHaltedMessage);
+
+        setting.isStartActionEnabled = config.isStartActionEnabled ?? defaults.isStartActionEnabled;
+        setting.isStopActionEnabled = config.isStopActionEnabled ?? defaults.isStopActionEnabled;
+        setting.isResetActionEnabled = config.isResetActionEnabled ?? defaults.isResetActionEnabled;
+        setting.isPauseActionEnabled = config.isPauseActionEnabled ?? defaults.isPauseActionEnabled;
+        setting.isContinueActionEnabled = config.isContinueActionEnabled ?? defaults.isContinueActionEnabled;
+        setting.actionPropertyNameType = config.actionPropertyNameType || defaults.actionPropertyNameType;
+        setting.actionPropertyName = getEvaluatedProperty(config.actionPropertyName, setting.actionPropertyNameType, defaults.actionPropertyName);
+        setting.startActionNameType = config.startActionNameType || defaults.startActionNameType;
+        setting.startActionName = getEvaluatedProperty(config.startActionName, setting.startActionNameType, defaults.startActionName);
+        setting.stopActionNameType = config.stopActionNameType || defaults.stopActionNameType;
+        setting.stopActionName = getEvaluatedProperty(config.stopActionName, setting.stopActionNameType, defaults.stopActionName);
+        setting.resetActionNameType = config.resetActionNameType || defaults.resetActionNameType;
+        setting.resetActionName = getEvaluatedProperty(config.resetActionName, setting.resetActionNameType, defaults.resetActionName);
+        setting.pauseActionNameType = config.pauseActionNameType || defaults.pauseActionNameType;
+        setting.pauseActionName = getEvaluatedProperty(config.pauseActionName, setting.pauseActionNameType, defaults.pauseActionName);
+        setting.continueActionNameType = config.continueActionNameType || defaults.continueActionNameType;
+        setting.continueActionName = getEvaluatedProperty(config.continueActionName, setting.continueActionNameType, defaults.continueActionName);
 
         function getDurationInMilliseconds(duration: number, durationUnit: DurationUnit): number {
             if (durationUnit === DurationUnit.MILLISECOND) {
@@ -76,33 +83,42 @@ module.exports = function (RED: Red) {
             }
         }
 
-        const timerDurationInMilliseconds = getDurationInMilliseconds(node.timerDuration, node.timerDurationUnit);
-        const timerLoopTimeoutInMilliseconds = getDurationInMilliseconds(node.timerLoopTimeout, node.timerLoopTimeoutUnit);
+        const timerDurationInMilliseconds = getDurationInMilliseconds(setting.timerDuration, setting.timerDurationUnit);
+        const timerLoopTimeoutInMilliseconds = getDurationInMilliseconds(setting.timerLoopTimeout, setting.timerLoopTimeoutUnit);
 
         node.status({ fill: 'grey', shape: 'ring', text: 'Idle' });
         let currentState = STATE.IDLE;
+        let override: { timerType: TIMER_TYPE; duration: number; durationUnit: DurationUnit; durationInMilliseconds: number } | null = null;
 
-        let timerId: any;
+        let timerId: NodeJS.Timeout;
         let pausedTimerRunningMilliseconds: number;
         let timerStartedAtUnixTimestamp: number;
 
         function getRunningTimerProgress() {
-            if (!node.isRunningTimerProgressVisible) {
+            if (!setting.isRunningTimerProgressVisible) {
                 return '';
             }
 
+            const durationMilliseconds = override?.durationInMilliseconds ?? timerDurationInMilliseconds;
+            const duration = override?.duration ?? setting.timerDuration;
+            const durationUnit = override?.durationUnit ?? setting.timerDurationUnit;
+
             const previousRunningDurationInMilliseconds = pausedTimerRunningMilliseconds ?? 0;
-            const timerPercentageCompletion = (100 * (Date.now() - timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds)) / timerDurationInMilliseconds;
-            return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${node.timerDuration} ${node.timerDurationUnit}(s)`;
+            const timerPercentageCompletion = (100 * (Date.now() - timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds)) / durationMilliseconds;
+            return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${duration} ${durationUnit}(s)`;
         }
 
         function getPausedTimerProgress() {
-            if (!node.isRunningTimerProgressVisible) {
+            if (!setting.isRunningTimerProgressVisible) {
                 return '';
             }
 
-            const timerPercentageCompletion = (100 * pausedTimerRunningMilliseconds) / timerDurationInMilliseconds;
-            return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${node.timerDuration} ${node.timerDurationUnit}(s)`;
+            const durationMilliseconds = override?.durationInMilliseconds ?? timerDurationInMilliseconds;
+            const duration = override?.duration ?? setting.timerDuration;
+            const durationUnit = override?.durationUnit ?? setting.timerDurationUnit;
+
+            const timerPercentageCompletion = (100 * pausedTimerRunningMilliseconds) / durationMilliseconds;
+            return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${duration} ${durationUnit}(s)`;
         }
 
         let clockTimerId: NodeJS.Timeout;
@@ -111,7 +127,7 @@ module.exports = function (RED: Red) {
         let currentLoopIteration = 0;
 
         function startClockTimer() {
-            if (!node.isRunningTimerProgressVisible) {
+            if (!setting.isRunningTimerProgressVisible) {
                 return;
             }
 
@@ -127,7 +143,7 @@ module.exports = function (RED: Red) {
         }
 
         function stopClockTimer() {
-            if (!node.isRunningTimerProgressVisible) {
+            if (!setting.isRunningTimerProgressVisible) {
                 return;
             }
 
@@ -140,28 +156,35 @@ module.exports = function (RED: Red) {
                 return;
             }
 
-            if (node.timerType === TIMER_TYPE.LOOP) {
-                clearInterval(timerId);
-            }
-
-            if (node.timerType === TIMER_TYPE.DELAY) {
-                clearTimeout(timerId);
-            }
-
+            clearInterval(timerId);
+            clearTimeout(timerId);
             timerId = undefined;
         }
 
         // TODO: Determine what happens when timer is paused right at the moment the timer expires
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        node.on('input', (message, send, done) => {
-            const isStartActionMessage = message[node.actionPropertyName] === node.startActionName && node.isStartActionEnabled;
-            const isResetActionMessage = message[node.actionPropertyName] === node.resetActionName && node.isResetActionEnabled;
-            const isPauseActionMessage = message[node.actionPropertyName] === node.pauseActionName && node.isPauseActionEnabled;
-            const isContinueActionMessage = message[node.actionPropertyName] === node.continueActionName && node.isContinueActionEnabled;
-            const isStopActionMessage = message[node.actionPropertyName] === node.stopActionName && node.isStopActionEnabled;
+        node.on('input', (message: NodeMessage, send, done) => {
+            const isStartActionMessage = message[setting.actionPropertyName] === setting.startActionName && setting.isStartActionEnabled;
+            const isResetActionMessage = message[setting.actionPropertyName] === setting.resetActionName && setting.isResetActionEnabled;
+            const isPauseActionMessage = message[setting.actionPropertyName] === setting.pauseActionName && setting.isPauseActionEnabled;
+            const isContinueActionMessage = message[setting.actionPropertyName] === setting.continueActionName && setting.isContinueActionEnabled;
+            const isStopActionMessage = message[setting.actionPropertyName] === setting.stopActionName && setting.isStopActionEnabled;
             const isUnknownMessage = !(isStartActionMessage || isResetActionMessage || isPauseActionMessage || isContinueActionMessage || isStopActionMessage);
+
+            const timerTypeOverride = message[constants.timerTypeOverridePropertyName] ?? null;
+            const timerDurationOverride = message[constants.timerDurationOverridePropertyName] ?? null;
+            const timerDurationUnitOverride = message[constants.timerDurationUnitOverridePropertyName] ?? null;
+
+            const isStartActionExternalOverrideMessage = isStartActionMessage && timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
+
+            if (isStartActionExternalOverrideMessage) {
+                override = {
+                    timerType: timerTypeOverride,
+                    duration: timerDurationOverride,
+                    durationUnit: timerDurationUnitOverride,
+                    durationInMilliseconds: getDurationInMilliseconds(timerDurationOverride, timerDurationUnitOverride),
+                };
+            }
 
             function startStoppedIdleTimer() {
                 stopStoppedIdleTimer();
@@ -176,13 +199,13 @@ module.exports = function (RED: Red) {
             }
 
             function startLoopTimeoutTimer() {
-                if (node.timerType !== TIMER_TYPE.LOOP || (node.timerType === TIMER_TYPE.LOOP && node.timerLoopTimeout === 0)) {
+                if (setting.timerType !== TIMER_TYPE.LOOP || (setting.timerType === TIMER_TYPE.LOOP && setting.timerLoopTimeout === 0)) {
                     return;
                 }
 
                 stopLoopTimeoutTimer();
                 loopTimeoutTimerId = setTimeout(() => {
-                    stopTimer(true, node.loopTimeoutMessage);
+                    stopTimer(true, setting.loopTimeoutMessage);
                 }, timerLoopTimeoutInMilliseconds);
             }
 
@@ -196,6 +219,7 @@ module.exports = function (RED: Red) {
             }
 
             function finishTimer() {
+                override = null;
                 stopLoopTimeoutTimer();
                 stopClockTimer();
                 destroyTimer();
@@ -211,8 +235,8 @@ module.exports = function (RED: Red) {
             function handleLoopMaxIterations() {
                 currentLoopIteration = currentLoopIteration + 1;
 
-                if (currentLoopIteration === node.timerMaxLoopIterations) {
-                    stopTimer(true, node.loopMaxIterationsMessage);
+                if (currentLoopIteration === setting.timerMaxLoopIterations) {
+                    stopTimer(true, setting.loopMaxIterationsMessage);
                 }
             }
 
@@ -220,9 +244,14 @@ module.exports = function (RED: Red) {
                 startLoopTimeoutTimer();
                 currentLoopIteration = 0;
 
-                if (node.timerType === TIMER_TYPE.LOOP) {
+                const durationInMilliseconds = durationInMillisecondsOverride ?? override?.durationInMilliseconds ?? timerDurationInMilliseconds;
+
+                if ((override !== null && override.timerType === TIMER_TYPE.LOOP) || (override === null && setting.timerType === TIMER_TYPE.LOOP)) {
                     return setInterval(() => {
-                        const outputMessage = node.outputReceivedMessageOnTimerTrigger ? RED.util.cloneMessage(message) : { [node.actionPropertyName]: node.timerTriggeredMessage };
+                        const outputMessage = setting.outputReceivedMessageOnTimerTrigger
+                            ? RED.util.cloneMessage(message)
+                            : { [setting.actionPropertyName]: setting.timerTriggeredMessage };
+
                         node.send([outputMessage, null]);
                         timerStartedAtUnixTimestamp = Date.now();
                         pausedTimerRunningMilliseconds = undefined;
@@ -232,15 +261,18 @@ module.exports = function (RED: Red) {
                         }
 
                         handleLoopMaxIterations();
-                    }, durationInMillisecondsOverride ?? timerDurationInMilliseconds);
+                    }, durationInMilliseconds);
                 }
 
-                if (node.timerType === TIMER_TYPE.DELAY) {
+                if ((override !== null && override.timerType === TIMER_TYPE.DELAY) || (override === null && setting.timerType === TIMER_TYPE.DELAY)) {
                     return setTimeout(() => {
-                        const outputMessage = node.outputReceivedMessageOnTimerTrigger ? RED.util.cloneMessage(message) : { [node.actionPropertyName]: node.timerTriggeredMessage };
+                        const outputMessage = setting.outputReceivedMessageOnTimerTrigger
+                            ? RED.util.cloneMessage(message)
+                            : { [setting.actionPropertyName]: setting.timerTriggeredMessage };
+
                         node.send([outputMessage, null]);
                         finishTimer();
-                    }, durationInMillisecondsOverride ?? timerDurationInMilliseconds);
+                    }, durationInMilliseconds);
                 }
             }
 
@@ -270,6 +302,7 @@ module.exports = function (RED: Red) {
             }
 
             function stopTimer(timerWasRunning: boolean, stopMessage?: string) {
+                override = null;
                 stopLoopTimeoutTimer();
                 stopClockTimer();
                 destroyTimer();
@@ -283,13 +316,13 @@ module.exports = function (RED: Red) {
                 node.status({ fill: 'red', shape: 'dot', text: 'Stopped' });
 
                 if (timerWasRunning && !stopMessage) {
-                    const outputMessage = node.outputReceivedMessageOnTimerHalt ? RED.util.cloneMessage(message) : { [node.actionPropertyName]: node.timerHaltedMessage };
+                    const outputMessage = setting.outputReceivedMessageOnTimerHalt ? RED.util.cloneMessage(message) : { [setting.actionPropertyName]: setting.timerHaltedMessage };
                     node.send([null, outputMessage]);
                 }
 
                 if (timerWasRunning && stopMessage) {
                     const outputMessage = {
-                        [node.actionPropertyName]: stopMessage,
+                        [setting.actionPropertyName]: stopMessage,
                     };
 
                     node.send([null, outputMessage]);
@@ -310,7 +343,7 @@ module.exports = function (RED: Red) {
                 currentState = STATE.PAUSED;
                 node.status({ fill: 'yellow', shape: 'dot', text: `Paused${getPausedTimerProgress()}` });
 
-                const outputMessage = node.outputReceivedMessageOnTimerHalt ? RED.util.cloneMessage(message) : { [node.actionPropertyName]: node.timerHaltedMessage };
+                const outputMessage = setting.outputReceivedMessageOnTimerHalt ? RED.util.cloneMessage(message) : { [setting.actionPropertyName]: setting.timerHaltedMessage };
                 node.send([null, outputMessage]);
             }
 
@@ -329,7 +362,7 @@ module.exports = function (RED: Red) {
             }
 
             function continueTimer() {
-                timerId = createAndGetTimer(timerDurationInMilliseconds - pausedTimerRunningMilliseconds);
+                timerId = createAndGetTimer((override?.durationInMilliseconds ?? timerDurationInMilliseconds) - pausedTimerRunningMilliseconds);
                 timerStartedAtUnixTimestamp = Date.now();
 
                 startClockTimer();
@@ -345,7 +378,7 @@ module.exports = function (RED: Red) {
                     return;
                 }
 
-                if (node.startTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
+                if (setting.startTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
                     startTimer();
                     done();
                     return;
@@ -353,7 +386,7 @@ module.exports = function (RED: Red) {
             }
 
             if (currentState === STATE.RUNNING) {
-                if (isStartActionMessage && node.isConsecutiveStartActionTimerResetAllowed) {
+                if ((isStartActionMessage && setting.isConsecutiveStartActionTimerResetAllowed) || isStartActionExternalOverrideMessage) {
                     resetTimer();
                     done();
                     return;
@@ -365,7 +398,7 @@ module.exports = function (RED: Red) {
                     return;
                 }
 
-                if (node.resetTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
+                if (setting.resetTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
                     resetTimer();
                     done();
                     return;
@@ -391,7 +424,7 @@ module.exports = function (RED: Red) {
                     return;
                 }
 
-                if (node.startTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
+                if (setting.startTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
                     startTimer();
                     done();
                     return;
@@ -399,7 +432,7 @@ module.exports = function (RED: Red) {
             }
 
             if (currentState === STATE.PAUSED) {
-                if (isStartActionMessage && node.isConsecutiveStartActionTimerResetAllowed) {
+                if (isStartActionMessage && setting.isConsecutiveStartActionTimerResetAllowed) {
                     resetTimer();
                     done();
                     return;
@@ -411,7 +444,7 @@ module.exports = function (RED: Red) {
                     return;
                 }
 
-                if (node.resetTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
+                if (setting.resetTimerOnReceivalOfUnknownMessage && isUnknownMessage) {
                     resetTimer();
                     done();
                     return;
@@ -430,12 +463,13 @@ module.exports = function (RED: Red) {
                 }
             }
 
-            if (node.isDebugModeEnabled) {
-                sendError(new Error(`Can't trigger "${message[node.actionPropertyName]}" action while state is "${currentState}"!`));
+            if (setting.isDebugModeEnabled) {
+                sendError(new Error(`Can't trigger "${message[setting.actionPropertyName]}" action while state is "${currentState}"!`));
             }
         });
 
         node.on('close', (done) => {
+            override = null;
             clearInterval(clockTimerId);
             clearInterval(loopTimeoutTimerId);
             stopClockTimer();

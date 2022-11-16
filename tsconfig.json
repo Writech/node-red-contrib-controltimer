@@ -1,23 +1,11 @@
 {
     "compilerOptions": {
-        "target": "ES2019",
+        "target": "ES2022",
         "module": "CommonJS",
-        //        "module": "ES2020",
-        "lib": ["ES2019"],
-        //        "moduleResolution": "node",
+        "rootDir": "src",
         "outDir": "dist",
-        "allowSyntheticDefaultImports": true,
-        "baseUrl": "src",
-        "incremental": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "noImplicitAny": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "forceConsistentCasingInFileNames": true,
-        "importHelpers": true,
         "skipLibCheck": true
     },
-    "include": ["src/**/*.ts"],
-    "exclude": ["node_modules", "dist", "src/render-html.ts", "src/controltimer.ejs"]
+    "include": ["./src/**/*.ts"],
+    "exclude": ["./node_modules", "./dist", "./src/render-html.ts", "./src/controltimer.ejs"]
 }

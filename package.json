@@ -1,6 +1,6 @@
 {
     "name": "node-red-contrib-controltimer",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "A controllable Node-RED timer node. Start, Stop, Reset, Pause and Continue the timer. Use the timer as a loop or a delay.",
     "scripts": {
         "build": "rimraf dist && npm run lint && npm run -s build:ts && npm run render-html && npm run copy-icons",
@@ -15,8 +15,8 @@
         "rebuild": "echo '### Changes detected. Rebuilding... ###' && npm run delete-artifacts && npm run build && npm pack && npm run reinstall && echo '### Build done ###'",
         "delete-artifacts": "rimraf 'node-red-contrib-controltimer-*.tgz' && rimraf package",
         "copy-icons": "rsync -a src/icons/ dist/icons/",
-        "run-docker": "docker stop node-red-testing || true && docker rm node-red-testing || true && docker run -d --rm -p 1880:1880 -v ~/.node-red:/data --name node-red-testing nodered/node-red:2.1.6-14",
-        "reinstall": "cd ~/.node-red && npm uninstall --save node-red-contrib-controltimer && npm install --save ~/GithubProjects/node-red-contrib-controltimer/node-red-contrib-controltimer-0.1.0.tgz && docker restart node-red-testing"
+        "run-docker": "docker stop node-red-testing || true && docker rm node-red-testing || true && docker run -d --rm -p 1880:1880 -v ~/.node-red:/data --name node-red-testing nodered/node-red:3.0.2-16",
+        "reinstall": "cd ~/.node-red && npm uninstall --save node-red-contrib-controltimer && npm install --save ~/GithubProjects/node-red-contrib-controltimer/node-red-contrib-controltimer-0.2.0.tgz && docker restart node-red-testing"
     },
     "repository": {
         "type": "git",
@@ -37,25 +37,25 @@
     },
     "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
     "devDependencies": {
-        "@types/ejs": "^3.0.4",
-        "@types/node": "^14.0.27",
-        "@types/node-red": "^0.20.1",
-        "@typescript-eslint/eslint-plugin": "^3.7.1",
-        "@typescript-eslint/parser": "^3.7.1",
-        "ejs": "^3.1.3",
-        "eslint": "^7.5.0",
-        "eslint-config-prettier": "^6.11.0",
-        "eslint-plugin-prettier": "^3.1.4",
-        "husky": "^4.2.5",
-        "lint-staged": "^10.2.11",
-        "prettier": "^2.0.5",
+        "@types/ejs": "^3.1.1",
+        "@types/node": "^18.11.9",
+        "@types/node-red": "^1.2.1",
+        "@typescript-eslint/eslint-plugin": "^5.43.0",
+        "@typescript-eslint/parser": "^5.43.0",
+        "ejs": "^3.1.8",
+        "eslint": "^8.27.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "husky": "^8.0.2",
+        "lint-staged": "^13.0.3",
+        "prettier": "^2.7.1",
         "rimraf": "^3.0.2",
-        "ts-node": "^8.10.2",
-        "typescript": "^3.9.7",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.3",
         "watch": "^1.0.2"
     },
     "engines": {
-        "node": ">=12.17.0"
+        "node": ">=16.0.0"
     },
     "husky": {
         "hooks": {
