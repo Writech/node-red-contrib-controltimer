@@ -1,7 +1,7 @@
 #!/bin/bash
 
-NODE_RED_CONTAINER_NAME = 'node-red-testing'
-NODE_RED_IMAGE_NAME = 'nodered/node-red:3.0.2-16'
+NODE_RED_CONTAINER_NAME="node-red-testing"
+NODE_RED_IMAGE_NAME="nodered/node-red:3.0.2-16"
 
 npm run node-red:stop-docker && \
 docker run $NODE_RED_IMAGE_NAME \
