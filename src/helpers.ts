@@ -1,4 +1,4 @@
-import { Node, NodeProperties } from 'node-red';
+import { NodeDef } from 'node-red';
 
 export enum TIMER_TYPE {
     LOOP = 'loop',
@@ -33,56 +33,6 @@ export type ResetActionNameType = 'str';
 export type PauseActionNameType = 'str';
 export type ContinueActionNameType = 'str';
 
-export interface RawProps {
-    name: string;
-    timerType: TIMER_TYPE;
-
-    timerDurationUnit: DurationUnit;
-    timerDurationType: TimerDurationType;
-    timerDuration: string;
-
-    timerLoopTimeoutUnit: DurationUnit;
-    timerLoopTimeoutType: TimerLoopTimeoutType;
-    timerLoopTimeout: string;
-
-    loopTimeoutMessageType: LoopTimeoutMessageType;
-    loopTimeoutMessage: string;
-    timerMaxLoopIterationsType: TimerMaxLoopIterationsType;
-    timerMaxLoopIterations: string;
-    loopMaxIterationsMessageType: LoopMaxIterationsMessageType;
-    loopMaxIterationsMessage: string;
-
-    isConsecutiveStartActionTimerResetAllowed: boolean;
-    isRunningTimerProgressVisible: boolean;
-    outputReceivedMessageOnTimerTrigger: boolean;
-    outputReceivedMessageOnTimerHalt: boolean;
-    startTimerOnReceivalOfUnknownMessage: boolean;
-    resetTimerOnReceivalOfUnknownMessage: boolean;
-    isDebugModeEnabled: boolean;
-    timerTriggeredMessageType: TimerTriggeredMessageType;
-    timerTriggeredMessage: string;
-    timerHaltedMessageType: TimerHaltedMessageType;
-    timerHaltedMessage: string;
-
-    isStartActionEnabled: boolean;
-    isStopActionEnabled: boolean;
-    isResetActionEnabled: boolean;
-    isPauseActionEnabled: boolean;
-    isContinueActionEnabled: boolean;
-    actionPropertyNameType: ActionPropertyNameType;
-    actionPropertyName: string;
-    startActionNameType: StartActionNameType;
-    startActionName: string;
-    stopActionNameType: StopActionNameType;
-    stopActionName: string;
-    resetActionNameType: ResetActionNameType;
-    resetActionName: string;
-    pauseActionNameType: PauseActionNameType;
-    pauseActionName: string;
-    continueActionNameType: ContinueActionNameType;
-    continueActionName: string;
-}
-
 export interface Props {
     name: string;
     timerType: TIMER_TYPE;
@@ -102,9 +52,9 @@ export interface Props {
     loopMaxIterationsMessageType: LoopMaxIterationsMessageType;
     loopMaxIterationsMessage: string;
     timerTriggeredMessageType: TimerTriggeredMessageType;
-    timerTriggeredMessage: string;
+    timerTriggeredMessage: string | number;
     timerHaltedMessageType: TimerHaltedMessageType;
-    timerHaltedMessage: string;
+    timerHaltedMessage: string | number;
 
     isConsecutiveStartActionTimerResetAllowed: boolean;
     isRunningTimerProgressVisible: boolean;
@@ -133,28 +83,26 @@ export interface Props {
     continueActionName: string;
 }
 
-export type NodeConfigRaw = NodeProperties & RawProps;
-export type NodeConfig = Node & Props;
-export type OutputMessage = [null | unknown, null | unknown];
+export type ControlTimerNodeDef = NodeDef & Props;
 
 export const nodeName = 'controltimer';
 
-export const defaults: RawProps = {
+export const defaults: Props = {
     name: '',
     timerType: TIMER_TYPE.DELAY,
 
     timerDurationUnit: DurationUnit.SECOND,
     timerDurationType: 'num',
-    timerDuration: '5',
+    timerDuration: 5,
 
     timerLoopTimeoutUnit: DurationUnit.SECOND,
     timerLoopTimeoutType: 'num',
-    timerLoopTimeout: '0',
+    timerLoopTimeout: 0,
 
     loopTimeoutMessageType: 'str',
     loopTimeoutMessage: 'LOOP_TIMEOUT',
     timerMaxLoopIterationsType: 'num',
-    timerMaxLoopIterations: '0',
+    timerMaxLoopIterations: 0,
     loopMaxIterationsMessageType: 'str',
     loopMaxIterationsMessage: 'MAX_LOOP_ITERATIONS',
 
