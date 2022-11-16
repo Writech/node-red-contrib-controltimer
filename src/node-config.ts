@@ -1,23 +1,9 @@
 import { NodeDef } from 'node-red';
 
-export enum TIMER_TYPE {
-    LOOP = 'loop',
-    DELAY = 'delay',
-}
+import { DurationUnit, TIMER_TYPE } from './timer';
 
-export enum STATE {
-    IDLE = 'IDLE',
-    RUNNING = 'RUNNING',
-    STOPPED = 'STOPPED',
-    PAUSED = 'PAUSED',
-}
-
-export enum DurationUnit {
-    MILLISECOND = 'millisecond',
-    SECOND = 'second',
-    MINUTE = 'minute',
-    HOUR = 'hour',
-}
+export const nodeName = 'controltimer';
+export type ControlTimerNodeDef = NodeDef & Props;
 
 export type TimerDurationType = 'num';
 export type TimerLoopTimeoutType = 'num';
@@ -83,10 +69,6 @@ export interface Props {
     continueActionName: string;
 }
 
-export type ControlTimerNodeDef = NodeDef & Props;
-
-export const nodeName = 'controltimer';
-
 export const defaults: Props = {
     name: '',
     timerType: TIMER_TYPE.DELAY,
@@ -107,9 +89,9 @@ export const defaults: Props = {
     loopMaxIterationsMessage: 'MAX_LOOP_ITERATIONS',
 
     isConsecutiveStartActionTimerResetAllowed: false,
-    isRunningTimerProgressVisible: false,
+    isRunningTimerProgressVisible: true,
     outputReceivedMessageOnTimerTrigger: true,
-    outputReceivedMessageOnTimerHalt: true,
+    outputReceivedMessageOnTimerHalt: false,
     startTimerOnReceivalOfUnknownMessage: false,
     resetTimerOnReceivalOfUnknownMessage: false,
     isDebugModeEnabled: false,

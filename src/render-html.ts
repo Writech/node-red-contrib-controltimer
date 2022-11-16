@@ -2,7 +2,8 @@ import * as ejs from 'ejs';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { defaults, DurationUnit, nodeName, TIMER_TYPE } from './helpers';
+import { defaults, nodeName } from './node-config';
+import { DurationUnit, TIMER_TYPE } from './timer';
 
 (() => {
     const srcEjsPath = path.resolve('src/controltimer.ejs');

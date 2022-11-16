@@ -4,7 +4,9 @@
 
 Change the type, duration and duration unit of controltimer by sending it a START message with additional data. See the example flow below for examples. All the other functionality (pausing, continuing, resetting) works as well for this.
 
-**FYI:** The override options remain active until controltimer is manually stopped or it finishes itself. If it's later manually started without overriding the options again it will take the type, duration and duration unit from controltimer configuration.
+The override options remain active until controltimer is manually stopped or it finishes itself. If it's later manually started without overriding the options again it will take the type, duration and duration unit from controltimer configuration.
+
+You will not see the info on the node itself updated when you override it's config. Controltimer will run by your sent configuration but the visible info on the node itself will not be updated. You can ensure controltimer runs by your sent configuration if you look at the timer progress status below the node.
 
 ```javascript
 {
@@ -19,13 +21,13 @@ Change the type, duration and duration unit of controltimer by sending it a STAR
 
 A customizable Node-RED timer node which offers both looping and delay behaviour. The timer can be interacted with by action messages. Timer can be started, reset, stopped, paused and continued. The timer has two outputs - the first one outputs the message when timer is triggered (delay expires or interval is triggered) and the second one outputs the message when the running timer is stopped or paused.
 
-Timer can be reset (timer will restart countdown from beginning) explicitly by the `Reset action` or when `Is consecutive start action timer reset allowed` option is enabled in addition to received `Reset actions` timer will be reset also every time a `Start action` is received. When `Reset timer on receival of unknown message` option is enabled the timer will be reset when it recieves an unknown\* message.
+Timer can be reset (timer will restart countdown from beginning) explicitly by the `Reset action` or when `Is consecutive start action timer reset allowed` option is enabled in addition to received `Reset actions` timer will be reset also every time a `Start action` is received. When `Reset timer on receival of unknown message` option is enabled the timer will be reset when it recieves an unknown message.
 
 Timer can be paused and later continued. This applies to both looping and delay behaviour. Upon continuing it will count down the remaining duration.
 
 For debugging or just to get an overview of timer progress you can enable `Is running timer progress visible` option. This will show timer progress in percentage of the total duration in the nodes status area.
 
-You can disable specific actions for node. For example disable Reset, Pause and Continue actions. Now when a node recieves any of the aforementioned actions it will treat them as unknown\* messages.
+You can disable specific actions for node. For example disable Reset, Pause and Continue actions. Now when a node recieves any of the aforementioned actions it will treat them as unknown messages.
 
 ## Example flow diagram
 
@@ -60,7 +62,11 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 110,
         "y": 40,
-        "wires": [["9736dc5641a70ae8"]]
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
     },
     {
         "id": "1ae1e3ee2f5250a6",
@@ -75,8 +81,8 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 800,
-        "y": 200,
+        "x": 680,
+        "y": 140,
         "wires": []
     },
     {
@@ -98,7 +104,11 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 110,
         "y": 80,
-        "wires": [["9736dc5641a70ae8"]]
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
     },
     {
         "id": "2db5a47c85a55778",
@@ -119,7 +129,11 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 110,
         "y": 120,
-        "wires": [["9736dc5641a70ae8"]]
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
     },
     {
         "id": "52882ab466bde0a2",
@@ -140,7 +154,11 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 110,
         "y": 160,
-        "wires": [["9736dc5641a70ae8"]]
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
     },
     {
         "id": "5acb4a13897dfe33",
@@ -161,7 +179,11 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 130,
         "y": 200,
-        "wires": [["9736dc5641a70ae8"]]
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
     },
     {
         "id": "5c9aea117d0cb988",
@@ -176,8 +198,8 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 780,
-        "y": 240,
+        "x": 660,
+        "y": 180,
         "wires": []
     },
     {
@@ -199,57 +221,11 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 130,
         "y": 240,
-        "wires": [["9736dc5641a70ae8"]]
-    },
-    {
-        "id": "9736dc5641a70ae8",
-        "type": "controltimer",
-        "z": "afd749500f2d393d",
-        "name": "",
-        "timerType": "loop",
-        "timerDurationUnit": "second",
-        "timerDurationType": "num",
-        "timerDuration": 10,
-        "timerLoopTimeoutUnit": "second",
-        "timerLoopTimeoutType": "num",
-        "timerLoopTimeout": 0,
-        "loopTimeoutMessageType": "str",
-        "loopTimeoutMessage": "LOOP_TIMEOUT",
-        "timerMaxLoopIterationsType": "num",
-        "timerMaxLoopIterations": 0,
-        "loopMaxIterationsMessageType": "str",
-        "loopMaxIterationsMessage": "MAX_LOOP_ITERATIONS",
-        "isConsecutiveStartActionTimerResetAllowed": false,
-        "isRunningTimerProgressVisible": true,
-        "outputReceivedMessageOnTimerTrigger": true,
-        "outputReceivedMessageOnTimerHalt": true,
-        "startTimerOnReceivalOfUnknownMessage": false,
-        "resetTimerOnReceivalOfUnknownMessage": false,
-        "isDebugModeEnabled": false,
-        "timerTriggeredMessageType": "str",
-        "timerTriggeredMessage": "TIMER_TRIGGERED",
-        "timerHaltedMessageType": "str",
-        "timerHaltedMessage": "TIMER_HALTED",
-        "isStartActionEnabled": true,
-        "isStopActionEnabled": true,
-        "isResetActionEnabled": true,
-        "isPauseActionEnabled": true,
-        "isContinueActionEnabled": true,
-        "actionPropertyNameType": "msg",
-        "actionPropertyName": "payload",
-        "startActionNameType": "str",
-        "startActionName": "START",
-        "stopActionNameType": "str",
-        "stopActionName": "STOP",
-        "resetActionNameType": "str",
-        "resetActionName": "RESET",
-        "pauseActionNameType": "str",
-        "pauseActionName": "PAUSE",
-        "continueActionNameType": "str",
-        "continueActionName": "CONTINUE",
-        "x": 560,
-        "y": 260,
-        "wires": [["1ae1e3ee2f5250a6"], ["5c9aea117d0cb988"]]
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
     },
     {
         "id": "76203a31872dca18",
@@ -270,16 +246,35 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "topic": "",
         "x": 130,
         "y": 280,
-        "wires": [["9736dc5641a70ae8"]]
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
     },
     {
         "id": "01f89a1a0cfa1eb2",
         "type": "inject",
         "z": "afd749500f2d393d",
-        "name": "",
+        "name": "START (3000ms delay)",
         "props": [
             {
                 "p": "payload"
+            },
+            {
+                "p": "timerType",
+                "v": "delay",
+                "vt": "str"
+            },
+            {
+                "p": "timerDuration",
+                "v": "3000",
+                "vt": "num"
+            },
+            {
+                "p": "timerDurationUnit",
+                "v": "millisecond",
+                "vt": "str"
             }
         ],
         "repeat": "",
@@ -289,33 +284,37 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "topic": "",
         "payload": "START",
         "payloadType": "str",
-        "x": 110,
+        "x": 160,
         "y": 320,
-        "wires": [["5468dc68ac582a66"]]
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
     },
     {
-        "id": "5468dc68ac582a66",
-        "type": "function",
-        "z": "afd749500f2d393d",
-        "name": "3000 milliseconds delay",
-        "func": "msg.timerType = 'delay';\nmsg.timerDuration = 3000;\nmsg.timerDurationUnit = 'millisecond';\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 290,
-        "y": 320,
-        "wires": [["9736dc5641a70ae8"]]
-    },
-    {
-        "id": "344b21399d729752",
+        "id": "c96f33f73a45a2a0",
         "type": "inject",
         "z": "afd749500f2d393d",
-        "name": "",
+        "name": "START (3000ms loop)",
         "props": [
             {
                 "p": "payload"
+            },
+            {
+                "p": "timerType",
+                "v": "loop",
+                "vt": "str"
+            },
+            {
+                "p": "timerDuration",
+                "v": "3000",
+                "vt": "num"
+            },
+            {
+                "p": "timerDurationUnit",
+                "v": "millisecond",
+                "vt": "str"
             }
         ],
         "repeat": "",
@@ -325,24 +324,70 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "topic": "",
         "payload": "START",
         "payloadType": "str",
-        "x": 110,
+        "x": 160,
         "y": 360,
-        "wires": [["16de63fc875b63b1"]]
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
     },
     {
-        "id": "16de63fc875b63b1",
-        "type": "function",
+        "id": "44e6d3eefa84eb4d",
+        "type": "controltimer",
         "z": "afd749500f2d393d",
-        "name": "3000 milliseconds loop",
-        "func": "msg.timerType = 'loop';\nmsg.timerDuration = '3000';\nmsg.timerDurationUnit = 'millisecond';\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 290,
-        "y": 360,
-        "wires": [["9736dc5641a70ae8"]]
+        "name": "",
+        "timerType": "delay",
+        "timerDurationUnit": "second",
+        "timerDurationType": "num",
+        "timerDuration": 5,
+        "timerLoopTimeoutUnit": "second",
+        "timerLoopTimeoutType": "num",
+        "timerLoopTimeout": 0,
+        "loopTimeoutMessageType": "str",
+        "loopTimeoutMessage": "LOOP_TIMEOUT",
+        "timerMaxLoopIterationsType": "num",
+        "timerMaxLoopIterations": 0,
+        "loopMaxIterationsMessageType": "str",
+        "loopMaxIterationsMessage": "MAX_LOOP_ITERATIONS",
+        "isConsecutiveStartActionTimerResetAllowed": false,
+        "isRunningTimerProgressVisible": true,
+        "outputReceivedMessageOnTimerTrigger": true,
+        "outputReceivedMessageOnTimerHalt": false,
+        "startTimerOnReceivalOfUnknownMessage": false,
+        "resetTimerOnReceivalOfUnknownMessage": false,
+        "isDebugModeEnabled": false,
+        "timerTriggeredMessageType": "str",
+        "timerTriggeredMessage": "TIMER_TRIGGERED",
+        "timerHaltedMessageType": "str",
+        "timerHaltedMessage": "TIMER_HALTED",
+        "isStartActionEnabled": true,
+        "isStopActionEnabled": true,
+        "isResetActionEnabled": true,
+        "isPauseActionEnabled": true,
+        "isContinueActionEnabled": true,
+        "actionPropertyNameType": "str",
+        "actionPropertyName": "payload",
+        "startActionNameType": "str",
+        "startActionName": "START",
+        "stopActionNameType": "str",
+        "stopActionName": "STOP",
+        "resetActionNameType": "str",
+        "resetActionName": "RESET",
+        "pauseActionNameType": "str",
+        "pauseActionName": "PAUSE",
+        "continueActionNameType": "str",
+        "continueActionName": "CONTINUE",
+        "x": 440,
+        "y": 200,
+        "wires": [
+            [
+                "1ae1e3ee2f5250a6"
+            ],
+            [
+                "5c9aea117d0cb988"
+            ]
+        ]
     }
 ]
 ```
@@ -350,6 +395,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
 </details>
 
 ![controltimer example flow](img/example-flow.png?raw=true)
+![controltimer example progress](img/example-progress.png?raw=true)
 
 ## Installation
 
@@ -390,10 +436,6 @@ Change directory to your node red installation:
 | `Pause action name`                               | Defines the action string that will PAUSE the timer.                                                                                                   | `PAUSE`               |
 | `Continue action name`                            | Defines the action string that will CONTINUE the paused timer.                                                                                         | `CONTINUE`            |
 
-\*_Unknown message is a message with a payload that's not in the set of defined and enabled action strings. Ex. message with no defined `Action property name` or a message with `Action property name` contents which doesn't match any of the enabled action names. Ex. if Pause action is received but it's disabled in the settings it's regarded as unknown message._
+*Unknown message is a message with a payload that's not in the set of defined and enabled action strings. Ex. message with no defined `Action property name` or a message with `Action property name` contents which doesn't match any of the enabled action names. Ex. if Pause action is received but it's disabled in the settings it's regarded as unknown message.*
 
-## State diagram
-
-![controltimer state diagram](img/state-diagram.png?raw=true)
-
-<a target="_blank" href="https://icons8.com/icons/set/future">Future icon</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+<a target="_blank" href="https://icons8.com/icons/set/future">Future icon</a> by <a target="_blank" href="https://icons8.com">Icons8</a>
