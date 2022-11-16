@@ -114,3 +114,6 @@ tsconfig.json
 src/
 package/
 *.tgz
+
+scripts/
+.prettierignore
