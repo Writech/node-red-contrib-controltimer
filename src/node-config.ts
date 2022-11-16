@@ -1,23 +1,9 @@
 import { NodeDef } from 'node-red';
 
-export enum TIMER_TYPE {
-    LOOP = 'loop',
-    DELAY = 'delay',
-}
+import { DurationUnit, TIMER_TYPE } from './timer';
 
-export enum STATE {
-    IDLE = 'IDLE',
-    RUNNING = 'RUNNING',
-    STOPPED = 'STOPPED',
-    PAUSED = 'PAUSED',
-}
-
-export enum DurationUnit {
-    MILLISECOND = 'millisecond',
-    SECOND = 'second',
-    MINUTE = 'minute',
-    HOUR = 'hour',
-}
+export const nodeName = 'controltimer';
+export type ControlTimerNodeDef = NodeDef & Props;
 
 export type TimerDurationType = 'num';
 export type TimerLoopTimeoutType = 'num';
@@ -81,11 +67,11 @@ export interface Props {
     pauseActionName: string;
     continueActionNameType: ContinueActionNameType;
     continueActionName: string;
+
+    timerTypeOverridePropertyName: string;
+    timerDurationOverridePropertyName: string;
+    timerDurationUnitOverridePropertyName: string;
 }
-
-export type ControlTimerNodeDef = NodeDef & Props;
-
-export const nodeName = 'controltimer';
 
 export const defaults: Props = {
     name: '',
@@ -135,9 +121,7 @@ export const defaults: Props = {
     pauseActionName: 'PAUSE',
     continueActionNameType: 'str',
     continueActionName: 'CONTINUE',
-};
 
-export const constants = {
     timerTypeOverridePropertyName: 'timerType',
     timerDurationOverridePropertyName: 'timerDuration',
     timerDurationUnitOverridePropertyName: 'timerDurationUnit',

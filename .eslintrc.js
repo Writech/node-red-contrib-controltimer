@@ -30,5 +30,6 @@ module.exports = {
         'no-undef': 'error',
         eqeqeq: 'error',
         '@typescript-eslint/no-namespace': 'off',
+        '@typescript-eslint/no-this-alias': 'off',
     },
 };
