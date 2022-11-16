@@ -1,22 +1,48 @@
 {
     "name": "node-red-contrib-controltimer",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "description": "A controllable Node-RED timer node. Start, Stop, Reset, Pause and Continue the timer. Use the timer as a loop or a delay.",
     "scripts": {
-        "build": "rimraf dist && npm run lint && npm run -s build:ts && npm run render-html && npm run copy-icons",
-        "watch": "rimraf dist && npm run lint && npm run -s watch:ts && npm run render-html && npm run copy-icons",
-        "build:ts": "tsc",
-        "watch:ts": "tsc -w",
-        "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
-        "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix",
-        "lint-ci": "npm run format && npm run lint --silent && npm run build:ts --silent",
-        "render-html": "ts-node src/render-html.ts",
-        "test-watch": "npm run run-docker && watch 'npm run rebuild' src",
-        "rebuild": "echo '### Changes detected. Rebuilding... ###' && npm run delete-artifacts && npm run build && npm pack && npm run reinstall && echo '### Build done ###'",
-        "delete-artifacts": "rimraf 'node-red-contrib-controltimer-*.tgz' && rimraf package",
-        "copy-icons": "rsync -a src/icons/ dist/icons/",
-        "run-docker": "docker stop node-red-testing || true && docker rm node-red-testing || true && docker run -d --rm -p 1880:1880 -v ~/.node-red:/data --name node-red-testing nodered/node-red:3.0.2-16",
-        "reinstall": "cd ~/.node-red && npm uninstall --save node-red-contrib-controltimer && npm install --save ~/GithubProjects/node-red-contrib-controltimer/node-red-contrib-controltimer-0.2.1.tgz && docker restart node-red-testing"
+        "build": "scripty",
+        "build:copy-icons": "scripty",
+        "build:render-html": "scripty",
+        "clean:all": "scripty",
+        "clean:artifacts": "scripty",
+        "node-red:reinstall-package": "scripty",
+        "node-red:start-docker": "scripty",
+        "node-red:stop-docker": "scripty",
+        "npm:publish": "scripty",
+        "npm:update": "scripty",
+        "prepare": "husky install",
+        "start-dev": "scripty",
+        "tidy:format": "scripty",
+        "tidy:lint": "scripty",
+        "tidy:lint-fix": "scripty"
+    },
+    "devDependencies": {
+        "@types/ejs": "^3.1.1",
+        "@types/node": "^18.11.9",
+        "@types/node-red": "^1.2.1",
+        "@typescript-eslint/eslint-plugin": "^5.43.0",
+        "@typescript-eslint/parser": "^5.43.0",
+        "ejs": "^3.1.8",
+        "eslint": "^8.27.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "eslint-plugin-simple-import-sort": "^8.0.0",
+        "husky": "^8.0.2",
+        "lint-staged": "^13.0.3",
+        "nodemon": "^2.0.20",
+        "npm-check-updates": "^16.4.1",
+        "prettier": "^2.7.1",
+        "rimraf": "^3.0.2",
+        "scripty": "^2.1.1",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.3"
+    },
+    "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
+    "bugs": {
+        "url": "https://github.com/Writech/node-red-contrib-controltimer/issues"
     },
     "repository": {
         "type": "git",
@@ -32,28 +58,6 @@
         "timeout",
         "interval"
     ],
-    "bugs": {
-        "url": "https://github.com/Writech/node-red-contrib-controltimer/issues"
-    },
-    "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
-    "devDependencies": {
-        "@types/ejs": "^3.1.1",
-        "@types/node": "^18.11.9",
-        "@types/node-red": "^1.2.1",
-        "@typescript-eslint/eslint-plugin": "^5.43.0",
-        "@typescript-eslint/parser": "^5.43.0",
-        "ejs": "^3.1.8",
-        "eslint": "^8.27.0",
-        "eslint-config-prettier": "^8.5.0",
-        "eslint-plugin-prettier": "^4.2.1",
-        "husky": "^8.0.2",
-        "lint-staged": "^13.0.3",
-        "prettier": "^2.7.1",
-        "rimraf": "^3.0.2",
-        "ts-node": "^10.9.1",
-        "typescript": "^4.9.3",
-        "watch": "^1.0.2"
-    },
     "engines": {
         "node": ">=16.0.0"
     },
@@ -63,7 +67,10 @@
         }
     },
     "lint-staged": {
-        "*.{js,jsx,ts,tsx}": [
+        "**/*": [
+            "prettier --write --ignore-unknown"
+        ],
+        "*.{js,ts,cjs,mts}": [
             "eslint --fix"
         ]
     },
