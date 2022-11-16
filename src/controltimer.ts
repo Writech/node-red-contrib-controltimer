@@ -3,7 +3,7 @@ import { defaults, nodeName, STATE, TIMER_TYPE, DurationUnit, constants, Control
 
 type NodeMessage = NodeMessageInFlow;
 
-export = (RED: NodeAPI): void => {
+module.exports = function (RED: NodeAPI): void {
     RED.nodes.registerType(nodeName, function (config: ControlTimerNodeDef) {
         RED.nodes.createNode(this, config);
 
