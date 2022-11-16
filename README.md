@@ -3,7 +3,7 @@
 ## **NEW in 0.2.0** 
 Change the type, duration and duration unit of controltimer by sending it a START message with additional data. See the example flow below for examples. All the other functionality (pausing, continuing, resetting) works as well for this. 
 
-**FYI:** The override options remains active until controltimer is manually stopped or it finishes itself. If it's later manually started without overriding the options again it will take the type, duration and duration unit from controltimer configuration.
+**FYI:** The override options remain active until controltimer is manually stopped or it finishes itself. If it's later manually started without overriding the options again it will take the type, duration and duration unit from controltimer configuration.
 ```javascript
 {
     payload: 'START',
