@@ -1,6 +1,6 @@
 # node-red-contrib-controltimer
 
-## **NEW in 0.2.2**
+## **NEW Feature**
 
 Change the type, duration and duration unit of controltimer by sending it a START message with additional data. See the example flow below for examples. All the other functionality (pausing, continuing, resetting) works as well for this.
 
