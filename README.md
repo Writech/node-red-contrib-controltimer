@@ -34,16 +34,16 @@ You can disable specific actions for node. For example disable Reset, Pause and 
   ```json
 [
     {
-        "id": "e3c81493.d9d2f8",
+        "id": "afd749500f2d393d",
         "type": "tab",
         "label": "ControlTimer Example",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "e9565a66.765b58",
+        "id": "79276f6f06e96f24",
         "type": "inject",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "",
         "props": [
             {
@@ -61,14 +61,14 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 40,
         "wires": [
             [
-                "302cfb99.eb6ad4"
+                "9736dc5641a70ae8"
             ]
         ]
     },
     {
-        "id": "87b98e47.b188c",
+        "id": "1ae1e3ee2f5250a6",
         "type": "debug",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "TIMER TRIGGERED",
         "active": true,
         "tosidebar": true,
@@ -83,9 +83,9 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "wires": []
     },
     {
-        "id": "6f03d8e2.43ef98",
+        "id": "9711419041494ee9",
         "type": "inject",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "",
         "props": [
             {
@@ -103,14 +103,14 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 80,
         "wires": [
             [
-                "302cfb99.eb6ad4"
+                "9736dc5641a70ae8"
             ]
         ]
     },
     {
-        "id": "80765310.41236",
+        "id": "2db5a47c85a55778",
         "type": "inject",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "",
         "props": [
             {
@@ -128,14 +128,14 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 120,
         "wires": [
             [
-                "302cfb99.eb6ad4"
+                "9736dc5641a70ae8"
             ]
         ]
     },
     {
-        "id": "8efa6f10.34b82",
+        "id": "52882ab466bde0a2",
         "type": "inject",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "",
         "props": [
             {
@@ -153,14 +153,14 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 160,
         "wires": [
             [
-                "302cfb99.eb6ad4"
+                "9736dc5641a70ae8"
             ]
         ]
     },
     {
-        "id": "dc1a826a.162c",
+        "id": "5acb4a13897dfe33",
         "type": "inject",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "CONTINUE",
         "props": [
             {
@@ -178,14 +178,14 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 200,
         "wires": [
             [
-                "302cfb99.eb6ad4"
+                "9736dc5641a70ae8"
             ]
         ]
     },
     {
-        "id": "4452e395.eca39c",
+        "id": "5c9aea117d0cb988",
         "type": "debug",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "TIMER HALTED",
         "active": true,
         "tosidebar": true,
@@ -200,9 +200,9 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "wires": []
     },
     {
-        "id": "3df24239.0889fe",
+        "id": "bbd756d4850041fa",
         "type": "inject",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "",
         "props": [
             {
@@ -220,14 +220,14 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 240,
         "wires": [
             [
-                "302cfb99.eb6ad4"
+                "9736dc5641a70ae8"
             ]
         ]
     },
     {
-        "id": "302cfb99.eb6ad4",
+        "id": "9736dc5641a70ae8",
         "type": "controltimer",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "",
         "timerType": "loop",
         "timerDurationUnit": "second",
@@ -274,17 +274,17 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 260,
         "wires": [
             [
-                "87b98e47.b188c"
+                "1ae1e3ee2f5250a6"
             ],
             [
-                "4452e395.eca39c"
+                "5c9aea117d0cb988"
             ]
         ]
     },
     {
-        "id": "903e22bf.49913",
+        "id": "76203a31872dca18",
         "type": "inject",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "UNKNOWN2",
         "props": [
             {
@@ -302,14 +302,14 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 280,
         "wires": [
             [
-                "302cfb99.eb6ad4"
+                "9736dc5641a70ae8"
             ]
         ]
     },
     {
-        "id": "ca72fa5b45d22bdb",
+        "id": "01f89a1a0cfa1eb2",
         "type": "inject",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "",
         "props": [
             {
@@ -327,16 +327,16 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 320,
         "wires": [
             [
-                "68f61ab0b57e5f11"
+                "5468dc68ac582a66"
             ]
         ]
     },
     {
-        "id": "68f61ab0b57e5f11",
+        "id": "5468dc68ac582a66",
         "type": "function",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "3000 milliseconds delay",
-        "func": "// msg.timerType = 'loop';\nmsg.timerType = 'delay';\nmsg.timerDuration = 3000;\nmsg.timerDurationUnit = 'millisecond';\n// msg.timerDurationUnit = 'second';\n// msg.timerDurationUnit = 'minute';\n// msg.timerDurationUnit = 'hour';\nreturn msg;",
+        "func": "msg.timerType = 'delay';\nmsg.timerDuration = 3000;\nmsg.timerDurationUnit = 'millisecond';\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -346,14 +346,14 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 320,
         "wires": [
             [
-                "302cfb99.eb6ad4"
+                "9736dc5641a70ae8"
             ]
         ]
     },
     {
-        "id": "8a3c3c04a3805524",
+        "id": "344b21399d729752",
         "type": "inject",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "",
         "props": [
             {
@@ -371,16 +371,16 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 360,
         "wires": [
             [
-                "200fae218343e702"
+                "16de63fc875b63b1"
             ]
         ]
     },
     {
-        "id": "200fae218343e702",
+        "id": "16de63fc875b63b1",
         "type": "function",
-        "z": "e3c81493.d9d2f8",
+        "z": "afd749500f2d393d",
         "name": "3000 milliseconds loop",
-        "func": "msg.timerType = 'loop';\n// msg.timerType = 'delay';\nmsg.timerDuration = '3000';\nmsg.timerDurationUnit = 'millisecond';\n// msg.timerDurationUnit = 'second';\n// msg.timerDurationUnit = 'minute';\n// msg.timerDurationUnit = 'hour';\nreturn msg;",
+        "func": "msg.timerType = 'loop';\nmsg.timerDuration = '3000';\nmsg.timerDurationUnit = 'millisecond';\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -390,7 +390,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "y": 360,
         "wires": [
             [
-                "302cfb99.eb6ad4"
+                "9736dc5641a70ae8"
             ]
         ]
     }
