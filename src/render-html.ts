@@ -1,6 +1,7 @@
+import * as ejs from 'ejs';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as ejs from 'ejs';
+
 import { defaults, DurationUnit, nodeName, TIMER_TYPE } from './helpers';
 
 (() => {

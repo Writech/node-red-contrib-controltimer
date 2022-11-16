@@ -1,5 +1,6 @@
-import { NodeAPI, Node, NodeMessageInFlow } from 'node-red';
-import { defaults, nodeName, STATE, TIMER_TYPE, DurationUnit, constants, ControlTimerNodeDef, Props } from './helpers';
+import { Node, NodeAPI, NodeMessageInFlow } from 'node-red';
+
+import { constants, ControlTimerNodeDef, defaults, DurationUnit, nodeName, Props, STATE, TIMER_TYPE } from './helpers';
 
 type NodeMessage = NodeMessageInFlow;
 
