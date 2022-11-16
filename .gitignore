@@ -108,3 +108,5 @@ dist/
 .idea/
 package/
 *.tgz
+
+.husky

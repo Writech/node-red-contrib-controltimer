@@ -13,7 +13,7 @@
         "node-red:stop-docker": "scripty",
         "npm:publish": "scripty",
         "npm:update": "scripty",
-        "prepare": "husky install",
+        "postinstall": "husky install",
         "start-dev": "scripty",
         "tidy:format": "scripty",
         "tidy:lint": "scripty",
