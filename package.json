@@ -8,12 +8,12 @@
         "build:render-html": "scripty",
         "clean:all": "scripty",
         "clean:artifacts": "scripty",
+        "dev": "scripty",
         "node-red:reinstall-package": "scripty",
         "node-red:start-docker": "scripty",
         "node-red:stop-docker": "scripty",
         "npm:publish": "scripty",
         "npm:update": "scripty",
-        "start-dev": "scripty",
         "tidy:format": "scripty",
         "tidy:lint": "scripty",
         "tidy:lint-fix": "scripty"
