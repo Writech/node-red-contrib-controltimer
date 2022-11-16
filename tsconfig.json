@@ -6,7 +6,6 @@
         "outDir": "dist",
         "allowSyntheticDefaultImports": true,
         "baseUrl": "src",
-        "incremental": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "noUnusedLocals": true,
