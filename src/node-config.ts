@@ -67,10 +67,6 @@ export interface Props {
     pauseActionName: string;
     continueActionNameType: ContinueActionNameType;
     continueActionName: string;
-
-    timerTypeOverridePropertyName: string;
-    timerDurationOverridePropertyName: string;
-    timerDurationUnitOverridePropertyName: string;
 }
 
 export const defaults: Props = {
@@ -93,9 +89,9 @@ export const defaults: Props = {
     loopMaxIterationsMessage: 'MAX_LOOP_ITERATIONS',
 
     isConsecutiveStartActionTimerResetAllowed: false,
-    isRunningTimerProgressVisible: false,
+    isRunningTimerProgressVisible: true,
     outputReceivedMessageOnTimerTrigger: true,
-    outputReceivedMessageOnTimerHalt: true,
+    outputReceivedMessageOnTimerHalt: false,
     startTimerOnReceivalOfUnknownMessage: false,
     resetTimerOnReceivalOfUnknownMessage: false,
     isDebugModeEnabled: false,
@@ -121,7 +117,9 @@ export const defaults: Props = {
     pauseActionName: 'PAUSE',
     continueActionNameType: 'str',
     continueActionName: 'CONTINUE',
+};
 
+export const constants = {
     timerTypeOverridePropertyName: 'timerType',
     timerDurationOverridePropertyName: 'timerDuration',
     timerDurationUnitOverridePropertyName: 'timerDurationUnit',

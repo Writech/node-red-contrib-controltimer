@@ -5,7 +5,7 @@ module.exports = {
         ecmaVersion: 2022,
         sourceType: 'module',
     },
-    plugins: ['@typescript-eslint', 'simple-import-sort'],
+    plugins: ['@typescript-eslint', 'simple-import-sort', 'prettier'],
     extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
     env: {
         node: true,
@@ -14,6 +14,7 @@ module.exports = {
         NodeJS: true,
     },
     rules: {
+        'prettier/prettier': 'error',
         '@typescript-eslint/no-explicit-any': 'error',
         '@typescript-eslint/no-unused-vars': ['warn'],
         'comma-dangle': ['warn', 'always-multiline'],
@@ -21,7 +22,7 @@ module.exports = {
         'max-len': [
             'warn',
             {
-                code: 180,
+                code: 160,
                 tabWidth: 4,
             },
         ],

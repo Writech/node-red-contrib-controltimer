@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { clearInterval } from 'timers';
+import { clearInterval, clearTimeout } from 'timers';
 
 enum ACTION {
     START = 'START',
@@ -28,57 +28,33 @@ export enum DurationUnit {
     HOUR = 'hour',
 }
 
-interface TimerSettings {
-    baseConfig?: TimerBaseConfig;
-    config?: TimerConfig;
-}
-
-interface TimerBaseConfig {
-    isStartAllowedToResetTimer: boolean;
+interface TimerConfig {
+    timerType: TIMER_TYPE;
+    duration: number;
+    durationUnit: DurationUnit;
     isTimerProgressUpdateEnabled: boolean;
     timerMaxLoopIterations: number;
     timerLoopTimeout: number;
     timerLoopTimeoutUnit: DurationUnit;
 }
 
-interface TimerConfig {
-    timerType: TIMER_TYPE;
-    duration: number;
-    durationUnit: DurationUnit;
-}
-
-// TODO: Determine what happens when timer is paused right at the moment the timer expires
-
 export class Timer extends EventEmitter {
-    static defaultBaseConfig: TimerBaseConfig = {
-        isStartAllowedToResetTimer: false,
-        isTimerProgressUpdateEnabled: false,
+    static defaultConfig: TimerConfig = {
+        timerType: TIMER_TYPE.DELAY,
+        duration: 5,
+        durationUnit: DurationUnit.SECOND,
+        isTimerProgressUpdateEnabled: true,
         timerMaxLoopIterations: 0,
         timerLoopTimeout: 0,
         timerLoopTimeoutUnit: DurationUnit.MILLISECOND,
     };
 
-    static defaultConfig: TimerConfig = {
-        timerType: TIMER_TYPE.DELAY,
-        duration: 3,
-        durationUnit: DurationUnit.SECOND,
-    };
-
-    static getInstance(settings: TimerSettings = {}) {
-        return new Timer(settings);
+    static getInstance(config: TimerConfig) {
+        return new Timer(config);
     }
 
-    // ############
-    // ## Config ##
-    // ############
-
-    private baseConfig: TimerBaseConfig = Timer.defaultBaseConfig;
     private config: TimerConfig = Timer.defaultConfig;
-    private configOverride: TimerConfig;
-
-    // ###########
-    // ## State ##
-    // ###########
+    private configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>;
 
     private currentState: STATE = STATE.IDLE;
     private timerId: NodeJS.Timeout;
@@ -89,19 +65,9 @@ export class Timer extends EventEmitter {
     private pausedTimerRunningMilliseconds: number;
     private timerStartedAtUnixTimestamp: number;
 
-    constructor(settings: TimerSettings) {
+    constructor(config: TimerConfig) {
         super();
-
-        if (settings?.baseConfig) {
-            // TODO: Validate settings.baseConfig
-            this.baseConfig = settings.baseConfig;
-        }
-
-        if (settings?.config) {
-            // TODO: Validate settings.config
-            this.config = settings.config;
-        }
-
+        this.config = config; // TODO: Validate config
         this.setCurrentState(STATE.IDLE);
     }
 
@@ -130,10 +96,7 @@ export class Timer extends EventEmitter {
     }
 
     public hardReset() {
-        this.baseConfig = Timer.defaultBaseConfig;
-        this.config = Timer.defaultConfig;
         this.configOverride = undefined;
-
         this.softReset();
     }
 
@@ -145,14 +108,17 @@ export class Timer extends EventEmitter {
         this.timerStartedAtUnixTimestamp = undefined;
     }
 
-    public setConfigOverride(configOverride: TimerConfig) {
-        // TODO: Validate configOverride
-        this.configOverride = configOverride;
+    public setConfigOverride(configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>) {
+        this.configOverride = configOverride; // TODO: Validate configOverride
     }
 
-    // ############################
-    // ## Action utility methods ##
-    // ############################
+    public getState() {
+        return this.currentState;
+    }
+
+    // ###########################
+    // ## Timer action handling ##
+    // ###########################
 
     private handleAction(action: ACTION) {
         if (this.currentState === STATE.IDLE) {
@@ -196,16 +162,14 @@ export class Timer extends EventEmitter {
         }
     }
 
-    // ###########################
-    // ## Timer utility methods ##
-    // ###########################
+    // ##########################
+    // ## Timer action methods ##
+    // ##########################
 
     private startTimer() {
         this.softReset();
-
         this.timerId = this.createAndGetTimer();
-
-        this.setCurrentState(STATE.RUNNING);
+        this.setCurrentState(STATE.RUNNING, this.getRunningTimerProgress());
         this.startProgressUpdateTimer();
     }
 
@@ -217,16 +181,13 @@ export class Timer extends EventEmitter {
 
     private resetTimer() {
         this.softReset();
-
         this.timerId = this.createAndGetTimer();
-
-        this.setCurrentState(STATE.RUNNING);
+        this.setCurrentState(STATE.RUNNING, this.getRunningTimerProgress());
         this.startProgressUpdateTimer();
     }
 
     private pauseTimer() {
         this.destroyTimers();
-
         const previousRunningDurationInMilliseconds = this.pausedTimerRunningMilliseconds ?? 0;
         this.pausedTimerRunningMilliseconds = Date.now() - this.timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds;
         this.timerStartedAtUnixTimestamp = undefined;
@@ -235,8 +196,7 @@ export class Timer extends EventEmitter {
 
     private continueTimer() {
         this.timerId = this.createAndGetTimer(this.timerDurationInMilliseconds - this.pausedTimerRunningMilliseconds);
-
-        this.setCurrentState(STATE.RUNNING);
+        this.setCurrentState(STATE.RUNNING, this.getRunningTimerProgress());
         this.startProgressUpdateTimer();
     }
 
@@ -252,38 +212,38 @@ export class Timer extends EventEmitter {
     private createAndGetTimer(durationInMillisecondsOverride?: number) {
         const durationInMilliseconds = durationInMillisecondsOverride ?? this.timerDurationInMilliseconds;
 
-        if ((this.configOverride === null && this.config.timerType === TIMER_TYPE.LOOP) || this.configOverride?.timerType === TIMER_TYPE.LOOP) {
-            this.pausedTimerRunningMilliseconds = undefined;
+        if ((this.config.timerType === TIMER_TYPE.LOOP && !this.configOverride) || this.configOverride?.timerType === TIMER_TYPE.LOOP) {
+            this.pausedTimerRunningMilliseconds = durationInMillisecondsOverride ? this.pausedTimerRunningMilliseconds : undefined;
             this.timerStartedAtUnixTimestamp = Date.now();
 
             this.startLoopTimeoutTimer();
 
             return setInterval(() => {
+                this.emit('timer');
+
+                if (durationInMillisecondsOverride && durationInMillisecondsOverride !== this.timerDurationInMilliseconds) {
+                    this.resetTimer();
+                }
+
                 this.pausedTimerRunningMilliseconds = undefined;
                 this.timerStartedAtUnixTimestamp = Date.now();
 
-                if (durationInMillisecondsOverride && durationInMillisecondsOverride !== this.timerDurationInMilliseconds) {
-                    this.resetTimer(); // TODO: What is going on here?
-                }
-
                 this.currentLoopIteration = this.currentLoopIteration + 1;
 
-                if (this.currentLoopIteration === this.baseConfig.timerMaxLoopIterations) {
+                if (this.currentLoopIteration === this.config.timerMaxLoopIterations) {
                     this.stopTimer();
                     this.emit('loop-max-iterations');
                 }
-
-                this.emit('timer');
             }, durationInMilliseconds);
         }
 
-        if ((this.configOverride === null && this.config.timerType === TIMER_TYPE.DELAY) || this.configOverride?.timerType === TIMER_TYPE.DELAY) {
+        if ((this.config.timerType === TIMER_TYPE.DELAY && !this.configOverride) || this.configOverride?.timerType === TIMER_TYPE.DELAY) {
             this.pausedTimerRunningMilliseconds = undefined;
             this.timerStartedAtUnixTimestamp = Date.now();
 
             return setTimeout(() => {
-                this.finishTimer();
                 this.emit('timer');
+                this.finishTimer();
             }, durationInMilliseconds);
         }
 
@@ -308,9 +268,10 @@ export class Timer extends EventEmitter {
     // ####################################
 
     private startLoopTimeoutTimer() {
-        this.stopLoopTimeoutTimer();
+        clearTimeout(this.loopTimeoutTimeoutTimerId);
+        this.loopTimeoutTimeoutTimerId = undefined;
 
-        if (this.baseConfig.timerLoopTimeout === 0) {
+        if (this.config.timerLoopTimeout === 0) {
             return;
         }
 
@@ -320,13 +281,11 @@ export class Timer extends EventEmitter {
         }, this.getTimerLoopTimeoutInMilliseconds());
     }
 
-    private stopLoopTimeoutTimer() {
-        clearTimeout(this.loopTimeoutTimeoutTimerId);
-        this.loopTimeoutTimeoutTimerId = undefined;
-    }
-
     private startProgressUpdateTimer() {
-        if (!this.baseConfig.isTimerProgressUpdateEnabled) {
+        clearInterval(this.progressUpdateIntervalTimerId);
+        this.progressUpdateIntervalTimerId = undefined;
+
+        if (!this.config.isTimerProgressUpdateEnabled) {
             return;
         }
 
@@ -335,22 +294,17 @@ export class Timer extends EventEmitter {
         }, 50);
     }
 
-    private stopProgressUpdateTimer() {
-        clearInterval(this.progressUpdateIntervalTimerId);
-        this.progressUpdateIntervalTimerId = undefined;
-    }
-
     private startStoppedTransitionToIdleTimer() {
-        this.stopStoppedTransitionToIdleTimer();
+        clearTimeout(this.stoppedTransitionToIdleTimeoutTimerId);
+        this.stoppedTransitionToIdleTimeoutTimerId = undefined;
+
+        if (this.currentState !== STATE.STOPPED) {
+            return;
+        }
 
         this.stoppedTransitionToIdleTimeoutTimerId = setTimeout(() => {
             this.finishTimer();
         }, 1000 * 10);
-    }
-
-    private stopStoppedTransitionToIdleTimer() {
-        clearTimeout(this.stoppedTransitionToIdleTimeoutTimerId);
-        this.stoppedTransitionToIdleTimeoutTimerId = undefined;
     }
 
     // #############################
@@ -364,21 +318,26 @@ export class Timer extends EventEmitter {
     }
 
     private getRunningTimerProgress() {
-        if (!this.baseConfig.isTimerProgressUpdateEnabled) {
+        if (!this.config.isTimerProgressUpdateEnabled) {
             return '';
         }
 
         const previousRunningDurationInMilliseconds = this.pausedTimerRunningMilliseconds ?? 0;
-        const timerPercentageCompletion = (100 * (Date.now() - this.timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds)) / this.timerDurationInMilliseconds;
-        return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${this.timerDuration} ${this.timerDurationUnit}(s)`;
+        const timerPercentageCompletion =
+            (100 * (Date.now() - this.timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds)) / this.timerDurationInMilliseconds;
+        return this.getTimerProgressString(timerPercentageCompletion);
     }
 
     private getPausedTimerProgress() {
-        if (!this.baseConfig.isTimerProgressUpdateEnabled) {
+        if (!this.config.isTimerProgressUpdateEnabled) {
             return '';
         }
 
         const timerPercentageCompletion = (100 * this.pausedTimerRunningMilliseconds) / this.timerDurationInMilliseconds;
+        return this.getTimerProgressString(timerPercentageCompletion);
+    }
+
+    private getTimerProgressString(timerPercentageCompletion) {
         return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${this.timerDuration} ${this.timerDurationUnit}(s)`;
     }
 
@@ -395,7 +354,7 @@ export class Timer extends EventEmitter {
     }
 
     private getTimerLoopTimeoutInMilliseconds() {
-        return Timer.getDurationInMilliseconds(this.baseConfig.timerLoopTimeout, this.baseConfig.timerLoopTimeoutUnit);
+        return Timer.getDurationInMilliseconds(this.config.timerLoopTimeout, this.config.timerLoopTimeoutUnit);
     }
 
     static getDurationInMilliseconds(duration: number, durationUnit: DurationUnit) {
