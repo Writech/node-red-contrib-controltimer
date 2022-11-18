@@ -1,7 +1,8 @@
 <script type="text/javascript">
 	RED.nodes.registerType('<%= nodeName %>', {
-		category: 'function',
-		color: '#C0DEED',
+		category: '<%= nodeCategory %>',
+		color: '<%= nodeColor %>',
+        icon: "<%= nodeName %>.png",
 		defaults: {
 			name: { value: '<%= defaults.name %>', required: false },
 			timerType: { value: '<%= defaults.timerType %>' },
@@ -53,204 +54,209 @@
         },
 		inputs: 1,
 		outputs: 2,
-		icon: "controltimer.png",
 		label: function () {
 			return this.name || `${this.timerDuration} ${this.timerDurationUnit} ${this.timerType === '<%= TIMER_TYPE.DELAY %>' ? '<%= TIMER_TYPE.DELAY %>' : '<%= TIMER_TYPE.LOOP %>'}`;
         },
-        labelStyle: function () {
-            return this.name ? 'node_label_italic' : '';
-        },
+        labelStyle: function () { return this.name ? 'node_label_italic' : '' },
         outputLabels: ['timer-triggered', 'timer-halted'],
         oneditprepare: function () {
-			const that = this;
-			const elementDefaults = <%- JSON.stringify(defaults, null, 4) %>;
+            const node = this;
+            const editorAppFilePath = '/<%= nodeName %>/js/<%= nodeCategory %>-<%= nodeName %>-editor.umd.js';
 
-			function initializeNodeRedTypedTextInput(valuePropertyName, availableTypes = []) {
-				const valueTypePropertyName = `${valuePropertyName}Type`;
-				that[valueTypePropertyName] = that[valueTypePropertyName] === null || that[valueTypePropertyName] === undefined ? elementDefaults[valueTypePropertyName] : that[valueTypePropertyName];
-				that[valuePropertyName] = that[valuePropertyName] === null || that[valuePropertyName] === undefined ? elementDefaults[valuePropertyName] : that[valuePropertyName];
+            $.getScript(editorAppFilePath)
+                .done(() => { window['<%= nodeName %>'].initialize(node) })
+                .fail((jqxhr, settings, exception) => { console.error(`Fail to load ${editorAppFilePath}`, exception)});
+        },
+        oneditpreparexxxxxxx: function () {
+            const that = this;
+            const elementDefaults = <%- JSON.stringify(defaults, null, 4) %>;
 
-				const valuePropertyElement = $(`#node-input-${valuePropertyName}`);
-				const valueTypePropertyElement = $(`#node-input-${valueTypePropertyName}`);
+            function initializeNodeRedTypedTextInput(valuePropertyName, availableTypes = []) {
+                const valueTypePropertyName = `${valuePropertyName}Type`;
+                that[valueTypePropertyName] = that[valueTypePropertyName] === null || that[valueTypePropertyName] === undefined ? elementDefaults[valueTypePropertyName] : that[valueTypePropertyName];
+                that[valuePropertyName] = that[valuePropertyName] === null || that[valuePropertyName] === undefined ? elementDefaults[valuePropertyName] : that[valuePropertyName];
 
-				valuePropertyElement.val(that[valuePropertyName]);
-				valueTypePropertyElement.val(that[valueTypePropertyName]);
+                const valuePropertyElement = $(`#node-input-${valuePropertyName}`);
+                const valueTypePropertyElement = $(`#node-input-${valueTypePropertyName}`);
 
-				valuePropertyElement.typedInput({
-					type: elementDefaults[valueTypePropertyName],
-					typeField: valueTypePropertyElement,
-					types: availableTypes,
-				});
+                valuePropertyElement.val(that[valuePropertyName]);
+                valueTypePropertyElement.val(that[valueTypePropertyName]);
 
-				valuePropertyElement.typedInput('type', that[valueTypePropertyName]);
-			}
+                valuePropertyElement.typedInput({
+                    type: elementDefaults[valueTypePropertyName],
+                    typeField: valueTypePropertyElement,
+                    types: availableTypes,
+                });
 
-			function initializeNodeRedCheckbox(valuePropertyName) {
-				that[valuePropertyName] = typeof that[valuePropertyName] === 'boolean' ? that[valuePropertyName] : elementDefaults[valuePropertyName]
-				$(`#node-input-${valuePropertyName}`).prop('checked', that[valuePropertyName]);
-			}
+                valuePropertyElement.typedInput('type', that[valueTypePropertyName]);
+            }
 
-			function initializeNodeRedSelect(valuePropertyName) {
-				that[valuePropertyName] = that[valuePropertyName] === null || that[valuePropertyName] === undefined ? elementDefaults[valuePropertyName] : that[valuePropertyName];
-				$(`#node-input-${valuePropertyName}`).val(that[valuePropertyName]);
-			}
+            function initializeNodeRedCheckbox(valuePropertyName) {
+                that[valuePropertyName] = typeof that[valuePropertyName] === 'boolean' ? that[valuePropertyName] : elementDefaults[valuePropertyName]
+                $(`#node-input-${valuePropertyName}`).prop('checked', that[valuePropertyName]);
+            }
 
-			function initializeAccordion() {
-				$('.controltimer-settings-accordion').each((index, element) => {
-					const accordionPanel = $(element).next();
-					const statusSpan = $(element).children('span.status');
+            function initializeNodeRedSelect(valuePropertyName) {
+                that[valuePropertyName] = that[valuePropertyName] === null || that[valuePropertyName] === undefined ? elementDefaults[valuePropertyName] : that[valuePropertyName];
+                $(`#node-input-${valuePropertyName}`).val(that[valuePropertyName]);
+            }
 
-					if ($(element).hasClass('controltimer-settings-accordion-active')) {
-						accordionPanel.css('max-height', `${accordionPanel.prop('scrollHeight')}px`);
-						statusSpan.text('(Click to hide)');
+            function initializeAccordion() {
+                $('.controltimer-settings-accordion').each((index, element) => {
+                    const accordionPanel = $(element).next();
+                    const statusSpan = $(element).children('span.status');
+
+                    if ($(element).hasClass('controltimer-settings-accordion-active')) {
+                        accordionPanel.css('max-height', `${accordionPanel.prop('scrollHeight')}px`);
+                        statusSpan.text('(Click to hide)');
                     } else {
-						statusSpan.text('(Click to show)');
+                        statusSpan.text('(Click to show)');
                     }
 
-					$(element).on('click', function() {
-						$(element).toggleClass('controltimer-settings-accordion-active');
+                    $(element).on('click', function() {
+                        $(element).toggleClass('controltimer-settings-accordion-active');
 
                         if (accordionPanel.css('max-height') !== '0px') {
-							accordionPanel.css('max-height', '0px');
-							statusSpan.text('(Click to show)');
+                            accordionPanel.css('max-height', '0px');
+                            statusSpan.text('(Click to show)');
                         } else {
-							accordionPanel.css('max-height', `${accordionPanel.prop('scrollHeight')}px`);
-							statusSpan.text('(Click to hide)');
+                            accordionPanel.css('max-height', `${accordionPanel.prop('scrollHeight')}px`);
+                            statusSpan.text('(Click to hide)');
                         }
-					});
+                    });
                 })
             }
 
             function initializeInputs() {
-				// ####################################
-				// ### General Controltimer Options ###
-				// ####################################
+                // ####################################
+                // ### General Controltimer Options ###
+                // ####################################
 
-				initializeNodeRedSelect('timerType');
-				initializeNodeRedSelect('timerDurationUnit');
-				initializeNodeRedTypedTextInput('timerDuration', ['num']);
+                initializeNodeRedSelect('timerType');
+                initializeNodeRedSelect('timerDurationUnit');
+                initializeNodeRedTypedTextInput('timerDuration', ['num']);
 
-				// #################################
-				// ### Controltimer Loop Options ###
-				// #################################
+                // #################################
+                // ### Controltimer Loop Options ###
+                // #################################
 
-				initializeNodeRedSelect('timerLoopTimeoutUnit');
-				initializeNodeRedTypedTextInput('timerLoopTimeout', ['num']);
-				initializeNodeRedTypedTextInput('loopTimeoutMessage', ['str']);
-				initializeNodeRedTypedTextInput('timerMaxLoopIterations', ['num']);
-				initializeNodeRedTypedTextInput('loopMaxIterationsMessage', ['str']);
+                initializeNodeRedSelect('timerLoopTimeoutUnit');
+                initializeNodeRedTypedTextInput('timerLoopTimeout', ['num']);
+                initializeNodeRedTypedTextInput('loopTimeoutMessage', ['str']);
+                initializeNodeRedTypedTextInput('timerMaxLoopIterations', ['num']);
+                initializeNodeRedTypedTextInput('loopMaxIterationsMessage', ['str']);
 
-				// #####################################
-				// ### Advanced Controltimer Options ###
-				// #####################################
+                // #####################################
+                // ### Advanced Controltimer Options ###
+                // #####################################
 
-				initializeNodeRedCheckbox('isConsecutiveStartActionTimerResetAllowed');
-				initializeNodeRedCheckbox('isRunningTimerProgressVisible');
-				initializeNodeRedCheckbox('outputReceivedMessageOnTimerTrigger');
-				initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
-				initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
-				initializeNodeRedCheckbox('startTimerOnReceivalOfUnknownMessage');
-				initializeNodeRedCheckbox('resetTimerOnReceivalOfUnknownMessage');
-				initializeNodeRedCheckbox('isDebugModeEnabled');
-				initializeNodeRedTypedTextInput('timerTriggeredMessage', ['str', 'num']);
-				initializeNodeRedTypedTextInput('timerHaltedMessage', ['str', 'num']);
+                initializeNodeRedCheckbox('isConsecutiveStartActionTimerResetAllowed');
+                initializeNodeRedCheckbox('isRunningTimerProgressVisible');
+                initializeNodeRedCheckbox('outputReceivedMessageOnTimerTrigger');
+                initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
+                initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
+                initializeNodeRedCheckbox('startTimerOnReceivalOfUnknownMessage');
+                initializeNodeRedCheckbox('resetTimerOnReceivalOfUnknownMessage');
+                initializeNodeRedCheckbox('isDebugModeEnabled');
+                initializeNodeRedTypedTextInput('timerTriggeredMessage', ['str', 'num']);
+                initializeNodeRedTypedTextInput('timerHaltedMessage', ['str', 'num']);
 
-				// ####################################
-				// ### Controltimer Actions Options ###
-				// ####################################
+                // ####################################
+                // ### Controltimer Actions Options ###
+                // ####################################
 
-				initializeNodeRedCheckbox('isStartActionEnabled');
-				initializeNodeRedCheckbox('isStopActionEnabled');
-				initializeNodeRedCheckbox('isResetActionEnabled');
-				initializeNodeRedCheckbox('isPauseActionEnabled');
-				initializeNodeRedCheckbox('isContinueActionEnabled');
-				initializeNodeRedTypedTextInput('actionPropertyName', ['str']);
-				initializeNodeRedTypedTextInput('startActionName', ['str']);
-				initializeNodeRedTypedTextInput('stopActionName', ['str']);
-				initializeNodeRedTypedTextInput('resetActionName', ['str']);
-				initializeNodeRedTypedTextInput('pauseActionName', ['str']);
-				initializeNodeRedTypedTextInput('continueActionName', ['str']);
+                initializeNodeRedCheckbox('isStartActionEnabled');
+                initializeNodeRedCheckbox('isStopActionEnabled');
+                initializeNodeRedCheckbox('isResetActionEnabled');
+                initializeNodeRedCheckbox('isPauseActionEnabled');
+                initializeNodeRedCheckbox('isContinueActionEnabled');
+                initializeNodeRedTypedTextInput('actionPropertyName', ['str']);
+                initializeNodeRedTypedTextInput('startActionName', ['str']);
+                initializeNodeRedTypedTextInput('stopActionName', ['str']);
+                initializeNodeRedTypedTextInput('resetActionName', ['str']);
+                initializeNodeRedTypedTextInput('pauseActionName', ['str']);
+                initializeNodeRedTypedTextInput('continueActionName', ['str']);
             }
 
-			initializeInputs();
-			initializeAccordion();
+            initializeInputs();
+            initializeAccordion();
 
-			$('#node-input-timerType').change(() => {
-				const selectedTimerType = $('#node-input-timerType').val();
+            $('#node-input-timerType').change(() => {
+                const selectedTimerType = $('#node-input-timerType').val();
 
-				if (selectedTimerType === '<%= TIMER_TYPE.LOOP %>') {
-					$('.loop-options').show();
+                if (selectedTimerType === '<%= TIMER_TYPE.LOOP %>') {
+                    $('.loop-options').show();
                 }
 
-				if (selectedTimerType === '<%= TIMER_TYPE.DELAY %>') {
-					$('.loop-options').hide();
-				}
-			});
+                if (selectedTimerType === '<%= TIMER_TYPE.DELAY %>') {
+                    $('.loop-options').hide();
+                }
+            });
 
-			$('#reset-to-default').on('click', () => {
-				this.timerType = elementDefaults.timerType;
+            $('#reset-to-default').on('click', () => {
+                this.timerType = elementDefaults.timerType;
 
-				this.timerDurationUnit = elementDefaults.timerDurationUnit;
-				this.timerDurationType = elementDefaults.timerDurationType;
-				this.timerDuration = elementDefaults.timerDuration;
+                this.timerDurationUnit = elementDefaults.timerDurationUnit;
+                this.timerDurationType = elementDefaults.timerDurationType;
+                this.timerDuration = elementDefaults.timerDuration;
 
-				this.timerLoopTimeoutUnit = elementDefaults.timerLoopTimeoutUnit;
-				this.timerLoopTimeoutType = elementDefaults.timerLoopTimeoutType;
-				this.timerLoopTimeout = elementDefaults.timerLoopTimeout;
+                this.timerLoopTimeoutUnit = elementDefaults.timerLoopTimeoutUnit;
+                this.timerLoopTimeoutType = elementDefaults.timerLoopTimeoutType;
+                this.timerLoopTimeout = elementDefaults.timerLoopTimeout;
 
-				this.loopTimeoutMessageType = elementDefaults.loopTimeoutMessageType;
-				this.loopTimeoutMessage = elementDefaults.loopTimeoutMessage;
-				this.timerMaxLoopIterationsType = elementDefaults.timerMaxLoopIterationsType;
-				this.timerMaxLoopIterations = elementDefaults.timerMaxLoopIterations;
-				this.loopMaxIterationsMessageType = elementDefaults.loopMaxIterationsMessageType;
-				this.loopMaxIterationsMessage = elementDefaults.loopMaxIterationsMessage;
+                this.loopTimeoutMessageType = elementDefaults.loopTimeoutMessageType;
+                this.loopTimeoutMessage = elementDefaults.loopTimeoutMessage;
+                this.timerMaxLoopIterationsType = elementDefaults.timerMaxLoopIterationsType;
+                this.timerMaxLoopIterations = elementDefaults.timerMaxLoopIterations;
+                this.loopMaxIterationsMessageType = elementDefaults.loopMaxIterationsMessageType;
+                this.loopMaxIterationsMessage = elementDefaults.loopMaxIterationsMessage;
 
-				this.isConsecutiveStartActionTimerResetAllowed = elementDefaults.isConsecutiveStartActionTimerResetAllowed;
-				this.isRunningTimerProgressVisible = elementDefaults.isRunningTimerProgressVisible;
-				this.outputReceivedMessageOnTimerTrigger = elementDefaults.outputReceivedMessageOnTimerTrigger;
-				this.outputReceivedMessageOnTimerHalt = elementDefaults.outputReceivedMessageOnTimerHalt;
-				this.startTimerOnReceivalOfUnknownMessage = elementDefaults.startTimerOnReceivalOfUnknownMessage;
-				this.resetTimerOnReceivalOfUnknownMessage = elementDefaults.resetTimerOnReceivalOfUnknownMessage;
-				this.isDebugModeEnabled = elementDefaults.isDebugModeEnabled;
-				this.timerTriggeredMessageType = elementDefaults.timerTriggeredMessageType;
-				this.timerTriggeredMessage = elementDefaults.timerTriggeredMessage;
-				this.timerHaltedMessageType = elementDefaults.timerHaltedMessageType;
-				this.timerHaltedMessage = elementDefaults.timerHaltedMessage;
+                this.isConsecutiveStartActionTimerResetAllowed = elementDefaults.isConsecutiveStartActionTimerResetAllowed;
+                this.isRunningTimerProgressVisible = elementDefaults.isRunningTimerProgressVisible;
+                this.outputReceivedMessageOnTimerTrigger = elementDefaults.outputReceivedMessageOnTimerTrigger;
+                this.outputReceivedMessageOnTimerHalt = elementDefaults.outputReceivedMessageOnTimerHalt;
+                this.startTimerOnReceivalOfUnknownMessage = elementDefaults.startTimerOnReceivalOfUnknownMessage;
+                this.resetTimerOnReceivalOfUnknownMessage = elementDefaults.resetTimerOnReceivalOfUnknownMessage;
+                this.isDebugModeEnabled = elementDefaults.isDebugModeEnabled;
+                this.timerTriggeredMessageType = elementDefaults.timerTriggeredMessageType;
+                this.timerTriggeredMessage = elementDefaults.timerTriggeredMessage;
+                this.timerHaltedMessageType = elementDefaults.timerHaltedMessageType;
+                this.timerHaltedMessage = elementDefaults.timerHaltedMessage;
 
-				this.isStartActionEnabled = elementDefaults.isStartActionEnabled;
-				this.isResetActionEnabled = elementDefaults.isResetActionEnabled;
-				this.isStopActionEnabled = elementDefaults.isStopActionEnabled;
-				this.isPauseActionEnabled = elementDefaults.isPauseActionEnabled;
-				this.isContinueActionEnabled = elementDefaults.isContinueActionEnabled;
-				this.actionPropertyNameType = elementDefaults.actionPropertyNameType;
-				this.actionPropertyName = elementDefaults.actionPropertyName;
-				this.startActionNameType = elementDefaults.startActionNameType;
-				this.startActionName = elementDefaults.startActionName;
-				this.stopActionNameType = elementDefaults.stopActionNameType;
-				this.stopActionName = elementDefaults.stopActionName;
-				this.resetActionNameType = elementDefaults.resetActionNameType;
-				this.resetActionName = elementDefaults.resetActionName;
-				this.pauseActionNameType = elementDefaults.pauseActionNameType;
-				this.pauseActionName = elementDefaults.pauseActionName;
-				this.continueActionNameType = elementDefaults.continueActionNameType;
-				this.continueActionName = elementDefaults.continueActionName;
+                this.isStartActionEnabled = elementDefaults.isStartActionEnabled;
+                this.isResetActionEnabled = elementDefaults.isResetActionEnabled;
+                this.isStopActionEnabled = elementDefaults.isStopActionEnabled;
+                this.isPauseActionEnabled = elementDefaults.isPauseActionEnabled;
+                this.isContinueActionEnabled = elementDefaults.isContinueActionEnabled;
+                this.actionPropertyNameType = elementDefaults.actionPropertyNameType;
+                this.actionPropertyName = elementDefaults.actionPropertyName;
+                this.startActionNameType = elementDefaults.startActionNameType;
+                this.startActionName = elementDefaults.startActionName;
+                this.stopActionNameType = elementDefaults.stopActionNameType;
+                this.stopActionName = elementDefaults.stopActionName;
+                this.resetActionNameType = elementDefaults.resetActionNameType;
+                this.resetActionName = elementDefaults.resetActionName;
+                this.pauseActionNameType = elementDefaults.pauseActionNameType;
+                this.pauseActionName = elementDefaults.pauseActionName;
+                this.continueActionNameType = elementDefaults.continueActionNameType;
+                this.continueActionName = elementDefaults.continueActionName;
 
-				initializeInputs();
+                initializeInputs();
             });
         },
         oneditsave: function () {
-			function getAndEnsurePositiveInteger(jqueryElement) {
-				const integer = parseInt(jqueryElement.val(), 10) || 0;
-				const positiveInteger = Math.max(0, integer);
-				jqueryElement.val(positiveInteger);
-				return positiveInteger;
+            function getAndEnsurePositiveInteger(jqueryElement) {
+                const integer = parseInt(jqueryElement.val(), 10) || 0;
+                const positiveInteger = Math.max(0, integer);
+                jqueryElement.val(positiveInteger);
+                return positiveInteger;
             }
 
             function getAndEnsurePositiveNonNullInteger(jqueryElement, defaultValue) {
-				const integer = parseInt(jqueryElement.val(), 10) || 0;
-				const positiveNonNullInteger = Math.max(0, integer) === 0 ? defaultValue : Math.max(0, integer);
-				jqueryElement.val(positiveNonNullInteger);
-				return positiveNonNullInteger;
+                const integer = parseInt(jqueryElement.val(), 10) || 0;
+                const positiveNonNullInteger = Math.max(0, integer) === 0 ? defaultValue : Math.max(0, integer);
+                jqueryElement.val(positiveNonNullInteger);
+                return positiveNonNullInteger;
             }
 
             this.timerType = $('#node-input-timerType').val();
@@ -258,50 +264,50 @@
             this.timerDurationType = $('#node-input-timerDurationType').val();
             this.timerDuration = getAndEnsurePositiveNonNullInteger($('#node-input-timerDuration'), <%= defaults.timerDuration %>);
 
-			this.timerLoopTimeoutUnit = $('#node-input-timerLoopTimeoutUnit').val();
-			this.timerLoopTimeoutType = $('#node-input-timerLoopTimeoutType').val();
-			this.timerLoopTimeout = getAndEnsurePositiveInteger($('#node-input-timerLoopTimeout'));
-			this.loopTimeoutMessageType = $('#node-input-loopTimeoutMessageType').val();
-			this.loopTimeoutMessage = $('#node-input-loopTimeoutMessage').val();
-			this.timerMaxLoopIterationsType = $('#node-input-timerMaxLoopIterationsType').val();
-			this.timerMaxLoopIterations = getAndEnsurePositiveInteger($('#node-input-timerMaxLoopIterations'));
-			this.loopMaxIterationsMessageType = $('#node-input-loopMaxIterationsMessageType').val();
-			this.loopMaxIterationsMessage = $('#node-input-loopMaxIterationsMessage').val();
+            this.timerLoopTimeoutUnit = $('#node-input-timerLoopTimeoutUnit').val();
+            this.timerLoopTimeoutType = $('#node-input-timerLoopTimeoutType').val();
+            this.timerLoopTimeout = getAndEnsurePositiveInteger($('#node-input-timerLoopTimeout'));
+            this.loopTimeoutMessageType = $('#node-input-loopTimeoutMessageType').val();
+            this.loopTimeoutMessage = $('#node-input-loopTimeoutMessage').val();
+            this.timerMaxLoopIterationsType = $('#node-input-timerMaxLoopIterationsType').val();
+            this.timerMaxLoopIterations = getAndEnsurePositiveInteger($('#node-input-timerMaxLoopIterations'));
+            this.loopMaxIterationsMessageType = $('#node-input-loopMaxIterationsMessageType').val();
+            this.loopMaxIterationsMessage = $('#node-input-loopMaxIterationsMessage').val();
 
-			this.isConsecutiveStartActionTimerResetAllowed = $('#node-input-isConsecutiveStartActionTimerResetAllowed').is(":checked");
-			this.isRunningTimerProgressVisible = $('#node-input-isRunningTimerProgressVisible').is(":checked");
-			this.outputReceivedMessageOnTimerTrigger = $('#node-input-outputReceivedMessageOnTimerTrigger').is(":checked");
-			this.outputReceivedMessageOnTimerHalt = $('#node-input-outputReceivedMessageOnTimerHalt').is(":checked");
-			this.startTimerOnReceivalOfUnknownMessage = $('#node-input-startTimerOnReceivalOfUnknownMessage').is(":checked");
-			this.resetTimerOnReceivalOfUnknownMessage = $('#node-input-resetTimerOnReceivalOfUnknownMessage').is(":checked");
-			this.isDebugModeEnabled = $('#node-input-isDebugModeEnabled').is(":checked");
-			this.timerTriggeredMessageType = $('#node-input-timerTriggeredMessageType').val();
-			this.timerTriggeredMessage = $('#node-input-timerTriggeredMessage').val();
-			this.timerHaltedMessageType = $('#node-input-timerHaltedMessageType').val();
-			this.timerHaltedMessage = $('#node-input-timerHaltedMessage').val();
+            this.isConsecutiveStartActionTimerResetAllowed = $('#node-input-isConsecutiveStartActionTimerResetAllowed').is(":checked");
+            this.isRunningTimerProgressVisible = $('#node-input-isRunningTimerProgressVisible').is(":checked");
+            this.outputReceivedMessageOnTimerTrigger = $('#node-input-outputReceivedMessageOnTimerTrigger').is(":checked");
+            this.outputReceivedMessageOnTimerHalt = $('#node-input-outputReceivedMessageOnTimerHalt').is(":checked");
+            this.startTimerOnReceivalOfUnknownMessage = $('#node-input-startTimerOnReceivalOfUnknownMessage').is(":checked");
+            this.resetTimerOnReceivalOfUnknownMessage = $('#node-input-resetTimerOnReceivalOfUnknownMessage').is(":checked");
+            this.isDebugModeEnabled = $('#node-input-isDebugModeEnabled').is(":checked");
+            this.timerTriggeredMessageType = $('#node-input-timerTriggeredMessageType').val();
+            this.timerTriggeredMessage = $('#node-input-timerTriggeredMessage').val();
+            this.timerHaltedMessageType = $('#node-input-timerHaltedMessageType').val();
+            this.timerHaltedMessage = $('#node-input-timerHaltedMessage').val();
 
-			this.isStartActionEnabled = $('#node-input-isStartActionEnabled').is(":checked");
-			this.isResetActionEnabled = $('#node-input-isResetActionEnabled').is(":checked");
-			this.isStopActionEnabled = $('#node-input-isStopActionEnabled').is(":checked");
-			this.isPauseActionEnabled = $('#node-input-isPauseActionEnabled').is(":checked");
-			this.isContinueActionEnabled = $('#node-input-isContinueActionEnabled').is(":checked");
+            this.isStartActionEnabled = $('#node-input-isStartActionEnabled').is(":checked");
+            this.isResetActionEnabled = $('#node-input-isResetActionEnabled').is(":checked");
+            this.isStopActionEnabled = $('#node-input-isStopActionEnabled').is(":checked");
+            this.isPauseActionEnabled = $('#node-input-isPauseActionEnabled').is(":checked");
+            this.isContinueActionEnabled = $('#node-input-isContinueActionEnabled').is(":checked");
             this.actionPropertyNameType = $('#node-input-actionPropertyNameType').val();
             this.actionPropertyName = $('#node-input-actionPropertyName').val();
-			this.startActionNameType = $('#node-input-startActionNameType').val();
-			this.startActionName = $('#node-input-startActionName').val();
-			this.stopActionNameType = $('#node-input-stopActionNameType').val();
-			this.stopActionName = $('#node-input-stopActionName').val();
-			this.resetActionNameType = $('#node-input-resetActionNameType').val();
-			this.resetActionName = $('#node-input-resetActionName').val();
-			this.pauseActionNameType = $('#node-input-pauseActionNameType').val();
-			this.pauseActionName = $('#node-input-pauseActionName').val();
-			this.continueActionNameType = $('#node-input-continueActionNameType').val();
-			this.continueActionName = $('#node-input-continueActionName').val();
+            this.startActionNameType = $('#node-input-startActionNameType').val();
+            this.startActionName = $('#node-input-startActionName').val();
+            this.stopActionNameType = $('#node-input-stopActionNameType').val();
+            this.stopActionName = $('#node-input-stopActionName').val();
+            this.resetActionNameType = $('#node-input-resetActionNameType').val();
+            this.resetActionName = $('#node-input-resetActionName').val();
+            this.pauseActionNameType = $('#node-input-pauseActionNameType').val();
+            this.pauseActionName = $('#node-input-pauseActionName').val();
+            this.continueActionNameType = $('#node-input-continueActionNameType').val();
+            this.continueActionName = $('#node-input-continueActionName').val();
         },
     });
 </script>
 
-<script type="text/html" data-template-name="<%= nodeName %>">
+<script type="text/html" data-template-name="sdfsdfsfdsfd">
     <style>
         .controltimer-input-row {
             display: flex;
@@ -604,6 +610,10 @@
     </div>
 </script>
 
+<script type="text/html" data-template-name="<%= nodeName %>">
+    <div id="<%= nodeName %>"></div>
+</script>
+
 <script type="text/html" data-help-name="<%= nodeName %>">
-    <p>A controllable Node-RED timer node. Start, Stop, Reset, Pause and Continue the timer. Use the timer as a loop or a delay. See more info: https://github.com/Writech/node-red-contrib-controltimer</p>
+    <p><%= nodeDescription %></p>
 </script>

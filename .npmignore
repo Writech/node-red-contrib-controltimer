@@ -117,3 +117,6 @@ package/
 
 scripts/
 .prettierignore
+
+.eslintrc.cjs
+.prettierrc.cjs

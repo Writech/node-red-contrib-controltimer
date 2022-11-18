@@ -1,12 +1,12 @@
-import { Node, NodeAPI, NodeMessageInFlow } from 'node-red';
+import { Node, NodeAPI, NodeDef, NodeMessageInFlow } from 'node-red';
 
-import { constants, ControlTimerNodeDef, nodeName } from './node-config';
-import { STATE, Timer } from './timer';
+import { constants, nodeName, NodeProps } from './config.mjs';
+import { STATE, Timer } from './utils/timer.mjs';
 
 type NodeMessage = NodeMessageInFlow;
 
-module.exports = function (RED: NodeAPI): void {
-    RED.nodes.registerType(nodeName, function (config: ControlTimerNodeDef) {
+export default function (RED: NodeAPI): void {
+    function nodeInitalizer(config: NodeDef & NodeProps) {
         RED.nodes.createNode(this, config);
         const node: Node = this;
         let lastMessage: NodeMessage;
@@ -14,7 +14,8 @@ module.exports = function (RED: NodeAPI): void {
         const getMessage = (message: string | number) => ({ [config.actionPropertyName]: message });
         const getTriggerMessage = () =>
             config.outputReceivedMessageOnTimerTrigger ? RED.util.cloneMessage(lastMessage) : getMessage(config.timerTriggeredMessage);
-        const getHaltedMessage = () => (config.outputReceivedMessageOnTimerHalt ? RED.util.cloneMessage(lastMessage) : getMessage(config.timerHaltedMessage));
+        const getHaltedMessage = () =>
+            config.outputReceivedMessageOnTimerHalt ? RED.util.cloneMessage(lastMessage) : getMessage(config.timerHaltedMessage);
 
         const timer = Timer.getInstance({
             timerType: config.timerType,
@@ -56,9 +57,16 @@ module.exports = function (RED: NodeAPI): void {
             const isStartActionMessage = message[config.actionPropertyName] === config.startActionName && config.isStartActionEnabled;
             const isResetActionMessage = message[config.actionPropertyName] === config.resetActionName && config.isResetActionEnabled;
             const isPauseActionMessage = message[config.actionPropertyName] === config.pauseActionName && config.isPauseActionEnabled;
-            const isContinueActionMessage = message[config.actionPropertyName] === config.continueActionName && config.isContinueActionEnabled;
+            const isContinueActionMessage =
+                message[config.actionPropertyName] === config.continueActionName && config.isContinueActionEnabled;
             const isStopActionMessage = message[config.actionPropertyName] === config.stopActionName && config.isStopActionEnabled;
-            const isUnknownMessage = !(isStartActionMessage || isResetActionMessage || isPauseActionMessage || isContinueActionMessage || isStopActionMessage);
+            const isUnknownMessage = !(
+                isStartActionMessage ||
+                isResetActionMessage ||
+                isPauseActionMessage ||
+                isContinueActionMessage ||
+                isStopActionMessage
+            );
 
             const timerTypeOverride = message[constants.timerTypeOverridePropertyName] ?? null;
             const timerDurationOverride = message[constants.timerDurationOverridePropertyName] ?? null;
@@ -115,5 +123,11 @@ module.exports = function (RED: NodeAPI): void {
             timer.hardReset();
             done();
         });
+    }
+
+    RED.nodes.registerType(nodeName, nodeInitalizer);
+
+    RED.httpAdmin.get(`/${nodeName}/js/*`, (req, res) => {
+        res.sendFile(req.params[0], { root: __dirname + '/ui/', dotfiles: 'deny' });
     });
-};
+}

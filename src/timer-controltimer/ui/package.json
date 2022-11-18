@@ -1,0 +1,15 @@
+{
+    "name": "node-red-node-editor",
+    "scripts": {
+        "build": "tsc && vite build"
+    },
+    "dependencies": {
+        "goober": "^2.1.11",
+        "preact": "^10.11.2"
+    },
+    "devDependencies": {
+        "@preact/preset-vite": "^2.4.0",
+        "vite": "^3.2.3"
+    },
+    "type": "module"
+}

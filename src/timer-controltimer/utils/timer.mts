@@ -54,16 +54,16 @@ export class Timer extends EventEmitter {
     }
 
     private config: TimerConfig = Timer.defaultConfig;
-    private configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>;
+    private configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'> | undefined = undefined;
 
     private currentState: STATE = STATE.IDLE;
-    private timerId: NodeJS.Timeout;
-    private progressUpdateIntervalTimerId: NodeJS.Timeout;
-    private stoppedTransitionToIdleTimeoutTimerId: NodeJS.Timeout;
-    private loopTimeoutTimeoutTimerId: NodeJS.Timeout;
+    private timerId: NodeJS.Timeout | undefined = undefined;
+    private progressUpdateIntervalTimerId: NodeJS.Timeout | undefined = undefined;
+    private stoppedTransitionToIdleTimeoutTimerId: NodeJS.Timeout | undefined = undefined;
+    private loopTimeoutTimeoutTimerId: NodeJS.Timeout | undefined = undefined;
     private currentLoopIteration = 0;
-    private pausedTimerRunningMilliseconds: number;
-    private timerStartedAtUnixTimestamp: number;
+    private pausedTimerRunningMilliseconds: number | undefined = undefined;
+    private timerStartedAtUnixTimestamp: number | undefined = undefined;
 
     constructor(config: TimerConfig) {
         super();
@@ -189,13 +189,13 @@ export class Timer extends EventEmitter {
     private pauseTimer() {
         this.destroyTimers();
         const previousRunningDurationInMilliseconds = this.pausedTimerRunningMilliseconds ?? 0;
-        this.pausedTimerRunningMilliseconds = Date.now() - this.timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds;
+        this.pausedTimerRunningMilliseconds = Date.now() - (this.timerStartedAtUnixTimestamp ?? 0) + previousRunningDurationInMilliseconds;
         this.timerStartedAtUnixTimestamp = undefined;
         this.setCurrentState(STATE.PAUSED, this.getPausedTimerProgress());
     }
 
     private continueTimer() {
-        this.timerId = this.createAndGetTimer(this.timerDurationInMilliseconds - this.pausedTimerRunningMilliseconds);
+        this.timerId = this.createAndGetTimer(this.timerDurationInMilliseconds - (this.pausedTimerRunningMilliseconds ?? 0));
         this.setCurrentState(STATE.RUNNING, this.getRunningTimerProgress());
         this.startProgressUpdateTimer();
     }
@@ -324,7 +324,8 @@ export class Timer extends EventEmitter {
 
         const previousRunningDurationInMilliseconds = this.pausedTimerRunningMilliseconds ?? 0;
         const timerPercentageCompletion =
-            (100 * (Date.now() - this.timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds)) / this.timerDurationInMilliseconds;
+            (100 * (Date.now() - (this.timerStartedAtUnixTimestamp ?? 0) + previousRunningDurationInMilliseconds)) /
+            this.timerDurationInMilliseconds;
         return this.getTimerProgressString(timerPercentageCompletion);
     }
 
@@ -333,12 +334,12 @@ export class Timer extends EventEmitter {
             return '';
         }
 
-        const timerPercentageCompletion = (100 * this.pausedTimerRunningMilliseconds) / this.timerDurationInMilliseconds;
+        const timerPercentageCompletion = (100 * (this.pausedTimerRunningMilliseconds ?? 0)) / this.timerDurationInMilliseconds;
         return this.getTimerProgressString(timerPercentageCompletion);
     }
 
-    private getTimerProgressString(timerPercentageCompletion) {
-        return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${this.timerDuration} ${this.timerDurationUnit}(s)`;
+    private getTimerProgressString(timerPercentageCompletion: number) {
+        return ` ${timerPercentageCompletion.toFixed(1)}% of ${this.timerDuration} ${this.timerDurationUnit}(s)`;
     }
 
     private get timerDuration() {

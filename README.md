@@ -62,11 +62,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 110,
         "y": 40,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "1ae1e3ee2f5250a6",
@@ -104,11 +100,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 110,
         "y": 80,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "2db5a47c85a55778",
@@ -129,11 +121,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 110,
         "y": 120,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "52882ab466bde0a2",
@@ -154,11 +142,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 110,
         "y": 160,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "5acb4a13897dfe33",
@@ -179,11 +163,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 130,
         "y": 200,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "5c9aea117d0cb988",
@@ -221,11 +201,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 130,
         "y": 240,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "76203a31872dca18",
@@ -246,11 +222,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "topic": "",
         "x": 130,
         "y": 280,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "01f89a1a0cfa1eb2",
@@ -286,11 +258,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 160,
         "y": 320,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "c96f33f73a45a2a0",
@@ -326,11 +294,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "payloadType": "str",
         "x": 160,
         "y": 360,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "44e6d3eefa84eb4d",
@@ -380,14 +344,7 @@ You can disable specific actions for node. For example disable Reset, Pause and 
         "continueActionName": "CONTINUE",
         "x": 440,
         "y": 200,
-        "wires": [
-            [
-                "1ae1e3ee2f5250a6"
-            ],
-            [
-                "5c9aea117d0cb988"
-            ]
-        ]
+        "wires": [["1ae1e3ee2f5250a6"], ["5c9aea117d0cb988"]]
     }
 ]
 ```
@@ -399,9 +356,10 @@ You can disable specific actions for node. For example disable Reset, Pause and 
 
 ## Installation
 
-Change directory to your node red installation:
-
-    $ npm install --save node-red-contrib-controltimer
+```console
+~$ cd .node-red
+~/.node-red$ npm install --save node-red-contrib-controltimer
+```
 
 ## Configuration
 
@@ -436,6 +394,6 @@ Change directory to your node red installation:
 | `Pause action name`                               | Defines the action string that will PAUSE the timer.                                                                                                   | `PAUSE`               |
 | `Continue action name`                            | Defines the action string that will CONTINUE the paused timer.                                                                                         | `CONTINUE`            |
 
-*Unknown message is a message with a payload that's not in the set of defined and enabled action strings. Ex. message with no defined `Action property name` or a message with `Action property name` contents which doesn't match any of the enabled action names. Ex. if Pause action is received but it's disabled in the settings it's regarded as unknown message.*
+_Unknown message is a message with a payload that's not in the set of defined and enabled action strings. Ex. message with no defined `Action property name` or a message with `Action property name` contents which doesn't match any of the enabled action names. Ex. if Pause action is received but it's disabled in the settings it's regarded as unknown message._
 
 <a target="_blank" href="https://icons8.com/icons/set/future">Future icon</a> by <a target="_blank" href="https://icons8.com">Icons8</a>
