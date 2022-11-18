@@ -104,3 +104,25 @@ export async function getExecutionTime(task: () => Promise<unknown> | unknown) {
 
     return `${durationInSeconds.toFixed(0)}s`;
 }
+
+export type PackageJson = {
+    type?: string;
+};
+
+type Json = Record<string, unknown> | Array<unknown>;
+
+export const FileSystemUtility = {
+    editTextFile: async (filePath: string, editHandler: (text: string) => string) => {
+        await fs.ensureFile(filePath);
+        const textFileContents = await fs.readFile(filePath, 'utf-8');
+        const editedTextFileContents = editHandler(textFileContents);
+        await fs.outputFile(filePath, editedTextFileContents);
+        return editedTextFileContents;
+    },
+    editJsonFile: async <T extends Json>(filePath: string, editHandler: (json: T) => void) => {
+        const jsonFileContents = await fs.readJson(filePath);
+        editHandler(jsonFileContents);
+        await fs.writeJson(filePath, jsonFileContents);
+        return jsonFileContents;
+    },
+};

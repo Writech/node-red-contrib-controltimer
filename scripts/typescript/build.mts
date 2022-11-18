@@ -1,7 +1,17 @@
 import chalk from 'chalk';
 import path from 'path';
 
-import { copyIcons, execute, getExecutionTime, getNodeFolderNames, getNodeInfo, renderHtml, wrapText } from './utils.mjs';
+import {
+    copyIcons,
+    execute,
+    FileSystemUtility,
+    getExecutionTime,
+    getNodeFolderNames,
+    getNodeInfo,
+    PackageJson,
+    renderHtml,
+    wrapText,
+} from './utils.mjs';
 
 for (const nodeFolderName of await getNodeFolderNames()) {
     const { nodeSrcFolderPath, nodeDistFolderPath, nodeName, nodeConfig } = await getNodeInfo(nodeFolderName);
@@ -47,10 +57,23 @@ for (const nodeFolderName of await getNodeFolderNames()) {
         console.log(chalk.green('UI Build'), '⚡', `Completed in ${executionTime}`);
     }
 
+    // If type: "module" is set in package.json, then te node will not work in Node-RED.
+    const packageJsonPath = path.resolve(process.cwd(), 'package.json');
+
+    await FileSystemUtility.editJsonFile<PackageJson>(packageJsonPath, (packageJson) => {
+        delete packageJson.type;
+    });
+
     {
         console.log(chalk.cyan(wrapText(`NPM Packing`)));
         const executionTime = await getExecutionTime(() => execute(['npm', 'pack'], process.cwd()));
         console.log();
         console.log(chalk.green('NPM Pack'), '⚡', `Completed in ${executionTime}`);
     }
+
+    await FileSystemUtility.editJsonFile<PackageJson>(packageJsonPath, (packageJson) => {
+        packageJson.type = 'module';
+    });
+
+    await execute(['npm', 'run', 'tidy:format'], process.cwd());
 }

@@ -15,7 +15,7 @@ interface Props {
     options: string[];
 }
 
-export default function UiSelect({ label, value, key, node, defaults, options }: Props) {
+export default function UiSelect({ label, value, key, node, options }: Props) {
     const [currentValue, setCurrentValue] = useState(value);
     const id = `input-${label.toLowerCase()}`;
 

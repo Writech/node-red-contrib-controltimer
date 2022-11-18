@@ -4,4 +4,7 @@ module.exports = {
         node: false,
         browser: true,
     },
+    globals: {
+        module: true,
+    },
 };

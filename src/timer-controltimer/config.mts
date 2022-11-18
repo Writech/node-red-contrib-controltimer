@@ -137,7 +137,7 @@ export interface NodeProps {
     continueActionName: string;
 }
 
-type NodeRedInputType = 'str' | 'num';
+// type NodeRedInputType = 'str' | 'num';
 
 interface BooleanValue {
     value: boolean;

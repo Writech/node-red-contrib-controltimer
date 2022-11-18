@@ -2,7 +2,6 @@
     "name": "node-red-contrib-controltimer",
     "version": "0.3.0",
     "description": "A controllable Node-RED timer node. Start, Stop, Reset, Pause and Continue the timer. Use the timer as a loop or a delay.",
-    "type": "module",
     "scripts": {
         "build": "scripty",
         "clean:all": "scripty",
@@ -84,5 +83,6 @@
         "nodes": {
             "controltimer": "dist/timer-controltimer/controltimer.js"
         }
-    }
+    },
+    "type": "module"
 }

@@ -13,7 +13,10 @@ export default function UiAccordion(props: Props) {
 
     return (
         <>
-            <button className={accordionClassName({ isOpen, maxHeight: accordionPanelRef.current?.scrollHeight ?? null })} onClick={() => setIsOpen(!isOpen)}>
+            <button
+                className={accordionClassName({ isOpen, maxHeight: accordionPanelRef.current?.scrollHeight ?? null })}
+                onClick={() => setIsOpen(!isOpen)}
+            >
                 <i className="fa fa-cog"></i> {props.name} <span className="status">{isOpen ? '(Click to hide)' : '(Click to show)'}</span>
             </button>
 
