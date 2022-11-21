@@ -63,7 +63,7 @@
         "interval"
     ],
     "engines": {
-        "node": ">=14.0.0"
+        "node": ">=12.0.0"
     },
     "husky": {
         "hooks": {
@@ -79,7 +79,7 @@
         ]
     },
     "node-red": {
-        "version": ">=3.0.0",
+        "version": ">=2.0.1",
         "nodes": {
             "controltimer": "dist/timer-controltimer/controltimer.js"
         }
