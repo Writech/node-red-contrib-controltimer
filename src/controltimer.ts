@@ -73,6 +73,12 @@ module.exports = function (RED: NodeAPI): void {
                 });
             }
 
+            if (timer.getState() === STATE.PAUSED && isStartActionMessage) {
+                timer.continue();
+                done();
+                return;
+            }
+            
             if (timer.getState() !== STATE.RUNNING) {
                 if (isStartActionMessage || (isUnknownMessage && config.startTimerOnReceivalOfUnknownMessage)) {
                     timer.start();
