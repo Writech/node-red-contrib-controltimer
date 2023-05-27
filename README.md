@@ -37,352 +37,362 @@ When you override the configuration of a node, the information displayed on the 
   <summary>Copy-Paste this flow to Node-RED to test it out yourself.</summary>  
 
 ```json  
-[  
- {        "id": "afd749500f2d393d",  
-        "type": "tab",  
-        "label": "ControlTimer Example",  
-        "disabled": false,  
-        "info": ""  
-    },  
-    {  
-        "id": "79276f6f06e96f24",  
-        "type": "inject",  
-        "z": "afd749500f2d393d",  
-        "name": "",  
-        "props": [  
- {                "p": "payload"  
-            }  
- ],  
-        "repeat": "",  
-        "crontab": "",  
-        "once": false,  
-        "onceDelay": 0.1,  
-        "topic": "",  
-        "payload": "START",  
-        "payloadType": "str",  
-        "x": 110,  
-        "y": 40,  
-        "wires": [  
-  [  
-                "44e6d3eefa84eb4d"  
-            ]  
-  ]  
-  },  
-    {  
-        "id": "1ae1e3ee2f5250a6",  
-        "type": "debug",  
-        "z": "afd749500f2d393d",  
-        "name": "TIMER TRIGGERED",  
-        "active": true,  
-        "tosidebar": true,  
-        "console": false,  
-        "tostatus": false,  
-        "complete": "true",  
-        "targetType": "full",  
-        "statusVal": "",  
-        "statusType": "auto",  
-        "x": 680,  
-        "y": 140,  
-        "wires": []  
-  },  
-    {  
-        "id": "9711419041494ee9",  
-        "type": "inject",  
-        "z": "afd749500f2d393d",  
-        "name": "",  
-        "props": [  
- {                "p": "payload"  
-            }  
- ],  
-        "repeat": "",  
-        "crontab": "",  
-        "once": false,  
-        "onceDelay": 0.1,  
-        "topic": "",  
-        "payload": "STOP",  
-        "payloadType": "str",  
-        "x": 110,  
-        "y": 80,  
-        "wires": [  
-  [  
-                "44e6d3eefa84eb4d"  
-            ]  
-  ]  
-  },  
-    {  
-        "id": "2db5a47c85a55778",  
-        "type": "inject",  
-        "z": "afd749500f2d393d",  
-        "name": "",  
-        "props": [  
- {                "p": "payload"  
-            }  
- ],  
-        "repeat": "",  
-        "crontab": "",  
-        "once": false,  
-        "onceDelay": 0.1,  
-        "topic": "",  
-        "payload": "RESET",  
-        "payloadType": "str",  
-        "x": 110,  
-        "y": 120,  
-        "wires": [  
-  [  
-                "44e6d3eefa84eb4d"  
-            ]  
-  ]  
-  },  
-    {  
-        "id": "52882ab466bde0a2",  
-        "type": "inject",  
-        "z": "afd749500f2d393d",  
-        "name": "",  
-        "props": [  
- {                "p": "payload"  
-            }  
- ],  
-        "repeat": "",  
-        "crontab": "",  
-        "once": false,  
-        "onceDelay": 0.1,  
-        "topic": "",  
-        "payload": "PAUSE",  
-        "payloadType": "str",  
-        "x": 110,  
-        "y": 160,  
-        "wires": [  
-  [  
-                "44e6d3eefa84eb4d"  
-            ]  
-  ]  
-  },  
-    {  
-        "id": "5acb4a13897dfe33",  
-        "type": "inject",  
-        "z": "afd749500f2d393d",  
-        "name": "CONTINUE",  
-        "props": [  
- {                "p": "payload"  
-            }  
- ],  
-        "repeat": "",  
-        "crontab": "",  
-        "once": false,  
-        "onceDelay": 0.1,  
-        "topic": "",  
-        "payload": "CONTINUE",  
-        "payloadType": "str",  
-        "x": 130,  
-        "y": 200,  
-        "wires": [  
-  [  
-                "44e6d3eefa84eb4d"  
-            ]  
-  ]  
-  },  
-    {  
-        "id": "5c9aea117d0cb988",  
-        "type": "debug",  
-        "z": "afd749500f2d393d",  
-        "name": "TIMER HALTED",  
-        "active": true,  
-        "tosidebar": true,  
-        "console": false,  
-        "tostatus": false,  
-        "complete": "true",  
-        "targetType": "full",  
-        "statusVal": "",  
-        "statusType": "auto",  
-        "x": 660,  
-        "y": 180,  
-        "wires": []  
-  },  
-    {  
-        "id": "bbd756d4850041fa",  
-        "type": "inject",  
-        "z": "afd749500f2d393d",  
-        "name": "",  
-        "props": [  
- {                "p": "payload"  
-            }  
- ],  
-        "repeat": "",  
-        "crontab": "",  
-        "once": false,  
-        "onceDelay": 0.1,  
-        "topic": "",  
-        "payload": "UNKNOWN1",  
-        "payloadType": "str",  
-        "x": 130,  
-        "y": 240,  
-        "wires": [  
-  [  
-                "44e6d3eefa84eb4d"  
-            ]  
-  ]  
-  },  
-    {  
-        "id": "76203a31872dca18",  
-        "type": "inject",  
-        "z": "afd749500f2d393d",  
-        "name": "UNKNOWN2",  
-        "props": [  
- {                "p": "unknown",  
-                "v": "UNKNOWN2",  
-                "vt": "str"  
-            }  
- ],  
-        "repeat": "",  
-        "crontab": "",  
-        "once": false,  
-        "onceDelay": 0.1,  
-        "topic": "",  
-        "x": 130,  
-        "y": 280,  
-        "wires": [  
-  [  
-                "44e6d3eefa84eb4d"  
-            ]  
-  ]  
-  },  
-    {  
-        "id": "01f89a1a0cfa1eb2",  
-        "type": "inject",  
-        "z": "afd749500f2d393d",  
-        "name": "START (3000ms delay)",  
-        "props": [  
- {                "p": "payload"  
-            },  
-            {  
-                "p": "timerType",  
-                "v": "delay",  
-                "vt": "str"  
-            },  
-            {  
-                "p": "timerDuration",  
-                "v": "3000",  
-                "vt": "num"  
-            },  
-            {  
-                "p": "timerDurationUnit",  
-                "v": "millisecond",  
-                "vt": "str"  
-            }  
- ],  
-        "repeat": "",  
-        "crontab": "",  
-        "once": false,  
-        "onceDelay": 0.1,  
-        "topic": "",  
-        "payload": "START",  
-        "payloadType": "str",  
-        "x": 160,  
-        "y": 320,  
-        "wires": [  
-  [  
-                "44e6d3eefa84eb4d"  
-            ]  
-  ]  
-  },  
-    {  
-        "id": "c96f33f73a45a2a0",  
-        "type": "inject",  
-        "z": "afd749500f2d393d",  
-        "name": "START (3000ms loop)",  
-        "props": [  
- {                "p": "payload"  
-            },  
-            {  
-                "p": "timerType",  
-                "v": "loop",  
-                "vt": "str"  
-            },  
-            {  
-                "p": "timerDuration",  
-                "v": "3000",  
-                "vt": "num"  
-            },  
-            {  
-                "p": "timerDurationUnit",  
-                "v": "millisecond",  
-                "vt": "str"  
-            }  
- ],  
-        "repeat": "",  
-        "crontab": "",  
-        "once": false,  
-        "onceDelay": 0.1,  
-        "topic": "",  
-        "payload": "START",  
-        "payloadType": "str",  
-        "x": 160,  
-        "y": 360,  
-        "wires": [  
-  [  
-                "44e6d3eefa84eb4d"  
-            ]  
-  ]  
-  },  
-    {  
-        "id": "44e6d3eefa84eb4d",  
-        "type": "controltimer",  
-        "z": "afd749500f2d393d",  
-        "name": "",  
-        "timerType": "delay",  
-        "timerDurationUnit": "second",  
-        "timerDurationType": "num",  
-        "timerDuration": 5,  
-        "timerLoopTimeoutUnit": "second",  
-        "timerLoopTimeoutType": "num",  
-        "timerLoopTimeout": 0,  
-        "loopTimeoutMessageType": "str",  
-        "loopTimeoutMessage": "LOOP_TIMEOUT",  
-        "timerMaxLoopIterationsType": "num",  
-        "timerMaxLoopIterations": 0,  
-        "loopMaxIterationsMessageType": "str",  
-        "loopMaxIterationsMessage": "MAX_LOOP_ITERATIONS",  
-        "isRunningTimerProgressVisible": true,  
-        "outputReceivedMessageOnTimerTrigger": true,  
-        "outputReceivedMessageOnTimerHalt": false,  
-        "startTimerOnReceivalOfUnknownMessage": false,  
-        "resetTimerOnReceivalOfUnknownMessage": false,  
-        "resetTimerOnReceivalOfStartAction": false,  
-        "continueTimerOnReceivalOfStartAction": false,  
-        "isDebugModeEnabled": false,  
-        "timerTriggeredMessageType": "str",  
-        "timerTriggeredMessage": "TIMER_TRIGGERED",  
-        "timerHaltedMessageType": "str",  
-        "timerHaltedMessage": "TIMER_HALTED",  
-        "isStartActionEnabled": true,  
-        "isStopActionEnabled": true,  
-        "isResetActionEnabled": true,  
-        "isPauseActionEnabled": true,  
-        "isContinueActionEnabled": true,  
-        "actionPropertyNameType": "str",  
-        "actionPropertyName": "payload",  
-        "startActionNameType": "str",  
-        "startActionName": "START",  
-        "stopActionNameType": "str",  
-        "stopActionName": "STOP",  
-        "resetActionNameType": "str",  
-        "resetActionName": "RESET",  
-        "pauseActionNameType": "str",  
-        "pauseActionName": "PAUSE",  
-        "continueActionNameType": "str",  
-        "continueActionName": "CONTINUE",  
-        "x": 440,  
-        "y": 200,  
-        "wires": [  
-  [  
-                "1ae1e3ee2f5250a6"  
-            ],  
-            [  
-                "5c9aea117d0cb988"  
-            ]  
-  ]  
-  }  
-]  
+[
+    {
+        "id": "afd749500f2d393d",
+        "type": "tab",
+        "label": "ControlTimer Example",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "79276f6f06e96f24",
+        "type": "inject",
+        "z": "afd749500f2d393d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "START",
+        "payloadType": "str",
+        "x": 110,
+        "y": 40,
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
+    },
+    {
+        "id": "1ae1e3ee2f5250a6",
+        "type": "debug",
+        "z": "afd749500f2d393d",
+        "name": "TIMER TRIGGERED",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "9711419041494ee9",
+        "type": "inject",
+        "z": "afd749500f2d393d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "STOP",
+        "payloadType": "str",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
+    },
+    {
+        "id": "2db5a47c85a55778",
+        "type": "inject",
+        "z": "afd749500f2d393d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "RESET",
+        "payloadType": "str",
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
+    },
+    {
+        "id": "52882ab466bde0a2",
+        "type": "inject",
+        "z": "afd749500f2d393d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "PAUSE",
+        "payloadType": "str",
+        "x": 110,
+        "y": 160,
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
+    },
+    {
+        "id": "5acb4a13897dfe33",
+        "type": "inject",
+        "z": "afd749500f2d393d",
+        "name": "CONTINUE",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "CONTINUE",
+        "payloadType": "str",
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
+    },
+    {
+        "id": "5c9aea117d0cb988",
+        "type": "debug",
+        "z": "afd749500f2d393d",
+        "name": "TIMER HALTED",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "bbd756d4850041fa",
+        "type": "inject",
+        "z": "afd749500f2d393d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "UNKNOWN1",
+        "payloadType": "str",
+        "x": 130,
+        "y": 240,
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
+    },
+    {
+        "id": "76203a31872dca18",
+        "type": "inject",
+        "z": "afd749500f2d393d",
+        "name": "UNKNOWN2",
+        "props": [
+            {
+                "p": "unknown",
+                "v": "UNKNOWN2",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 280,
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
+    },
+    {
+        "id": "01f89a1a0cfa1eb2",
+        "type": "inject",
+        "z": "afd749500f2d393d",
+        "name": "START (3000ms delay)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "timerType",
+                "v": "delay",
+                "vt": "str"
+            },
+            {
+                "p": "timerDuration",
+                "v": "3000",
+                "vt": "num"
+            },
+            {
+                "p": "timerDurationUnit",
+                "v": "millisecond",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "START",
+        "payloadType": "str",
+        "x": 160,
+        "y": 320,
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
+    },
+    {
+        "id": "c96f33f73a45a2a0",
+        "type": "inject",
+        "z": "afd749500f2d393d",
+        "name": "START (3000ms loop)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "timerType",
+                "v": "loop",
+                "vt": "str"
+            },
+            {
+                "p": "timerDuration",
+                "v": "3000",
+                "vt": "num"
+            },
+            {
+                "p": "timerDurationUnit",
+                "v": "millisecond",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "START",
+        "payloadType": "str",
+        "x": 160,
+        "y": 360,
+        "wires": [
+            [
+                "44e6d3eefa84eb4d"
+            ]
+        ]
+    },
+    {
+        "id": "44e6d3eefa84eb4d",
+        "type": "controltimer",
+        "z": "afd749500f2d393d",
+        "name": "",
+        "timerType": "delay",
+        "timerDurationUnit": "minute",
+        "timerDurationType": "num",
+        "timerDuration": 1,
+        "timerLoopTimeoutUnit": "second",
+        "timerLoopTimeoutType": "num",
+        "timerLoopTimeout": 0,
+        "loopTimeoutMessageType": "str",
+        "loopTimeoutMessage": "LOOP_TIMEOUT",
+        "timerMaxLoopIterationsType": "num",
+        "timerMaxLoopIterations": 0,
+        "loopMaxIterationsMessageType": "str",
+        "loopMaxIterationsMessage": "MAX_LOOP_ITERATIONS",
+        "isRunningTimerProgressVisible": true,
+        "outputReceivedMessageOnTimerTrigger": true,
+        "outputReceivedMessageOnTimerHalt": false,
+        "startTimerOnReceivalOfUnknownMessage": false,
+        "resetTimerOnReceivalOfUnknownMessage": false,
+        "resetTimerOnReceivalOfStartAction": false,
+        "continueTimerOnReceivalOfStartAction": false,
+        "isDebugModeEnabled": false,
+        "timerTriggeredMessageType": "str",
+        "timerTriggeredMessage": "TIMER_TRIGGERED",
+        "timerHaltedMessageType": "str",
+        "timerHaltedMessage": "TIMER_HALTED",
+        "isStartActionEnabled": true,
+        "isStopActionEnabled": true,
+        "isResetActionEnabled": true,
+        "isPauseActionEnabled": true,
+        "isContinueActionEnabled": true,
+        "actionPropertyNameType": "str",
+        "actionPropertyName": "payload",
+        "startActionNameType": "str",
+        "startActionName": "START",
+        "stopActionNameType": "str",
+        "stopActionName": "STOP",
+        "resetActionNameType": "str",
+        "resetActionName": "RESET",
+        "pauseActionNameType": "str",
+        "pauseActionName": "PAUSE",
+        "continueActionNameType": "str",
+        "continueActionName": "CONTINUE",
+        "x": 440,
+        "y": 200,
+        "wires": [
+            [
+                "1ae1e3ee2f5250a6"
+            ],
+            [
+                "5c9aea117d0cb988"
+            ]
+        ]
+    }
+]
 ```  
 
 </details>  
