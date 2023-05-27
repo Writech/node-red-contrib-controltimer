@@ -1,0 +1,5 @@
+## v0.4.0
+* Rename `isConsecutiveStartActionTimerResetAllowed` configuration option to `resetTimerOnReceivalOfStartAction` for more consistent naming convention.
+* Add new configuration option `continueTimerOnReceivalOfStartAction` to control whether `START` action should continue a paused timer.
+* Move `resetTimerOnReceivalOfStartAction` option (previously `isConsecutiveStartActionTimerResetAllowed`) next to `continueTimerOnReceivalOfStartAction` option everywhere (in code an in UI).
+* Continue paused timer on receival of `START` action if `continueTimerOnReceivalOfStartAction` option is enabled.
