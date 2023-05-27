@@ -12,7 +12,6 @@ To aid in debugging or gain an overview of the timer's progress, you can enable 
 
 Additionally, you have the flexibility to disable specific actions for the node. For example, you can disable the `RESET`, `PAUSE`, and `CONTINUE` actions. In such cases, when the node receives any of the aforementioned actions, it will treat them as unknown messages.
 
-
 ## Override configuration
 
 Initiate the timer with overridden configuration by using the `START` command. Include the properties `timerType`, `timerDuration`, and `timerDurationUnit` in the message to override them. The timer's control functionalities (pausing, continuing, resetting) also work while in override mode.
@@ -21,22 +20,21 @@ Note that the reconfigured values are ephemeral and not saved to the node's conf
 
 When you override the configuration of a node, the information displayed on the node itself will not be updated. However, the Controltimer will run based on the configuration you have provided. To confirm that the controltimer is running according to your sent configuration, check the timer progress status below the node.
 
-
-```javascript  
-{  
-    payload: 'START',  
-    timerType: 'delay', // 'delay', 'loop'  
-    timerDuration: 3000,  
-    timerDurationUnit: 'millisecond', // 'millisecond', 'second', 'minute', 'hour'  
-}  
-```  
+```javascript
+{
+    payload: 'START',
+    timerType: 'delay', // 'delay', 'loop'
+    timerDuration: 3000,
+    timerDurationUnit: 'millisecond', // 'millisecond', 'second', 'minute', 'hour'
+}
+```
 
 ## Example flow diagram
 
 <details>  
-  <summary>Copy-Paste this flow to Node-RED to test it out yourself.</summary>  
+  <summary>Copy-Paste this flow to Node-RED to test it out yourself.</summary>
 
-```json  
+```json
 [
     {
         "id": "afd749500f2d393d",
@@ -64,11 +62,7 @@ When you override the configuration of a node, the information displayed on the 
         "payloadType": "str",
         "x": 110,
         "y": 40,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "1ae1e3ee2f5250a6",
@@ -106,11 +100,7 @@ When you override the configuration of a node, the information displayed on the 
         "payloadType": "str",
         "x": 110,
         "y": 80,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "2db5a47c85a55778",
@@ -131,11 +121,7 @@ When you override the configuration of a node, the information displayed on the 
         "payloadType": "str",
         "x": 110,
         "y": 120,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "52882ab466bde0a2",
@@ -156,11 +142,7 @@ When you override the configuration of a node, the information displayed on the 
         "payloadType": "str",
         "x": 110,
         "y": 160,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "5acb4a13897dfe33",
@@ -181,11 +163,7 @@ When you override the configuration of a node, the information displayed on the 
         "payloadType": "str",
         "x": 130,
         "y": 200,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "5c9aea117d0cb988",
@@ -223,11 +201,7 @@ When you override the configuration of a node, the information displayed on the 
         "payloadType": "str",
         "x": 130,
         "y": 240,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "76203a31872dca18",
@@ -248,11 +222,7 @@ When you override the configuration of a node, the information displayed on the 
         "topic": "",
         "x": 130,
         "y": 280,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "01f89a1a0cfa1eb2",
@@ -288,11 +258,7 @@ When you override the configuration of a node, the information displayed on the 
         "payloadType": "str",
         "x": 160,
         "y": 320,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "c96f33f73a45a2a0",
@@ -328,11 +294,7 @@ When you override the configuration of a node, the information displayed on the 
         "payloadType": "str",
         "x": 160,
         "y": 360,
-        "wires": [
-            [
-                "44e6d3eefa84eb4d"
-            ]
-        ]
+        "wires": [["44e6d3eefa84eb4d"]]
     },
     {
         "id": "44e6d3eefa84eb4d",
@@ -383,19 +345,12 @@ When you override the configuration of a node, the information displayed on the 
         "continueActionName": "CONTINUE",
         "x": 440,
         "y": 200,
-        "wires": [
-            [
-                "1ae1e3ee2f5250a6"
-            ],
-            [
-                "5c9aea117d0cb988"
-            ]
-        ]
+        "wires": [["1ae1e3ee2f5250a6"], ["5c9aea117d0cb988"]]
     }
 ]
-```  
+```
 
-</details>  
+</details>
 
 ![controltimer example flow](img/example-flow.png?raw=true)  
 ![controltimer example progress](img/example-progress.png?raw=true)
@@ -405,40 +360,41 @@ When you override the configuration of a node, the information displayed on the 
 Change directory to your node red installation:
 
 $ npm install --save node-red-contrib-controltimer
+
 ## Configuration
 
-| Option                                            | Description                                                                                                                                            | DEFAULT               |  
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- |  
-| `Timer type` | Defines the timer behaviour. Available options are `Delay` and `Loop`.                                                                                 | `Delay` |  
-| `Timer duration unit` | Defines the timer duration unit. Available options are `Milliseconds`, `Seconds`, `Minutes` and `Hours`.                                               | `Seconds` |  
-| `Timer duration` | Defines the timer duration in specified (`Timer duration unit`) units.                                                                                 | `5` |  
-| `Loop timeout unit` | Defines timer loop timeout unit. Available options are `Milliseconds`, `Seconds`, `Minutes` and `Hours`.                                               | `Seconds` |  
-| `Loop timeout` | Defines the timer loop timeout in specified (`Loop timeout unit`) units. `0` means no timeout.                                                         | `0` |  
-| `Loop timeout message` | Defines message that is emitted via `timer-halted` output upon timeout.                                                                                | `LOOP_TIMEOUT` |  
-| `Loop max iterations` | Defines timer loop max iterations limit. `0` means no limit.                                                                                           | `0` |  
-| `Loop max iterations message` | Defines message that is emitted via `timer-halted` output upon max iterations are reached.                                                             | `MAX_LOOP_ITERATIONS` |  
-| `Is running timer progress visible` | If `true` it will display the timer's progress in node's status area as percentages. A good option for debugging long running tasks.                   | `false` |  
-| `Output received message on timer trigger` | If `true` it will emit the message the node received when timer triggers. If `false` it will emit an empty message.                                    | `true` |  
-| `Output received message on timer halt` | If `true` it will emit the message the node received when timer is halted. If `false` it will emit an empty message.                                   | `true` |  
-| `Start timer on receival of unknown message` | If `true` the timer is started upon receival of unknown\* message                                                                                 | `false` |  
-| `Reset timer on receival of unknown message` | If `true` the timer is reset upon receival of unknown\* message                                                                                 | `false` |  
-| `Reset timer on receival of START action` | If `true` the timer is reset upon receival of `START` action.                                                                                   | `false` |  
-| `Continue timer on receival of START action` | If `true` the timer is continued upon receival of `START` action.                                                                                 | `false` | 
-| `Is debug mode enabled` | If `true` node will log errors into debug console                                                                                                      | `false` |  
-| `Timer triggered message` | Defines message that is emitted via `timer-triggered` output when timer is triggered and if `Output received message on timer trigger` is not enabled. | `TIMER_TRIGGERED` |  
-| `Timer triggered message` | Defines message that is emitted via `timer-halted` output when timer is halted and if `Output received message on timer halt` is not enabled.          | `TIMER_HALTED` |  
-| `Is start action enabled` | If `true` node is permitted to receive Start actions                                                                                                   | `true` |  
-| `Is stop action enabled` | If `true` node is permitted to receive Stop actions                                                                                                    | `true` |  
-| `Is reset action enabled` | If `true` node is permitted to receive Reset actions                                                                                                   | `true` |  
-| `Is pause action enabled` | If `true` node is permitted to receive Pause actions                                                                                                   | `true` |  
-| `Is continue action enabled` | If `true` node is permitted to receive Continue actions                                                                                                | `true` |  
-| `Action property name` | Defines the property on a received message on which the action string to interact with timer can be found.                                             | `payload` |  
-| `Start action name` | Defines the action string that will `START` the timer.                                                                                                   | `START` |  
-| `Stop action name` | Defines the action string that will `STOP` the timer.                                                                                                    | `STOP` |  
-| `Reset action name` | Defines the action string that will `RESET` the timer.                                                                                                   | `RESET` |  
-| `Pause action name` | Defines the action string that will `PAUSE` the timer.                                                                                                   | `PAUSE` |  
-| `Continue action name` | Defines the action string that will `CONTINUE` the paused timer.                                                                                         | `CONTINUE` |  
+| Option                                       | Description                                                                                                                                            | DEFAULT               |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- |
+| `Timer type`                                 | Defines the timer behaviour. Available options are `Delay` and `Loop`.                                                                                 | `Delay`               |
+| `Timer duration unit`                        | Defines the timer duration unit. Available options are `Milliseconds`, `Seconds`, `Minutes` and `Hours`.                                               | `Seconds`             |
+| `Timer duration`                             | Defines the timer duration in specified (`Timer duration unit`) units.                                                                                 | `5`                   |
+| `Loop timeout unit`                          | Defines timer loop timeout unit. Available options are `Milliseconds`, `Seconds`, `Minutes` and `Hours`.                                               | `Seconds`             |
+| `Loop timeout`                               | Defines the timer loop timeout in specified (`Loop timeout unit`) units. `0` means no timeout.                                                         | `0`                   |
+| `Loop timeout message`                       | Defines message that is emitted via `timer-halted` output upon timeout.                                                                                | `LOOP_TIMEOUT`        |
+| `Loop max iterations`                        | Defines timer loop max iterations limit. `0` means no limit.                                                                                           | `0`                   |
+| `Loop max iterations message`                | Defines message that is emitted via `timer-halted` output upon max iterations are reached.                                                             | `MAX_LOOP_ITERATIONS` |
+| `Is running timer progress visible`          | If `true` it will display the timer's progress in node's status area as percentages. A good option for debugging long running tasks.                   | `false`               |
+| `Output received message on timer trigger`   | If `true` it will emit the message the node received when timer triggers. If `false` it will emit an empty message.                                    | `true`                |
+| `Output received message on timer halt`      | If `true` it will emit the message the node received when timer is halted. If `false` it will emit an empty message.                                   | `true`                |
+| `Start timer on receival of unknown message` | If `true` the timer is started upon receival of unknown\* message                                                                                      | `false`               |
+| `Reset timer on receival of unknown message` | If `true` the timer is reset upon receival of unknown\* message                                                                                        | `false`               |
+| `Reset timer on receival of START action`    | If `true` the timer is reset upon receival of `START` action.                                                                                          | `false`               |
+| `Continue timer on receival of START action` | If `true` the timer is continued upon receival of `START` action.                                                                                      | `false`               |
+| `Is debug mode enabled`                      | If `true` node will log errors into debug console                                                                                                      | `false`               |
+| `Timer triggered message`                    | Defines message that is emitted via `timer-triggered` output when timer is triggered and if `Output received message on timer trigger` is not enabled. | `TIMER_TRIGGERED`     |
+| `Timer triggered message`                    | Defines message that is emitted via `timer-halted` output when timer is halted and if `Output received message on timer halt` is not enabled.          | `TIMER_HALTED`        |
+| `Is start action enabled`                    | If `true` node is permitted to receive Start actions                                                                                                   | `true`                |
+| `Is stop action enabled`                     | If `true` node is permitted to receive Stop actions                                                                                                    | `true`                |
+| `Is reset action enabled`                    | If `true` node is permitted to receive Reset actions                                                                                                   | `true`                |
+| `Is pause action enabled`                    | If `true` node is permitted to receive Pause actions                                                                                                   | `true`                |
+| `Is continue action enabled`                 | If `true` node is permitted to receive Continue actions                                                                                                | `true`                |
+| `Action property name`                       | Defines the property on a received message on which the action string to interact with timer can be found.                                             | `payload`             |
+| `Start action name`                          | Defines the action string that will `START` the timer.                                                                                                 | `START`               |
+| `Stop action name`                           | Defines the action string that will `STOP` the timer.                                                                                                  | `STOP`                |
+| `Reset action name`                          | Defines the action string that will `RESET` the timer.                                                                                                 | `RESET`               |
+| `Pause action name`                          | Defines the action string that will `PAUSE` the timer.                                                                                                 | `PAUSE`               |
+| `Continue action name`                       | Defines the action string that will `CONTINUE` the paused timer.                                                                                       | `CONTINUE`            |
 
-*\* An unknown message refers to a message with a payload that is not part of the defined and enabled set of action strings. For example, it could be a message without a defined `Action property name` or a message with a `Action property name` value that does not match any of the enabled action names. If a disabled action, such as the `PAUSE` action, is received, it is considered an unknown message according to the settings.*
+_\* An unknown message refers to a message with a payload that is not part of the defined and enabled set of action strings. For example, it could be a message without a defined `Action property name` or a message with a `Action property name` value that does not match any of the enabled action names. If a disabled action, such as the `PAUSE` action, is received, it is considered an unknown message according to the settings._
 
 <a target="_blank" href="https://icons8.com/icons/set/future">Future icon</a> by <a target="_blank" href="https://icons8.com">Icons8</a>

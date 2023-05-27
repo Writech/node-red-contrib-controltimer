@@ -1,8 +1,11 @@
+## v0.4.1 (27.05.2023)
+    * Bugfix: When the timer was in a paused state and received an override configuration, it failed to update the visible timer progress.
+
 ## v0.4.0 (27.05.2023)
-* Rename `isConsecutiveStartActionTimerResetAllowed` configuration option to `resetTimerOnReceivalOfStartAction` for more consistent naming convention.
-* Add new configuration option `continueTimerOnReceivalOfStartAction` to control whether `START` action should continue a paused timer.
-* Move `resetTimerOnReceivalOfStartAction` option (previously `isConsecutiveStartActionTimerResetAllowed`) next to `continueTimerOnReceivalOfStartAction` option everywhere (in code an in UI).
-* Continue paused timer on receival of `START` action if `continueTimerOnReceivalOfStartAction` option is enabled.
+    * Rename `isConsecutiveStartActionTimerResetAllowed` configuration option to `resetTimerOnReceivalOfStartAction` for more consistent naming convention.
+    * Add new configuration option `continueTimerOnReceivalOfStartAction` to control whether `START` action should continue a paused timer.
+    * Move `resetTimerOnReceivalOfStartAction` option (previously `isConsecutiveStartActionTimerResetAllowed`) next to `continueTimerOnReceivalOfStartAction` option everywhere (in code an in UI).
+    * Continue paused timer on receival of `START` action if `continueTimerOnReceivalOfStartAction` option is enabled.
 
 ## v0.3.0 (17.11.2022)
-* Allow overriding `timerType`, `timerDuration`, and `timerDurationUnit` via `START` action.
+    * Allow overriding `timerType`, `timerDuration`, and `timerDurationUnit` via `START` action.
