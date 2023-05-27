@@ -42,12 +42,13 @@ export interface Props {
     timerHaltedMessageType: TimerHaltedMessageType;
     timerHaltedMessage: string | number;
 
-    isConsecutiveStartActionTimerResetAllowed: boolean;
     isRunningTimerProgressVisible: boolean;
     outputReceivedMessageOnTimerTrigger: boolean;
     outputReceivedMessageOnTimerHalt: boolean;
     startTimerOnReceivalOfUnknownMessage: boolean;
     resetTimerOnReceivalOfUnknownMessage: boolean;
+    resetTimerOnReceivalOfStartAction: boolean;
+    continueTimerOnReceivalOfStartAction: boolean;
     isDebugModeEnabled: boolean;
 
     isStartActionEnabled: boolean;
@@ -88,12 +89,13 @@ export const defaults: Props = {
     loopMaxIterationsMessageType: 'str',
     loopMaxIterationsMessage: 'MAX_LOOP_ITERATIONS',
 
-    isConsecutiveStartActionTimerResetAllowed: false,
     isRunningTimerProgressVisible: true,
     outputReceivedMessageOnTimerTrigger: true,
     outputReceivedMessageOnTimerHalt: false,
     startTimerOnReceivalOfUnknownMessage: false,
     resetTimerOnReceivalOfUnknownMessage: false,
+    resetTimerOnReceivalOfStartAction: false,
+    continueTimerOnReceivalOfStartAction: false,
     isDebugModeEnabled: false,
     timerTriggeredMessageType: 'str',
     timerTriggeredMessage: 'TIMER_TRIGGERED',
