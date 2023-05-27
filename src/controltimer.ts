@@ -73,6 +73,14 @@ module.exports = function (RED: NodeAPI): void {
                 });
             }
 
+            if (timer.getState() === STATE.PAUSED) {
+                if (isStartActionMessage && config.continueTimerOnReceivalOfStartAction) {
+                    timer.continue();
+                    done();
+                    return;
+                }
+            }
+
             if (timer.getState() !== STATE.RUNNING) {
                 if (isStartActionMessage || (isUnknownMessage && config.startTimerOnReceivalOfUnknownMessage)) {
                     timer.start();
@@ -84,7 +92,7 @@ module.exports = function (RED: NodeAPI): void {
             if (
                 isResetActionMessage ||
                 (isUnknownMessage && config.resetTimerOnReceivalOfUnknownMessage) ||
-                (isStartActionMessage && config.isConsecutiveStartActionTimerResetAllowed) ||
+                (isStartActionMessage && config.resetTimerOnReceivalOfStartAction) ||
                 (isStartActionMessage && isOverrideMessage)
             ) {
                 timer.reset();

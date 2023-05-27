@@ -21,12 +21,13 @@
 			loopMaxIterationsMessageType: { value: '<%= defaults.loopMaxIterationsMessageType %>' },
 			loopMaxIterationsMessage: { value: '<%= defaults.loopMaxIterationsMessage %>', required: true, validate: RED.validators.typedInput('loopMaxIterationsMessageType') },
 
-			isConsecutiveStartActionTimerResetAllowed: { value: <%= defaults.isConsecutiveStartActionTimerResetAllowed %> },
 			isRunningTimerProgressVisible: { value: <%= defaults.isRunningTimerProgressVisible %> },
-			outputReceivedMessageOnTimerTrigger: { value: <%= defaults.outputReceivedMessageOnTimerTrigger %> },
-			outputReceivedMessageOnTimerHalt: { value: <%= defaults.outputReceivedMessageOnTimerHalt %> },
-			startTimerOnReceivalOfUnknownMessage: { value: <%= defaults.startTimerOnReceivalOfUnknownMessage %> },
-			resetTimerOnReceivalOfUnknownMessage: { value: <%= defaults.resetTimerOnReceivalOfUnknownMessage %> },
+            outputReceivedMessageOnTimerTrigger: { value: <%= defaults.outputReceivedMessageOnTimerTrigger %> },
+            outputReceivedMessageOnTimerHalt: { value: <%= defaults.outputReceivedMessageOnTimerHalt %> },
+            startTimerOnReceivalOfUnknownMessage: { value: <%= defaults.startTimerOnReceivalOfUnknownMessage %> },
+            resetTimerOnReceivalOfUnknownMessage: { value: <%= defaults.resetTimerOnReceivalOfUnknownMessage %> },
+            resetTimerOnReceivalOfStartAction: { value: <%= defaults.resetTimerOnReceivalOfStartAction %> },
+            continueTimerOnReceivalOfStartAction: { value: <%= defaults.continueTimerOnReceivalOfStartAction %> },
 			isDebugModeEnabled: { value: <%= defaults.isDebugModeEnabled %> },
 			timerTriggeredMessageType: { value: '<%= defaults.timerTriggeredMessageType %>' },
 			timerTriggeredMessage: { value: '<%= defaults.timerTriggeredMessage %>', required: true, validate: RED.validators.typedInput('timerTriggeredMessageType') },
@@ -144,13 +145,14 @@
 				// ### Advanced Controltimer Options ###
 				// #####################################
 
-				initializeNodeRedCheckbox('isConsecutiveStartActionTimerResetAllowed');
 				initializeNodeRedCheckbox('isRunningTimerProgressVisible');
-				initializeNodeRedCheckbox('outputReceivedMessageOnTimerTrigger');
-				initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
-				initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
-				initializeNodeRedCheckbox('startTimerOnReceivalOfUnknownMessage');
-				initializeNodeRedCheckbox('resetTimerOnReceivalOfUnknownMessage');
+                initializeNodeRedCheckbox('outputReceivedMessageOnTimerTrigger');
+                initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
+                initializeNodeRedCheckbox('outputReceivedMessageOnTimerHalt');
+                initializeNodeRedCheckbox('startTimerOnReceivalOfUnknownMessage');
+                initializeNodeRedCheckbox('resetTimerOnReceivalOfUnknownMessage');
+                initializeNodeRedCheckbox('resetTimerOnReceivalOfStartAction');
+                initializeNodeRedCheckbox('continueTimerOnReceivalOfStartAction');
 				initializeNodeRedCheckbox('isDebugModeEnabled');
 				initializeNodeRedTypedTextInput('timerTriggeredMessage', ['str', 'num']);
 				initializeNodeRedTypedTextInput('timerHaltedMessage', ['str', 'num']);
@@ -205,12 +207,13 @@
 				this.loopMaxIterationsMessageType = elementDefaults.loopMaxIterationsMessageType;
 				this.loopMaxIterationsMessage = elementDefaults.loopMaxIterationsMessage;
 
-				this.isConsecutiveStartActionTimerResetAllowed = elementDefaults.isConsecutiveStartActionTimerResetAllowed;
 				this.isRunningTimerProgressVisible = elementDefaults.isRunningTimerProgressVisible;
-				this.outputReceivedMessageOnTimerTrigger = elementDefaults.outputReceivedMessageOnTimerTrigger;
-				this.outputReceivedMessageOnTimerHalt = elementDefaults.outputReceivedMessageOnTimerHalt;
-				this.startTimerOnReceivalOfUnknownMessage = elementDefaults.startTimerOnReceivalOfUnknownMessage;
-				this.resetTimerOnReceivalOfUnknownMessage = elementDefaults.resetTimerOnReceivalOfUnknownMessage;
+                this.outputReceivedMessageOnTimerTrigger = elementDefaults.outputReceivedMessageOnTimerTrigger;
+                this.outputReceivedMessageOnTimerHalt = elementDefaults.outputReceivedMessageOnTimerHalt;
+                this.startTimerOnReceivalOfUnknownMessage = elementDefaults.startTimerOnReceivalOfUnknownMessage;
+                this.resetTimerOnReceivalOfUnknownMessage = elementDefaults.resetTimerOnReceivalOfUnknownMessage;
+                this.resetTimerOnReceivalOfStartAction = elementDefaults.resetTimerOnReceivalOfStartAction;
+                this.continueTimerOnReceivalOfStartAction = elementDefaults.continueTimerOnReceivalOfStartAction;
 				this.isDebugModeEnabled = elementDefaults.isDebugModeEnabled;
 				this.timerTriggeredMessageType = elementDefaults.timerTriggeredMessageType;
 				this.timerTriggeredMessage = elementDefaults.timerTriggeredMessage;
@@ -268,12 +271,13 @@
 			this.loopMaxIterationsMessageType = $('#node-input-loopMaxIterationsMessageType').val();
 			this.loopMaxIterationsMessage = $('#node-input-loopMaxIterationsMessage').val();
 
-			this.isConsecutiveStartActionTimerResetAllowed = $('#node-input-isConsecutiveStartActionTimerResetAllowed').is(":checked");
 			this.isRunningTimerProgressVisible = $('#node-input-isRunningTimerProgressVisible').is(":checked");
-			this.outputReceivedMessageOnTimerTrigger = $('#node-input-outputReceivedMessageOnTimerTrigger').is(":checked");
-			this.outputReceivedMessageOnTimerHalt = $('#node-input-outputReceivedMessageOnTimerHalt').is(":checked");
-			this.startTimerOnReceivalOfUnknownMessage = $('#node-input-startTimerOnReceivalOfUnknownMessage').is(":checked");
-			this.resetTimerOnReceivalOfUnknownMessage = $('#node-input-resetTimerOnReceivalOfUnknownMessage').is(":checked");
+            this.outputReceivedMessageOnTimerTrigger = $('#node-input-outputReceivedMessageOnTimerTrigger').is(":checked");
+            this.outputReceivedMessageOnTimerHalt = $('#node-input-outputReceivedMessageOnTimerHalt').is(":checked");
+            this.startTimerOnReceivalOfUnknownMessage = $('#node-input-startTimerOnReceivalOfUnknownMessage').is(":checked");
+            this.resetTimerOnReceivalOfUnknownMessage = $('#node-input-resetTimerOnReceivalOfUnknownMessage').is(":checked");
+            this.resetTimerOnReceivalOfStartAction = $('#node-input-resetTimerOnReceivalOfStartAction').is(":checked");
+            this.continueTimerOnReceivalOfStartAction = $('#node-input-continueTimerOnReceivalOfStartAction').is(":checked");
 			this.isDebugModeEnabled = $('#node-input-isDebugModeEnabled').is(":checked");
 			this.timerTriggeredMessageType = $('#node-input-timerTriggeredMessageType').val();
 			this.timerTriggeredMessage = $('#node-input-timerTriggeredMessage').val();
@@ -457,13 +461,6 @@
 
     <div class="controltimer-settings-accordion-panel">
         <div class="form-row controltimer-input-row">
-            <label for="node-input-isConsecutiveStartActionTimerResetAllowed"><i class="fa fa-tag"></i> Is consecutive start action timer reset allowed</label>
-            <div class="controltimer-input-row-checkbox-wrapper">
-                <input type="checkbox" id="node-input-isConsecutiveStartActionTimerResetAllowed">
-            </div>
-        </div>
-
-        <div class="form-row controltimer-input-row">
             <label for="node-input-isRunningTimerProgressVisible"><i class="fa fa-tag"></i> Is running timer progress visible</label>
             <div class="controltimer-input-row-checkbox-wrapper">
                 <input type="checkbox" id="node-input-isRunningTimerProgressVisible">
@@ -495,6 +492,20 @@
             <label for="node-input-resetTimerOnReceivalOfUnknownMessage"><i class="fa fa-tag"></i> Reset timer on receival of unknown message</label>
             <div class="controltimer-input-row-checkbox-wrapper">
                 <input type="checkbox" id="node-input-resetTimerOnReceivalOfUnknownMessage">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-resetTimerOnReceivalOfStartAction"><i class="fa fa-tag"></i> Reset timer on receival of START action</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-resetTimerOnReceivalOfStartAction">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-continueTimerOnReceivalOfStartAction"><i class="fa fa-tag"></i> Continue timer on receival of START action</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-continueTimerOnReceivalOfStartAction">
             </div>
         </div>
 
