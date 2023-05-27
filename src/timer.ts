@@ -110,6 +110,11 @@ export class Timer extends EventEmitter {
 
     public setConfigOverride(configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>) {
         this.configOverride = configOverride; // TODO: Validate configOverride
+
+        this.emit('state', {
+            state: this.currentState,
+            progress: this.currentState === STATE.PAUSED ? this.getPausedTimerProgress() : this.getRunningTimerProgress(),
+        });
     }
 
     public getState() {
