@@ -58,8 +58,14 @@
         "timeout",
         "interval"
     ],
+    "node-red": {
+        "version": ">=3.0.0",
+        "nodes": {
+            "controltimer": "dist/controltimer.js"
+        }
+    },
     "engines": {
-        "node": ">=14.0.0"
+        "node": ">=12.0.0"
     },
     "husky": {
         "hooks": {
@@ -73,11 +79,5 @@
         "*.{js,ts,cjs,mts}": [
             "eslint --fix"
         ]
-    },
-    "node-red": {
-        "version": ">=3.0.0",
-        "nodes": {
-            "controltimer": "dist/controltimer.js"
-        }
     }
 }
