@@ -1,7 +1,7 @@
 import { Node, NodeAPI, NodeMessageInFlow } from 'node-red';
 
 import { constants, ControlTimerNodeDef, nodeName } from './node-config';
-import { STATE, Timer } from './timer';
+import { State, Timer } from './timer';
 
 type NodeMessage = NodeMessageInFlow;
 
@@ -27,25 +27,25 @@ module.exports = function (RED: NodeAPI): void {
         });
 
         timer.on('state', ({ state, progress }) => {
-            if (state === STATE.IDLE) {
+            if (state === State.IDLE) {
                 node.status({ fill: 'grey', shape: 'ring', text: 'Idle' });
             }
 
-            if (state === STATE.RUNNING) {
+            if (state === State.RUNNING) {
                 node.status({ fill: 'green', shape: 'dot', text: `Running${progress}` });
             }
 
-            if (state === STATE.STOPPED) {
+            if (state === State.STOPPED) {
                 node.status({ fill: 'red', shape: 'dot', text: 'Stopped' });
             }
 
-            if (state === STATE.PAUSED) {
+            if (state === State.PAUSED) {
                 node.status({ fill: 'yellow', shape: 'dot', text: `Paused${progress}` });
             }
         });
 
-        timer.on(STATE.STOPPED, () => node.send([null, getHaltedMessage()]));
-        timer.on(STATE.PAUSED, () => node.send([null, getHaltedMessage()]));
+        timer.on(State.STOPPED, () => node.send([null, getHaltedMessage()]));
+        timer.on(State.PAUSED, () => node.send([null, getHaltedMessage()]));
         timer.on('timer', () => node.send([getTriggerMessage(), null]));
         timer.on('loop-timeout', () => node.send([null, getMessage(config.loopTimeoutMessage)]));
         timer.on('loop-max-iterations', () => node.send([null, getMessage(config.loopMaxIterationsMessage)]));
@@ -58,14 +58,27 @@ module.exports = function (RED: NodeAPI): void {
             const isPauseActionMessage = message[config.actionPropertyName] === config.pauseActionName && config.isPauseActionEnabled;
             const isContinueActionMessage = message[config.actionPropertyName] === config.continueActionName && config.isContinueActionEnabled;
             const isStopActionMessage = message[config.actionPropertyName] === config.stopActionName && config.isStopActionEnabled;
-            const isUnknownMessage = !(isStartActionMessage || isResetActionMessage || isPauseActionMessage || isContinueActionMessage || isStopActionMessage);
+            const isConfigActionMessage = message[config.actionPropertyName] === config.configActionName && config.isConfigActionEnabled;
+            const isUnknownMessage = !(
+                isStartActionMessage ||
+                isResetActionMessage ||
+                isPauseActionMessage ||
+                isContinueActionMessage ||
+                isStopActionMessage ||
+                isConfigActionMessage
+            );
 
             const timerTypeOverride = message[constants.timerTypeOverridePropertyName] ?? null;
             const timerDurationOverride = message[constants.timerDurationOverridePropertyName] ?? null;
             const timerDurationUnitOverride = message[constants.timerDurationUnitOverridePropertyName] ?? null;
-            const isOverrideMessage = timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
+            const hasConfigOverride = timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
 
-            if (isStartActionMessage && isOverrideMessage) {
+            if (isConfigActionMessage && !hasConfigOverride) {
+                done(new Error('Config override not found or is invalid'));
+                return;
+            }
+
+            if (!isUnknownMessage && hasConfigOverride) {
                 timer.setConfigOverride({
                     timerType: timerTypeOverride,
                     duration: timerDurationOverride,
@@ -73,29 +86,11 @@ module.exports = function (RED: NodeAPI): void {
                 });
             }
 
-            if (timer.getState() === STATE.PAUSED) {
-                if (isStartActionMessage && config.continueTimerOnReceivalOfStartAction) {
-                    timer.continue();
-                    done();
-                    return;
-                }
-            }
-
-            if (timer.getState() !== STATE.RUNNING) {
-                if (isStartActionMessage || (isUnknownMessage && config.startTimerOnReceivalOfUnknownMessage)) {
-                    timer.start();
-                    done();
-                    return;
-                }
-            }
-
             if (
-                isResetActionMessage ||
-                (isUnknownMessage && config.resetTimerOnReceivalOfUnknownMessage) ||
-                (isStartActionMessage && config.resetTimerOnReceivalOfStartAction) ||
-                (isStartActionMessage && isOverrideMessage)
+                (isStartActionMessage || (isUnknownMessage && config.startTimerOnReceivalOfUnknownMessage)) &&
+                (timer.state === State.IDLE || timer.state === State.STOPPED)
             ) {
-                timer.reset();
+                timer.start();
                 done();
                 return;
             }
@@ -112,8 +107,19 @@ module.exports = function (RED: NodeAPI): void {
                 return;
             }
 
-            if (isContinueActionMessage) {
+            if (isContinueActionMessage || (timer.state === State.PAUSED && isStartActionMessage && config.continueTimerOnReceivalOfStartAction)) {
                 timer.continue();
+                done();
+                return;
+            }
+
+            if (
+                isResetActionMessage ||
+                (isUnknownMessage && config.resetTimerOnReceivalOfUnknownMessage) ||
+                (isStartActionMessage && config.resetTimerOnReceivalOfStartAction) ||
+                (isStartActionMessage && hasConfigOverride)
+            ) {
+                timer.reset();
                 done();
                 return;
             }

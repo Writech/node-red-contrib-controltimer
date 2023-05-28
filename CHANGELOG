@@ -1,3 +1,6 @@
+## v0.5.0 (28.05.2023)
+    * Implement new CONFIG action to allow overriding configuration without starting the timer.
+
 ## v0.4.1 (27.05.2023)
     * Bugfix: When the timer was in a paused state and received an override configuration, it failed to update the visible timer progress.
 
