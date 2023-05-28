@@ -1,6 +1,6 @@
 import { NodeDef } from 'node-red';
 
-import { DurationUnit, TIMER_TYPE } from './timer';
+import { DurationUnit, TimerType } from './timer';
 
 export const nodeName = 'controltimer';
 export type ControlTimerNodeDef = NodeDef & Props;
@@ -18,10 +18,11 @@ export type StopActionNameType = 'str';
 export type ResetActionNameType = 'str';
 export type PauseActionNameType = 'str';
 export type ContinueActionNameType = 'str';
+export type ConfigActionNameType = 'str';
 
 export interface Props {
     name: string;
-    timerType: TIMER_TYPE;
+    timerType: TimerType;
 
     timerDurationUnit: DurationUnit;
     timerDurationType: TimerDurationType;
@@ -56,6 +57,7 @@ export interface Props {
     isResetActionEnabled: boolean;
     isPauseActionEnabled: boolean;
     isContinueActionEnabled: boolean;
+    isConfigActionEnabled: boolean;
     actionPropertyNameType: ActionPropertyNameType;
     actionPropertyName: string;
     startActionNameType: StartActionNameType;
@@ -68,11 +70,13 @@ export interface Props {
     pauseActionName: string;
     continueActionNameType: ContinueActionNameType;
     continueActionName: string;
+    configActionNameType: ConfigActionNameType;
+    configActionName: string;
 }
 
 export const defaults: Props = {
     name: '',
-    timerType: TIMER_TYPE.DELAY,
+    timerType: TimerType.DELAY,
 
     timerDurationUnit: DurationUnit.SECOND,
     timerDurationType: 'num',
@@ -107,6 +111,7 @@ export const defaults: Props = {
     isResetActionEnabled: true,
     isPauseActionEnabled: true,
     isContinueActionEnabled: true,
+    isConfigActionEnabled: true,
     actionPropertyNameType: 'str',
     actionPropertyName: 'payload',
     startActionNameType: 'str',
@@ -119,6 +124,8 @@ export const defaults: Props = {
     pauseActionName: 'PAUSE',
     continueActionNameType: 'str',
     continueActionName: 'CONTINUE',
+    configActionNameType: 'str',
+    configActionName: 'CONFIG',
 };
 
 export const constants = {

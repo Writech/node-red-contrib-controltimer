@@ -39,6 +39,7 @@
 			isResetActionEnabled: { value: <%= defaults.isResetActionEnabled %> },
 			isPauseActionEnabled: { value: <%= defaults.isPauseActionEnabled %> },
 			isContinueActionEnabled: { value: <%= defaults.isContinueActionEnabled %> },
+            isConfigActionEnabled: { value: <%= defaults.isConfigActionEnabled %> },
 			actionPropertyNameType: { value: '<%= defaults.actionPropertyNameType %>' },
 			actionPropertyName: { value: '<%= defaults.actionPropertyName %>', required: true, validate: RED.validators.typedInput('actionPropertyNameType') },
 			startActionNameType: { value: '<%= defaults.startActionNameType %>' },
@@ -51,12 +52,14 @@
 			pauseActionName: { value: '<%= defaults.pauseActionName %>', required: true, validate: RED.validators.typedInput('pauseActionNameType') },
 			continueActionNameType: { value: '<%= defaults.continueActionNameType %>' },
 			continueActionName: { value: '<%= defaults.continueActionName %>', required: true, validate: RED.validators.typedInput('continueActionNameType') },
+            configActionNameType: { value: '<%= defaults.configActionNameType %>' },
+            configActionName: { value: '<%= defaults.configActionName %>', required: true, validate: RED.validators.typedInput('configActionNameType') },
         },
 		inputs: 1,
 		outputs: 2,
 		icon: "controltimer.png",
 		label: function () {
-			return this.name || `${this.timerDuration} ${this.timerDurationUnit} ${this.timerType === '<%= TIMER_TYPE.DELAY %>' ? '<%= TIMER_TYPE.DELAY %>' : '<%= TIMER_TYPE.LOOP %>'}`;
+			return this.name || `${this.timerDuration} ${this.timerDurationUnit} ${this.timerType === '<%= TimerType.DELAY %>' ? '<%= TimerType.DELAY %>' : '<%= TimerType.LOOP %>'}`;
         },
         labelStyle: function () {
             return this.name ? 'node_label_italic' : '';
@@ -166,12 +169,14 @@
 				initializeNodeRedCheckbox('isResetActionEnabled');
 				initializeNodeRedCheckbox('isPauseActionEnabled');
 				initializeNodeRedCheckbox('isContinueActionEnabled');
+				initializeNodeRedCheckbox('isConfigActionEnabled');
 				initializeNodeRedTypedTextInput('actionPropertyName', ['str']);
 				initializeNodeRedTypedTextInput('startActionName', ['str']);
 				initializeNodeRedTypedTextInput('stopActionName', ['str']);
 				initializeNodeRedTypedTextInput('resetActionName', ['str']);
 				initializeNodeRedTypedTextInput('pauseActionName', ['str']);
 				initializeNodeRedTypedTextInput('continueActionName', ['str']);
+				initializeNodeRedTypedTextInput('configActionName', ['str']);
             }
 
 			initializeInputs();
@@ -180,11 +185,11 @@
 			$('#node-input-timerType').change(() => {
 				const selectedTimerType = $('#node-input-timerType').val();
 
-				if (selectedTimerType === '<%= TIMER_TYPE.LOOP %>') {
+				if (selectedTimerType === '<%= TimerType.LOOP %>') {
 					$('.loop-options').show();
                 }
 
-				if (selectedTimerType === '<%= TIMER_TYPE.DELAY %>') {
+				if (selectedTimerType === '<%= TimerType.DELAY %>') {
 					$('.loop-options').hide();
 				}
 			});
@@ -225,6 +230,7 @@
 				this.isStopActionEnabled = elementDefaults.isStopActionEnabled;
 				this.isPauseActionEnabled = elementDefaults.isPauseActionEnabled;
 				this.isContinueActionEnabled = elementDefaults.isContinueActionEnabled;
+				this.isConfigActionEnabled = elementDefaults.isConfigActionEnabled;
 				this.actionPropertyNameType = elementDefaults.actionPropertyNameType;
 				this.actionPropertyName = elementDefaults.actionPropertyName;
 				this.startActionNameType = elementDefaults.startActionNameType;
@@ -237,6 +243,8 @@
 				this.pauseActionName = elementDefaults.pauseActionName;
 				this.continueActionNameType = elementDefaults.continueActionNameType;
 				this.continueActionName = elementDefaults.continueActionName;
+                this.configActionNameType = elementDefaults.configActionNameType;
+                this.configActionName = elementDefaults.configActionName;
 
 				initializeInputs();
             });
@@ -289,6 +297,7 @@
 			this.isStopActionEnabled = $('#node-input-isStopActionEnabled').is(":checked");
 			this.isPauseActionEnabled = $('#node-input-isPauseActionEnabled').is(":checked");
 			this.isContinueActionEnabled = $('#node-input-isContinueActionEnabled').is(":checked");
+			this.isConfigActionEnabled = $('#node-input-isConfigActionEnabled').is(":checked");
             this.actionPropertyNameType = $('#node-input-actionPropertyNameType').val();
             this.actionPropertyName = $('#node-input-actionPropertyName').val();
 			this.startActionNameType = $('#node-input-startActionNameType').val();
@@ -301,6 +310,8 @@
 			this.pauseActionName = $('#node-input-pauseActionName').val();
 			this.continueActionNameType = $('#node-input-continueActionNameType').val();
 			this.continueActionName = $('#node-input-continueActionName').val();
+            this.configActionNameType = $('#node-input-configActionNameType').val();
+			this.configActionName = $('#node-input-configActionName').val();
         },
     });
 </script>
@@ -386,8 +397,8 @@
     <div class="form-row controltimer-input-row">
         <label for="node-input-timerType"><i class="fa fa-tag"></i> Timer type</label>
         <select id="node-input-timerType">
-            <option value="<%= TIMER_TYPE.DELAY %>">Delay</option>
-            <option value="<%= TIMER_TYPE.LOOP %>">Loop</option>
+            <option value="<%= TimerType.DELAY %>">Delay</option>
+            <option value="<%= TimerType.LOOP %>">Loop</option>
         </select>
     </div>
 
@@ -574,6 +585,13 @@
         </div>
 
         <div class="form-row controltimer-input-row">
+            <label for="node-input-isConfigActionEnabled"><i class="fa fa-tag"></i> Is config action enabled</label>
+            <div class="controltimer-input-row-checkbox-wrapper">
+                <input type="checkbox" id="node-input-isConfigActionEnabled">
+            </div>
+        </div>
+
+        <div class="form-row controltimer-input-row">
             <label for="node-input-actionPropertyName"><i class="fa fa-tag"></i> Action property name</label>
             <input type="hidden" id="node-input-actionPropertyNameType">
             <input type="text" id="node-input-actionPropertyName" placeholder="Action property name">
@@ -607,6 +625,12 @@
             <label for="node-input-continueActionName"><i class="fa fa-tag"></i> Continue action name</label>
             <input type="hidden" id="node-input-continueActionNameType">
             <input type="text" id="node-input-continueActionName" placeholder="Continue action name">
+        </div>
+
+        <div class="form-row controltimer-input-row">
+            <label for="node-input-configActionName"><i class="fa fa-tag"></i> Config action name</label>
+            <input type="hidden" id="node-input-configActionNameType">
+            <input type="text" id="node-input-configActionName" placeholder="Config action name">
         </div>
     </div>
 
