@@ -117,3 +117,5 @@ package/
 
 scripts/
 .prettierignore
+.changeset/
+.github/
