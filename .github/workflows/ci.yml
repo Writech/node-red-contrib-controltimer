@@ -2,6 +2,7 @@ name: ci
 on:
     pull_request:
         branches: [master]
+        types: [opened, synchronize, reopened, labeled, unlabeled]
 
 permissions:
     contents: read
@@ -21,7 +22,10 @@ jobs:
 
     changeset:
         # The "Version Packages" PR consumes the changesets, so it can't contain one.
-        if: github.head_ref != 'changeset-release/master'
+        # PRs that need no release (CI, docs, tests) get the "no-changeset" label instead.
+        if: >-
+            github.head_ref != 'changeset-release/master' &&
+            !contains(github.event.pull_request.labels.*.name, 'no-changeset')
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -36,6 +40,6 @@ jobs:
               run: |
                   npx changeset status --since=origin/master || {
                     echo "::error::No changeset found. Run 'npx changeset' and commit the file."
-                    echo "::error::For changes that need no release (CI, docs, tests), run 'npx changeset --empty'."
+                    echo "::error::For changes that need no release (CI, docs, tests), add the 'no-changeset' label to the PR."
                     exit 1
                   }
