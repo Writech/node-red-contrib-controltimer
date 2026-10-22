@@ -20,7 +20,7 @@
         "test:coverage": "./scripts/test/coverage.sh",
         "test:build": "./scripts/test/build.sh",
         "format": "./scripts/format.sh",
-        "typecheck": "./scripts/typecheck.sh",
+        "typecheck:tests": "./scripts/typecheck/tests.sh",
         "lint": "./scripts/lint.sh",
         "prepare": "husky"
     },
