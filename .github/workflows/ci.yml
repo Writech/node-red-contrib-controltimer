@@ -1,0 +1,41 @@
+name: ci
+on:
+    pull_request:
+        branches: [master]
+
+permissions:
+    contents: read
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+            - run: npm ci
+            - run: npm run tidy:lint
+            - run: npm run build
+
+    changeset:
+        # The "Version Packages" PR consumes the changesets, so it can't contain one.
+        if: github.head_ref != 'changeset-release/master'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+            - run: npm ci
+            - name: Check for a changeset
+              run: |
+                  npx changeset status --since=origin/master || {
+                    echo "::error::No changeset found. Run 'npx changeset' and commit the file."
+                    echo "::error::For changes that need no release (CI, docs, tests), run 'npx changeset --empty'."
+                    exit 1
+                  }
