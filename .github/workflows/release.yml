@@ -22,7 +22,7 @@ jobs:
                   registry-url: https://registry.npmjs.org
             - run: npm install -g npm@12.2.1 # trusted publishing needs npm >= 11.5.1
             - run: npm ci
-            - uses: changesets/action@v1
+            - uses: changesets/action@v2
               with:
                   version: npx changeset version
                   publish: npm run npm:publish
