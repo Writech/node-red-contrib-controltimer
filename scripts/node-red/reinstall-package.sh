@@ -5,6 +5,7 @@ REPO_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 
 echo "### Changes detected. Re-applying changes. ###" && \
 npm run build && \
+npm pack && \
 cd ~/.node-red && \
 npm uninstall --save "$PACKAGE_NAME" && \
 npm install --save "$REPO_DIR"/"$PACKAGE_NAME"-*.tgz && \
