@@ -17,7 +17,10 @@
         "test": "./scripts/test/all.sh",
         "test:integration": "./scripts/test/integration.sh",
         "test:unit": "./scripts/test/unit.sh",
+        "test:coverage": "./scripts/test/coverage.sh",
+        "test:build": "./scripts/test/build.sh",
         "format": "./scripts/format.sh",
+        "typecheck:tests": "./scripts/typecheck/tests.sh",
         "lint": "./scripts/lint.sh",
         "prepare": "husky"
     },
@@ -67,7 +70,16 @@
         }
     },
     "engines": {
-        "node": ">=14.0.0"
+        "node": ">=18"
+    },
+    "files": [
+        "dist",
+        "examples",
+        "CHANGELOG.md"
+    ],
+    "publishConfig": {
+        "access": "public",
+        "provenance": true
     },
     "lint-staged": {
         "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"

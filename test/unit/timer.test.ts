@@ -709,7 +709,7 @@ const createTimer = (config: Partial<TimerConfig> = {}) => {
     for (const event of EVENTS) {
         counts[event] = 0;
         timer.on(event, () => {
-            counts[event] += 1;
+            counts[event] = (counts[event] ?? 0) + 1;
             events.push(event);
         });
     }

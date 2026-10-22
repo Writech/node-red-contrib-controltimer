@@ -33,8 +33,8 @@ describe('src/controltimer.ts', () => {
 
             await tick(1);
             assert.equal(triggered.length, 1);
-            assert.equal(triggered[0].payload, 'START');
-            assert.equal(triggered[0].topic, 'greeting');
+            assert.equal(triggered[0]?.payload, 'START');
+            assert.equal(triggered[0]?.topic, 'greeting');
             assert.equal(halted.length, 0);
         });
 
@@ -45,7 +45,7 @@ describe('src/controltimer.ts', () => {
             await send({ payload: 'ignored', topic: 'second' });
             await tick(1000);
 
-            assert.equal(triggered[0].topic, 'second');
+            assert.equal(triggered[0]?.topic, 'second');
         });
 
         it('outputs a clone, not the same message object, to each trigger', async () => {
@@ -97,8 +97,8 @@ describe('src/controltimer.ts', () => {
             await send({ payload: 'STOP', topic: 'stopping' });
 
             assert.equal(halted.length, 1);
-            assert.equal(halted[0].payload, 'STOP');
-            assert.equal(halted[0].topic, 'stopping');
+            assert.equal(halted[0]?.payload, 'STOP');
+            assert.equal(halted[0]?.topic, 'stopping');
         });
 
         it('PAUSE outputs the halted message and CONTINUE resumes with the remaining time', async () => {
@@ -292,7 +292,7 @@ describe('src/controltimer.ts', () => {
             await tick(1000);
 
             assert.equal(triggered.length, 1);
-            assert.equal(triggered[0].payload, 'hello');
+            assert.equal(triggered[0]?.payload, 'hello');
         });
 
         it('reset a running timer when configured to', async () => {
