@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 
 import type { Node } from 'node-red';
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const helper = require('node-red-node-test-helper');
 
-import { defaults, ControlTimerNodeDef } from '../../src/node-config';
+import { type ControlTimerNodeDef, defaults } from '../../src/node-config';
 import { DurationUnit, TIMER_TYPE } from '../../src/timer';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -403,7 +404,11 @@ describe('src/controltimer.ts', () => {
         });
 
         it('outputs the loop timeout message on output 2 and stops', async () => {
-            const { send, tick, triggered, halted } = await createFlow({ timerType: TIMER_TYPE.LOOP, timerLoopTimeout: 2500, timerLoopTimeoutUnit: DurationUnit.MILLISECOND });
+            const { send, tick, triggered, halted } = await createFlow({
+                timerType: TIMER_TYPE.LOOP,
+                timerLoopTimeout: 2500,
+                timerLoopTimeoutUnit: DurationUnit.MILLISECOND,
+            });
 
             await send({ payload: 'START' });
             await tick(10_000);

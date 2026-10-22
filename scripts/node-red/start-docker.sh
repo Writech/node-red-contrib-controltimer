@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./scripts/_utils/_variables.sh
+source "$(dirname "$0")/_variables.sh"
 
 npm run node-red:stop-docker && \
 docker run \

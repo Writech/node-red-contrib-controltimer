@@ -1,9 +1,10 @@
-import { Node, NodeAPI, NodeMessageInFlow } from 'node-red';
+import type { Node, NodeAPI, NodeMessageInFlow } from 'node-red';
 
-import { constants, ControlTimerNodeDef, nodeName } from './node-config';
-import { STATE, Timer } from './timer';
+import { type ControlTimerNodeDef, constants, nodeName } from './node-config';
+import { type DurationUnit, STATE, type TIMER_TYPE, Timer } from './timer';
 
 type NodeMessage = NodeMessageInFlow;
+type NodeMessageProperties = Record<string, unknown>;
 
 module.exports = function (RED: NodeAPI): void {
     RED.nodes.registerType(nodeName, function (config: ControlTimerNodeDef) {
@@ -50,26 +51,27 @@ module.exports = function (RED: NodeAPI): void {
         timer.on('loop-timeout', () => node.send([null, getMessage(config.loopTimeoutMessage)]));
         timer.on('loop-max-iterations', () => node.send([null, getMessage(config.loopMaxIterationsMessage)]));
 
-        node.on('input', (message: NodeMessage, send, done) => {
+        node.on('input', (message: NodeMessage, _send, done) => {
             lastMessage = message;
+            const messageProperties = message as unknown as NodeMessageProperties;
 
-            const isStartActionMessage = message[config.actionPropertyName] === config.startActionName && config.isStartActionEnabled;
-            const isResetActionMessage = message[config.actionPropertyName] === config.resetActionName && config.isResetActionEnabled;
-            const isPauseActionMessage = message[config.actionPropertyName] === config.pauseActionName && config.isPauseActionEnabled;
-            const isContinueActionMessage = message[config.actionPropertyName] === config.continueActionName && config.isContinueActionEnabled;
-            const isStopActionMessage = message[config.actionPropertyName] === config.stopActionName && config.isStopActionEnabled;
+            const isStartActionMessage = messageProperties[config.actionPropertyName] === config.startActionName && config.isStartActionEnabled;
+            const isResetActionMessage = messageProperties[config.actionPropertyName] === config.resetActionName && config.isResetActionEnabled;
+            const isPauseActionMessage = messageProperties[config.actionPropertyName] === config.pauseActionName && config.isPauseActionEnabled;
+            const isContinueActionMessage = messageProperties[config.actionPropertyName] === config.continueActionName && config.isContinueActionEnabled;
+            const isStopActionMessage = messageProperties[config.actionPropertyName] === config.stopActionName && config.isStopActionEnabled;
             const isUnknownMessage = !(isStartActionMessage || isResetActionMessage || isPauseActionMessage || isContinueActionMessage || isStopActionMessage);
 
-            const timerTypeOverride = message[constants.timerTypeOverridePropertyName] ?? null;
-            const timerDurationOverride = message[constants.timerDurationOverridePropertyName] ?? null;
-            const timerDurationUnitOverride = message[constants.timerDurationUnitOverridePropertyName] ?? null;
+            const timerTypeOverride = messageProperties[constants.timerTypeOverridePropertyName] ?? null;
+            const timerDurationOverride = messageProperties[constants.timerDurationOverridePropertyName] ?? null;
+            const timerDurationUnitOverride = messageProperties[constants.timerDurationUnitOverridePropertyName] ?? null;
             const isOverrideMessage = timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
 
             if (isStartActionMessage && isOverrideMessage) {
                 timer.setConfigOverride({
-                    timerType: timerTypeOverride,
-                    duration: timerDurationOverride,
-                    durationUnit: timerDurationUnitOverride,
+                    timerType: timerTypeOverride as TIMER_TYPE,
+                    duration: timerDurationOverride as number,
+                    durationUnit: timerDurationUnitOverride as DurationUnit,
                 });
             }
 
@@ -119,7 +121,7 @@ module.exports = function (RED: NodeAPI): void {
             }
         });
 
-        node.on('close', (done) => {
+        node.on('close', (done: () => void) => {
             timer.hardReset();
             done();
         });

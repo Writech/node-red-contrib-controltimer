@@ -4,6 +4,7 @@
     "description": "A controllable Node-RED timer node. Start, Stop, Reset, Pause and Continue the timer. Use the timer as a loop or a delay.",
     "scripts": {
         "build": "./scripts/build.sh",
+        "compile": "./scripts/compile.sh",
         "build:copy-icons": "./scripts/build/copy-icons.sh",
         "build:render-html": "./scripts/build/render-html.sh",
         "clean:all": "./scripts/clean/all.sh",
@@ -13,38 +14,28 @@
         "node-red:start-docker": "./scripts/node-red/start-docker.sh",
         "node-red:stop-docker": "./scripts/node-red/stop-docker.sh",
         "npm:publish": "./scripts/npm/publish.sh",
-        "npm:update": "./scripts/npm/update.sh",
         "test": "./scripts/test/all.sh",
         "test:integration": "./scripts/test/integration.sh",
         "test:unit": "./scripts/test/unit.sh",
-        "tidy:format": "./scripts/tidy/format.sh",
-        "tidy:lint": "./scripts/tidy/lint.sh",
-        "tidy:lint-fix": "./scripts/tidy/lint-fix.sh"
+        "format": "./scripts/format.sh",
+        "lint": "./scripts/lint.sh",
+        "prepare": "husky"
     },
     "devDependencies": {
+        "@biomejs/biome": "2.6.2",
         "@changesets/cli": "^3.0.3",
-        "@types/ejs": "^3.1.1",
-        "@types/node": "^22.20.5",
-        "@types/node-red": "^1.2.1",
-        "@typescript-eslint/eslint-plugin": "^5.43.0",
-        "@typescript-eslint/parser": "^5.43.0",
-        "concurrently": "^7.5.0",
-        "ejs": "^3.1.8",
-        "eslint": "^8.27.0",
-        "eslint-config-prettier": "^8.5.0",
-        "eslint-plugin-prettier": "^4.2.1",
-        "eslint-plugin-simple-import-sort": "^8.0.0",
-        "husky": "^8.0.2",
-        "lint-staged": "^13.0.3",
+        "@types/ejs": "^3.1.5",
+        "@types/node": "^26.6.5",
+        "@types/node-red": "^1.3.5",
+        "concurrently": "^10.0.6",
+        "ejs": "^7.0.2",
+        "husky": "^9.1.7",
+        "lint-staged": "^17.6.0",
         "node-red": "^5.0.9",
         "node-red-node-test-helper": "^0.3.6",
-        "nodemon": "^2.0.20",
-        "npm-check-updates": "^16.4.1",
-        "prettier": "^2.7.1",
-        "rimraf": "^3.0.2",
-        "ts-node": "^10.9.1",
+        "nodemon": "^3.1.14",
         "tsx": "^4.23.15",
-        "typescript": "^4.9.3"
+        "typescript": "^7.0.2"
     },
     "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
     "bugs": {
@@ -73,17 +64,7 @@
     "engines": {
         "node": ">=14.0.0"
     },
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
-    },
     "lint-staged": {
-        "**/*": [
-            "prettier --write --ignore-unknown"
-        ],
-        "*.{js,ts,cjs,mts}": [
-            "eslint --fix"
-        ]
+        "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
     }
 }

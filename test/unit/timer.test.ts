@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 
-import { DurationUnit, STATE, Timer, TIMER_TYPE } from '../../src/timer';
+import { DurationUnit, STATE, TIMER_TYPE, Timer } from '../../src/timer';
 
 describe('src/timer.ts', () => {
     beforeEach(() => {
@@ -610,7 +610,10 @@ describe('src/timer.ts', () => {
         it('does not report NaN progress when set while idle', { skip: 'known bug: bugfix is done later' }, () => {
             const { timer, progress } = createTimer({ isTimerProgressUpdateEnabled: true });
             timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
-            assert.ok(progress.every((p) => !p.includes('NaN')), `unexpected progress: ${JSON.stringify(progress)}`);
+            assert.ok(
+                progress.every((p) => !p.includes('NaN')),
+                `unexpected progress: ${JSON.stringify(progress)}`,
+            );
         });
     });
 
