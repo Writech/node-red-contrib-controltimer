@@ -51,7 +51,7 @@ module.exports = function (RED: NodeAPI): void {
         timer.on('loop-timeout', () => node.send([null, getMessage(config.loopTimeoutMessage)]));
         timer.on('loop-max-iterations', () => node.send([null, getMessage(config.loopMaxIterationsMessage)]));
 
-        node.on('input', (message: NodeMessage, send, done) => {
+        node.on('input', (message: NodeMessage, _send, done) => {
             lastMessage = message;
             const messageProperties = message as unknown as NodeMessageProperties;
 

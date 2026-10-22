@@ -14,6 +14,9 @@
         "node-red:start-docker": "./scripts/node-red/start-docker.sh",
         "node-red:stop-docker": "./scripts/node-red/stop-docker.sh",
         "npm:publish": "./scripts/npm/publish.sh",
+        "test": "./scripts/test/all.sh",
+        "test:integration": "./scripts/test/integration.sh",
+        "test:unit": "./scripts/test/unit.sh",
         "format": "./scripts/format.sh",
         "lint": "./scripts/lint.sh",
         "prepare": "husky"
@@ -28,9 +31,16 @@
         "ejs": "^7.0.2",
         "husky": "^9.1.7",
         "lint-staged": "^17.6.0",
+        "node-red": "^5.0.9",
+        "node-red-node-test-helper": "^0.3.6",
         "nodemon": "^3.1.14",
         "tsx": "^4.23.15",
         "typescript": "^7.0.2"
+    },
+    "overrides": {
+        "i18next": {
+            "typescript": "$typescript"
+        }
     },
     "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
     "bugs": {
