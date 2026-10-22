@@ -14,6 +14,9 @@
         "node-red:stop-docker": "./scripts/node-red/stop-docker.sh",
         "npm:publish": "./scripts/npm/publish.sh",
         "npm:update": "./scripts/npm/update.sh",
+        "test": "./scripts/test/all.sh",
+        "test:integration": "./scripts/test/integration.sh",
+        "test:unit": "./scripts/test/unit.sh",
         "tidy:format": "./scripts/tidy/format.sh",
         "tidy:lint": "./scripts/tidy/lint.sh",
         "tidy:lint-fix": "./scripts/tidy/lint-fix.sh"
@@ -21,7 +24,7 @@
     "devDependencies": {
         "@changesets/cli": "^3.0.3",
         "@types/ejs": "^3.1.1",
-        "@types/node": "^18.11.9",
+        "@types/node": "^22.20.5",
         "@types/node-red": "^1.2.1",
         "@typescript-eslint/eslint-plugin": "^5.43.0",
         "@typescript-eslint/parser": "^5.43.0",
@@ -33,11 +36,14 @@
         "eslint-plugin-simple-import-sort": "^8.0.0",
         "husky": "^8.0.2",
         "lint-staged": "^13.0.3",
+        "node-red": "^5.0.9",
+        "node-red-node-test-helper": "^0.3.6",
         "nodemon": "^2.0.20",
         "npm-check-updates": "^16.4.1",
         "prettier": "^2.7.1",
         "rimraf": "^3.0.2",
         "ts-node": "^10.9.1",
+        "tsx": "^4.23.15",
         "typescript": "^4.9.3"
     },
     "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
