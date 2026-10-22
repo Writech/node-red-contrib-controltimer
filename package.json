@@ -37,6 +37,11 @@
         "tsx": "^4.23.15",
         "typescript": "^7.0.2"
     },
+    "overrides": {
+        "i18next": {
+            "typescript": "$typescript"
+        }
+    },
     "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
     "bugs": {
         "url": "https://github.com/Writech/node-red-contrib-controltimer/issues"
