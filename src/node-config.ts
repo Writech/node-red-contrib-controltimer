@@ -1,4 +1,4 @@
-import { NodeDef } from 'node-red';
+import type { NodeDef } from 'node-red';
 
 import { DurationUnit, TIMER_TYPE } from './timer';
 

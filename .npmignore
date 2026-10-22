@@ -104,18 +104,15 @@ typings/
 # TernJS port file
 .tern-port
 
-.prettierrc.json
 .idea/
+biome.jsonc
+.husky/
 .editorconfig
-.eslintignore
-.eslintrc.js
-.prettierrc.js
 tsconfig.json
 src/
 package/
 *.tgz
 
 scripts/
-.prettierignore
 .changeset/
 .github/

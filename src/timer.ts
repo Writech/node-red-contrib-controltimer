@@ -54,16 +54,16 @@ export class Timer extends EventEmitter {
     }
 
     private config: TimerConfig = Timer.defaultConfig;
-    private configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>;
+    private configOverride?: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>;
 
     private currentState: STATE = STATE.IDLE;
-    private timerId: NodeJS.Timeout;
-    private progressUpdateIntervalTimerId: NodeJS.Timeout;
-    private stoppedTransitionToIdleTimeoutTimerId: NodeJS.Timeout;
-    private loopTimeoutTimeoutTimerId: NodeJS.Timeout;
+    private timerId?: NodeJS.Timeout;
+    private progressUpdateIntervalTimerId?: NodeJS.Timeout;
+    private stoppedTransitionToIdleTimeoutTimerId?: NodeJS.Timeout;
+    private loopTimeoutTimeoutTimerId?: NodeJS.Timeout;
     private currentLoopIteration = 0;
-    private pausedTimerRunningMilliseconds: number;
-    private timerStartedAtUnixTimestamp: number;
+    private pausedTimerRunningMilliseconds?: number;
+    private timerStartedAtUnixTimestamp?: number;
 
     constructor(config: TimerConfig) {
         super();
@@ -194,13 +194,15 @@ export class Timer extends EventEmitter {
     private pauseTimer() {
         this.destroyTimers();
         const previousRunningDurationInMilliseconds = this.pausedTimerRunningMilliseconds ?? 0;
-        this.pausedTimerRunningMilliseconds = Date.now() - this.timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds;
+        // biome-ignore lint/style/noNonNullAssertion: only paused while running, so the start timestamp is set
+        this.pausedTimerRunningMilliseconds = Date.now() - this.timerStartedAtUnixTimestamp! + previousRunningDurationInMilliseconds;
         this.timerStartedAtUnixTimestamp = undefined;
         this.setCurrentState(STATE.PAUSED, this.getPausedTimerProgress());
     }
 
     private continueTimer() {
-        this.timerId = this.createAndGetTimer(this.timerDurationInMilliseconds - this.pausedTimerRunningMilliseconds);
+        // biome-ignore lint/style/noNonNullAssertion: only continued while paused, so the paused duration is set
+        this.timerId = this.createAndGetTimer(this.timerDurationInMilliseconds - this.pausedTimerRunningMilliseconds!);
         this.setCurrentState(STATE.RUNNING, this.getRunningTimerProgress());
         this.startProgressUpdateTimer();
     }
@@ -329,7 +331,8 @@ export class Timer extends EventEmitter {
 
         const previousRunningDurationInMilliseconds = this.pausedTimerRunningMilliseconds ?? 0;
         const timerPercentageCompletion =
-            (100 * (Date.now() - this.timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds)) / this.timerDurationInMilliseconds;
+            // biome-ignore lint/style/noNonNullAssertion: unset before the timer starts, which gives NaN progress that is never displayed
+            (100 * (Date.now() - this.timerStartedAtUnixTimestamp! + previousRunningDurationInMilliseconds)) / this.timerDurationInMilliseconds;
         return this.getTimerProgressString(timerPercentageCompletion);
     }
 
@@ -338,11 +341,12 @@ export class Timer extends EventEmitter {
             return '';
         }
 
-        const timerPercentageCompletion = (100 * this.pausedTimerRunningMilliseconds) / this.timerDurationInMilliseconds;
+        // biome-ignore lint/style/noNonNullAssertion: progress is only read while the timer is paused
+        const timerPercentageCompletion = (100 * this.pausedTimerRunningMilliseconds!) / this.timerDurationInMilliseconds;
         return this.getTimerProgressString(timerPercentageCompletion);
     }
 
-    private getTimerProgressString(timerPercentageCompletion) {
+    private getTimerProgressString(timerPercentageCompletion: number) {
         return ` ${Number(timerPercentageCompletion).toFixed(1)}% of ${this.timerDuration} ${this.timerDurationUnit}(s)`;
     }
 
