@@ -1,0 +1,55 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.6.2/schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    },
+    "files": {
+        "includes": ["**", "!package-lock.json", "!CHANGELOG.md", "!.changeset"]
+    },
+    "formatter": {
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 160,
+        "lineEnding": "lf"
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "single",
+            "semicolons": "always",
+            "trailingCommas": "all"
+        }
+    },
+    "linter": {
+        "rules": {
+            "preset": "recommended",
+            "suspicious": {
+                "noExplicitAny": "error",
+                "noDoubleEquals": "error"
+            },
+            "style": {
+                // TODO: when raising engines.node (currently >=14, which Node-RED 3 still supports):
+                // - set engines.node in package.json (>=18 matches Node-RED 4) and add a changeset
+                // - remove this rule override, then run `npx biome check --write --unsafe` to add the node: prefix
+                // - bump @types/node to the same major, and ts-node/typescript if needed
+                // - tsconfig.json targets ES2022, which already needs Node 16.11+; align the target with the new minimum
+                "useNodejsImportProtocol": "off"
+            },
+            "complexity": {
+                "noUselessThisAlias": "off",
+                "useArrowFunction": "off"
+            },
+            "correctness": {
+                "noUnusedVariables": "warn"
+            }
+        }
+    },
+    "assist": {
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
+    }
+}

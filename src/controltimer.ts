@@ -1,6 +1,6 @@
-import { Node, NodeAPI, NodeMessageInFlow } from 'node-red';
+import type { Node, NodeAPI, NodeMessageInFlow } from 'node-red';
 
-import { constants, ControlTimerNodeDef, nodeName } from './node-config';
+import { type ControlTimerNodeDef, constants, nodeName } from './node-config';
 import { STATE, Timer } from './timer';
 
 type NodeMessage = NodeMessageInFlow;
