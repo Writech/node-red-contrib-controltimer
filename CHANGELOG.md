@@ -1,5 +1,11 @@
 # node-red-contrib-controltimer
 
+## 0.5.1
+
+### Patch Changes
+
+- b49a4d3: Fix loop timer iteration counter being reset when a paused loop is continued, which let the loop run past `timerMaxLoopIterations`.
+
 ## 0.5.0
 
 ### Minor Changes
