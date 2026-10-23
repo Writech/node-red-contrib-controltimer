@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
 import { clearInterval, clearTimeout } from 'timers';
 
+import { type LongTimer, setLongInterval, setLongTimeout } from './long-timer';
+
 enum ACTION {
     START = 'START',
     STOP = 'STOP',
@@ -57,10 +59,10 @@ export class Timer extends EventEmitter {
     private configOverride?: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>;
 
     private currentState: STATE = STATE.IDLE;
-    private timerId?: NodeJS.Timeout;
+    private timerId?: LongTimer;
     private progressUpdateIntervalTimerId?: NodeJS.Timeout;
     private stoppedTransitionToIdleTimeoutTimerId?: NodeJS.Timeout;
-    private loopTimeoutTimeoutTimerId?: NodeJS.Timeout;
+    private loopTimeoutTimeoutTimerId?: LongTimer;
     private currentLoopIteration = 0;
     private pausedTimerRunningMilliseconds?: number;
     private timerStartedAtUnixTimestamp?: number;
@@ -239,7 +241,7 @@ export class Timer extends EventEmitter {
             this.pausedTimerRunningMilliseconds = durationInMillisecondsOverride ? this.pausedTimerRunningMilliseconds : undefined;
             this.timerStartedAtUnixTimestamp = Date.now();
 
-            return setTimeout(() => {
+            return setLongTimeout(() => {
                 this.emit('timer');
                 this.finishTimer();
             }, durationInMilliseconds);
@@ -249,7 +251,7 @@ export class Timer extends EventEmitter {
     }
 
     private createLoopInterval(durationInMilliseconds: number, isResumedWithRemainingDuration: boolean) {
-        return setInterval(() => {
+        return setLongInterval(() => {
             this.emit('timer');
 
             this.pausedTimerRunningMilliseconds = undefined;
@@ -257,7 +259,7 @@ export class Timer extends EventEmitter {
 
             if (isResumedWithRemainingDuration) {
                 // The interval was shortened to the time left after a pause; carry on with full-length iterations.
-                clearInterval(this.timerId);
+                this.timerId?.clear();
                 this.timerId = this.createLoopInterval(this.timerDurationInMilliseconds, false);
             }
 
@@ -271,11 +273,10 @@ export class Timer extends EventEmitter {
     }
 
     private destroyTimers() {
-        clearInterval(this.timerId);
-        clearTimeout(this.timerId);
+        this.timerId?.clear();
         clearInterval(this.progressUpdateIntervalTimerId);
         clearTimeout(this.stoppedTransitionToIdleTimeoutTimerId);
-        clearTimeout(this.loopTimeoutTimeoutTimerId);
+        this.loopTimeoutTimeoutTimerId?.clear();
 
         this.timerId = undefined;
         this.progressUpdateIntervalTimerId = undefined;
@@ -288,7 +289,7 @@ export class Timer extends EventEmitter {
     // ####################################
 
     private startLoopTimeoutTimer(isContinuing = false) {
-        clearTimeout(this.loopTimeoutTimeoutTimerId);
+        this.loopTimeoutTimeoutTimerId?.clear();
         this.loopTimeoutTimeoutTimerId = undefined;
 
         if (!isContinuing) {
@@ -300,7 +301,7 @@ export class Timer extends EventEmitter {
         }
 
         this.loopTimeoutStartedAtUnixTimestamp = Date.now();
-        this.loopTimeoutTimeoutTimerId = setTimeout(() => {
+        this.loopTimeoutTimeoutTimerId = setLongTimeout(() => {
             this.stopTimer();
             this.emit('loop-timeout');
         }, this.getTimerLoopTimeoutInMilliseconds() - this.loopTimeoutRunningMilliseconds);

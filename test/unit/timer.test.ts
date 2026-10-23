@@ -688,15 +688,61 @@ describe('src/timer.ts', () => {
             assert.equal(counts.timer, 1);
         });
 
-        // TODO(bugfix): setTimeout overflows above 2^31-1 ms (~24.8 days) and fires after 1 ms.
-        // The timer should handle long durations, e.g. by chaining timeouts. Fix in a later change.
-        it('does not fire early for durations above the setTimeout limit', { skip: 'known bug: bugfix is done later' }, async () => {
-            mock.timers.reset();
+        it('does not fire early for durations above the setTimeout limit', () => {
             const { timer, counts } = createTimer({ duration: 600, durationUnit: DurationUnit.HOUR });
             timer.start();
-            await new Promise((resolve) => setTimeout(resolve, 50));
-            timer.hardReset();
+            mock.timers.tick(1000);
             assert.equal(counts.timer, 0);
+            assert.equal(timer.getState(), STATE.RUNNING);
+
+            mock.timers.tick(600 * 60 * 60 * 1000 - 1001);
+            assert.equal(counts.timer, 0);
+            mock.timers.tick(1);
+            assert.equal(counts.timer, 1);
+            assert.equal(timer.getState(), STATE.IDLE);
+        });
+
+        it('continues a long duration after a pause', () => {
+            const { timer, counts } = createTimer({ duration: 600, durationUnit: DurationUnit.HOUR });
+            timer.start();
+            mock.timers.tick(100 * 60 * 60 * 1000);
+            timer.pause();
+            mock.timers.tick(30 * 24 * 60 * 60 * 1000);
+            timer.continue();
+
+            mock.timers.tick(500 * 60 * 60 * 1000 - 1);
+            assert.equal(counts.timer, 0);
+            mock.timers.tick(1);
+            assert.equal(counts.timer, 1);
+        });
+
+        it('loops with an interval above the setTimeout limit', () => {
+            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, duration: 600, durationUnit: DurationUnit.HOUR });
+            timer.start();
+            mock.timers.tick(1000);
+            assert.equal(counts.timer, 0);
+
+            mock.timers.tick(600 * 60 * 60 * 1000 - 1000);
+            assert.equal(counts.timer, 1);
+            mock.timers.tick(600 * 60 * 60 * 1000);
+            assert.equal(counts.timer, 2);
+        });
+
+        it('supports a loop timeout above the setTimeout limit', () => {
+            const { timer, counts } = createTimer({
+                timerType: TIMER_TYPE.LOOP,
+                duration: 1,
+                durationUnit: DurationUnit.HOUR,
+                timerLoopTimeout: 600,
+                timerLoopTimeoutUnit: DurationUnit.HOUR,
+            });
+            timer.start();
+
+            mock.timers.tick(600 * 60 * 60 * 1000 - 1);
+            assert.equal(counts['loop-timeout'], 0);
+            mock.timers.tick(1);
+            assert.equal(counts['loop-timeout'], 1);
+            assert.equal(counts.timer, 600);
         });
 
         it('keeps separate instances independent', () => {
