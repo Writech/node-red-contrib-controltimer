@@ -109,3 +109,6 @@ dist/
 package/
 *.tgz
 
+
+# Local Node-RED dev data (npm run dev)
+.node-red/
