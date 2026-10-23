@@ -25,6 +25,42 @@ describe('src/timer.ts', () => {
         });
     });
 
+    describe('validateConfigOverride', () => {
+        const valid = { timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND };
+
+        it('accepts a valid override, including fractional durations', () => {
+            assert.doesNotThrow(() => Timer.validateConfigOverride(valid));
+            assert.doesNotThrow(() => Timer.validateConfigOverride({ ...valid, duration: 0.5 }));
+            assert.doesNotThrow(() => Timer.validateConfigOverride({ timerType: TIMER_TYPE.LOOP, duration: 100, durationUnit: DurationUnit.MILLISECOND }));
+        });
+
+        it('rejects an unknown timer type', () => {
+            assert.throws(() => Timer.validateConfigOverride({ ...valid, timerType: 'repeat' }), /Invalid timerType "repeat", expected one of: loop, delay/);
+        });
+
+        it('rejects a duration that is not a positive finite number', () => {
+            for (const duration of [0, -1, Number.NaN, Number.POSITIVE_INFINITY, '3', null, undefined, {}]) {
+                assert.throws(() => Timer.validateConfigOverride({ ...valid, duration }), /Invalid timerDuration/, `accepted ${String(duration)}`);
+            }
+        });
+
+        it('rejects an unknown duration unit', () => {
+            assert.throws(() => Timer.validateConfigOverride({ ...valid, durationUnit: 'fortnight' }), /Invalid timerDurationUnit "fortnight"/);
+        });
+
+        it('is applied by setConfigOverride, which keeps the previous override on failure', () => {
+            const { timer } = createTimer({ isTimerProgressUpdateEnabled: true });
+            timer.setConfigOverride(valid);
+            assert.throws(() => timer.setConfigOverride({ ...valid, duration: -1 }), /Invalid timerDuration/);
+
+            timer.start();
+            mock.timers.tick(2999);
+            assert.equal(timer.getState(), STATE.RUNNING);
+            mock.timers.tick(1);
+            assert.equal(timer.getState(), STATE.IDLE);
+        });
+    });
+
     describe('initial state', () => {
         it('starts in the idle state', () => {
             const { timer } = createTimer();

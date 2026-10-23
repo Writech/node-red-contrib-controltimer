@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import type { EventEmitter } from 'node:events';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 
 import type { Node } from 'node-red';
@@ -371,6 +372,30 @@ describe('src/controltimer.ts', () => {
             assert.equal(triggered.length, 1);
         });
 
+        it('rejects START with an invalid override: reports an error and does not start', async () => {
+            const { send, tick, triggered, errors } = await createFlow();
+
+            await send({ payload: 'START', timerType: TIMER_TYPE.DELAY, timerDuration: -5, timerDurationUnit: DurationUnit.SECOND });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 0);
+            assert.equal(errors.length, 1);
+            assert.match(errors[0] ?? '', /Invalid timerDuration "-5"/);
+        });
+
+        it('keeps a running timer untouched when a later START has an invalid override', async () => {
+            const { send, tick, triggered, errors } = await createFlow();
+
+            await send({ payload: 'START' });
+            await tick(500);
+            await send({ payload: 'START', timerType: 'repeat', timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
+            await tick(500);
+
+            assert.equal(errors.length, 1);
+            assert.match(errors[0] ?? '', /Invalid timerType "repeat"/);
+            assert.equal(triggered.length, 1);
+        });
+
         it('does not carry an override over to the next run', async () => {
             const { send, tick, triggered } = await createFlow();
 
@@ -522,6 +547,9 @@ async function createFlow(config: Partial<ControlTimerNodeDef> = {}) {
     const triggered: Message[] = [];
     const halted: Message[] = [];
     const statuses: { text: string }[] = [];
+    const errors: string[] = [];
+
+    (node as unknown as EventEmitter).on('call:error', (call: { args: unknown[] }) => errors.push(String(call.args[0])));
 
     helper.getNode('triggered').on('input', (message: Message) => triggered.push(message));
     helper.getNode('halted').on('input', (message: Message) => halted.push(message));
@@ -547,6 +575,7 @@ async function createFlow(config: Partial<ControlTimerNodeDef> = {}) {
         triggered,
         halted,
         statuses,
+        errors,
         send: async (message: Message) => {
             node.receive(message);
             await flush();

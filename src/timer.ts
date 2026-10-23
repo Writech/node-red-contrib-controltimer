@@ -40,6 +40,8 @@ interface TimerConfig {
     timerLoopTimeoutUnit: DurationUnit;
 }
 
+type ConfigOverride = Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>;
+
 export class Timer extends EventEmitter {
     static defaultConfig: TimerConfig = {
         timerType: TIMER_TYPE.DELAY,
@@ -51,12 +53,28 @@ export class Timer extends EventEmitter {
         timerLoopTimeoutUnit: DurationUnit.MILLISECOND,
     };
 
+    static validateConfigOverride(configOverride: { timerType: unknown; duration: unknown; durationUnit: unknown }): asserts configOverride is ConfigOverride {
+        const { timerType, duration, durationUnit } = configOverride;
+
+        if (!Object.values(TIMER_TYPE).includes(timerType as TIMER_TYPE)) {
+            throw new Error(`Invalid timerType "${String(timerType)}", expected one of: ${Object.values(TIMER_TYPE).join(', ')}`);
+        }
+
+        if (typeof duration !== 'number' || !Number.isFinite(duration) || duration <= 0) {
+            throw new Error(`Invalid timerDuration "${String(duration)}", expected a number greater than 0`);
+        }
+
+        if (!Object.values(DurationUnit).includes(durationUnit as DurationUnit)) {
+            throw new Error(`Invalid timerDurationUnit "${String(durationUnit)}", expected one of: ${Object.values(DurationUnit).join(', ')}`);
+        }
+    }
+
     static getInstance(config: TimerConfig) {
         return new Timer(config);
     }
 
     private config: TimerConfig = Timer.defaultConfig;
-    private configOverride?: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>;
+    private configOverride?: ConfigOverride;
 
     private currentState: STATE = STATE.IDLE;
     private timerId?: LongTimer;
@@ -114,8 +132,9 @@ export class Timer extends EventEmitter {
         this.loopTimeoutRunningMilliseconds = 0;
     }
 
-    public setConfigOverride(configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>) {
-        this.configOverride = configOverride; // TODO: Validate configOverride
+    public setConfigOverride(configOverride: ConfigOverride) {
+        Timer.validateConfigOverride(configOverride);
+        this.configOverride = configOverride;
 
         this.emit('state', { state: this.currentState, progress: this.getProgressForCurrentState() });
     }

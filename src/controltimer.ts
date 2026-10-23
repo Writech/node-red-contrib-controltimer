@@ -1,7 +1,7 @@
 import type { Node, NodeAPI, NodeMessageInFlow } from 'node-red';
 
 import { type ControlTimerNodeDef, constants, nodeName } from './node-config';
-import { type DurationUnit, STATE, type TIMER_TYPE, Timer } from './timer';
+import { STATE, Timer } from './timer';
 
 type NodeMessage = NodeMessageInFlow;
 type NodeMessageProperties = Record<string, unknown>;
@@ -68,11 +68,16 @@ module.exports = function (RED: NodeAPI): void {
             const isOverrideMessage = timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
 
             if (isStartActionMessage && isOverrideMessage) {
-                timer.setConfigOverride({
-                    timerType: timerTypeOverride as TIMER_TYPE,
-                    duration: timerDurationOverride as number,
-                    durationUnit: timerDurationUnitOverride as DurationUnit,
-                });
+                const configOverride = { timerType: timerTypeOverride, duration: timerDurationOverride, durationUnit: timerDurationUnitOverride };
+
+                try {
+                    Timer.validateConfigOverride(configOverride);
+                } catch (error) {
+                    done(error as Error);
+                    return;
+                }
+
+                timer.setConfigOverride(configOverride);
             }
 
             if (timer.getState() === STATE.PAUSED) {
