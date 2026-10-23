@@ -64,6 +64,8 @@ export class Timer extends EventEmitter {
     private currentLoopIteration = 0;
     private pausedTimerRunningMilliseconds?: number;
     private timerStartedAtUnixTimestamp?: number;
+    private loopTimeoutStartedAtUnixTimestamp?: number;
+    private loopTimeoutRunningMilliseconds = 0;
 
     constructor(config: TimerConfig) {
         super();
@@ -106,6 +108,8 @@ export class Timer extends EventEmitter {
         this.currentLoopIteration = 0;
         this.pausedTimerRunningMilliseconds = undefined;
         this.timerStartedAtUnixTimestamp = undefined;
+        this.loopTimeoutStartedAtUnixTimestamp = undefined;
+        this.loopTimeoutRunningMilliseconds = 0;
     }
 
     public setConfigOverride(configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>) {
@@ -193,6 +197,10 @@ export class Timer extends EventEmitter {
 
     private pauseTimer() {
         this.destroyTimers();
+        if (this.loopTimeoutStartedAtUnixTimestamp !== undefined) {
+            this.loopTimeoutRunningMilliseconds += Date.now() - this.loopTimeoutStartedAtUnixTimestamp;
+            this.loopTimeoutStartedAtUnixTimestamp = undefined;
+        }
         const previousRunningDurationInMilliseconds = this.pausedTimerRunningMilliseconds ?? 0;
         // biome-ignore lint/style/noNonNullAssertion: only paused while running, so the start timestamp is set
         this.pausedTimerRunningMilliseconds = Date.now() - this.timerStartedAtUnixTimestamp! + previousRunningDurationInMilliseconds;
@@ -223,7 +231,7 @@ export class Timer extends EventEmitter {
             this.pausedTimerRunningMilliseconds = durationInMillisecondsOverride ? this.pausedTimerRunningMilliseconds : undefined;
             this.timerStartedAtUnixTimestamp = Date.now();
 
-            this.startLoopTimeoutTimer();
+            this.startLoopTimeoutTimer(durationInMillisecondsOverride !== undefined);
 
             const isResumedWithRemainingDuration =
                 durationInMillisecondsOverride !== undefined && durationInMillisecondsOverride !== this.timerDurationInMilliseconds;
@@ -282,18 +290,23 @@ export class Timer extends EventEmitter {
     // ## Timer setup & teardown methods ##
     // ####################################
 
-    private startLoopTimeoutTimer() {
+    private startLoopTimeoutTimer(isContinuing = false) {
         clearTimeout(this.loopTimeoutTimeoutTimerId);
         this.loopTimeoutTimeoutTimerId = undefined;
+
+        if (!isContinuing) {
+            this.loopTimeoutRunningMilliseconds = 0;
+        }
 
         if (this.config.timerLoopTimeout === 0) {
             return;
         }
 
+        this.loopTimeoutStartedAtUnixTimestamp = Date.now();
         this.loopTimeoutTimeoutTimerId = setTimeout(() => {
             this.stopTimer();
             this.emit('loop-timeout');
-        }, this.getTimerLoopTimeoutInMilliseconds());
+        }, this.getTimerLoopTimeoutInMilliseconds() - this.loopTimeoutRunningMilliseconds);
     }
 
     private startProgressUpdateTimer() {
