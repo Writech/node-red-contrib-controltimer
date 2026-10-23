@@ -115,10 +115,7 @@ export class Timer extends EventEmitter {
     public setConfigOverride(configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>) {
         this.configOverride = configOverride; // TODO: Validate configOverride
 
-        this.emit('state', {
-            state: this.currentState,
-            progress: this.currentState === STATE.PAUSED ? this.getPausedTimerProgress() : this.getRunningTimerProgress(),
-        });
+        this.emit('state', { state: this.currentState, progress: this.getProgressForCurrentState() });
     }
 
     public getState() {
@@ -345,6 +342,15 @@ export class Timer extends EventEmitter {
         this.emit(state);
     }
 
+    private getProgressForCurrentState() {
+        if (this.currentState === STATE.PAUSED) {
+            return this.getPausedTimerProgress();
+        }
+
+        // Idle and stopped timers have no start timestamp, so there is no progress to show.
+        return this.currentState === STATE.RUNNING ? this.getRunningTimerProgress() : '';
+    }
+
     private getRunningTimerProgress() {
         if (!this.config.isTimerProgressUpdateEnabled) {
             return '';
@@ -352,7 +358,7 @@ export class Timer extends EventEmitter {
 
         const previousRunningDurationInMilliseconds = this.pausedTimerRunningMilliseconds ?? 0;
         const timerPercentageCompletion =
-            // biome-ignore lint/style/noNonNullAssertion: unset before the timer starts, which gives NaN progress that is never displayed
+            // biome-ignore lint/style/noNonNullAssertion: only read while running, so the start timestamp is set
             (100 * (Date.now() - this.timerStartedAtUnixTimestamp! + previousRunningDurationInMilliseconds)) / this.timerDurationInMilliseconds;
         return this.getTimerProgressString(timerPercentageCompletion);
     }
