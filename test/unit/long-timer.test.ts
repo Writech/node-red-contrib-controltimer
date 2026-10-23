@@ -124,4 +124,52 @@ describe('src/long-timer.ts', () => {
             assert.equal(callback.mock.callCount(), 1);
         });
     });
+
+    // Real timers with a tiny chunk size, so the chunking is exercised without waiting 24 days.
+    describe('with real timers', () => {
+        const CHUNK = 40;
+
+        beforeEach(() => {
+            mock.timers.reset();
+        });
+
+        const sleep = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+        it('fires a chunked timeout once, no earlier than its delay', async () => {
+            const startedAt = Date.now();
+            const firedAfter: number[] = [];
+            setLongTimeout(() => firedAfter.push(Date.now() - startedAt), 130, CHUNK);
+
+            await sleep(100);
+            assert.deepEqual(firedAfter, []);
+            await sleep(150);
+            assert.equal(firedAfter.length, 1);
+            assert.ok((firedAfter[0] ?? 0) >= 129, `fired early after ${firedAfter[0]} ms`);
+        });
+
+        it('does not fire a chunked timeout that was cleared mid-way', async () => {
+            const callback = mock.fn();
+            const timer = setLongTimeout(callback, 130, CHUNK);
+
+            await sleep(60);
+            timer.clear();
+            await sleep(150);
+            assert.equal(callback.mock.callCount(), 0);
+        });
+
+        it('fires a chunked interval repeatedly at its delay', async () => {
+            const startedAt = Date.now();
+            const tickTimes: number[] = [];
+            const timer = setLongInterval(() => tickTimes.push(Date.now() - startedAt), 90, CHUNK);
+
+            await sleep(300);
+            timer.clear();
+            const ticks = tickTimes.length;
+            assert.ok(ticks >= 2 && ticks <= 3, `unexpected tick count ${ticks}`);
+            assert.ok((tickTimes[0] ?? 0) >= 89, `first tick early after ${tickTimes[0]} ms`);
+
+            await sleep(200);
+            assert.equal(tickTimes.length, ticks);
+        });
+    });
 });

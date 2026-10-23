@@ -10,9 +10,10 @@ export interface LongTimer {
 /**
  * Like setTimeout, but supports delays above the native limit by sleeping in chunks until the deadline.
  * Delays within the native limit use a plain setTimeout.
+ * `maxChunkInMilliseconds` exists so tests can exercise the chunking with real timers and short delays.
  */
-export function setLongTimeout(callback: () => void, delayInMilliseconds: number): LongTimer {
-    if (delayInMilliseconds <= MAX_NATIVE_DELAY_MILLISECONDS) {
+export function setLongTimeout(callback: () => void, delayInMilliseconds: number, maxChunkInMilliseconds = MAX_NATIVE_DELAY_MILLISECONDS): LongTimer {
+    if (delayInMilliseconds <= maxChunkInMilliseconds) {
         const timeoutId = setTimeout(callback, delayInMilliseconds);
         return { clear: () => clearTimeout(timeoutId) };
     }
@@ -30,7 +31,7 @@ export function setLongTimeout(callback: () => void, delayInMilliseconds: number
                     callback();
                 }
             },
-            Math.min(Math.max(remainingMilliseconds, 0), MAX_NATIVE_DELAY_MILLISECONDS),
+            Math.min(Math.max(remainingMilliseconds, 0), maxChunkInMilliseconds),
         );
     };
     sleepUntilDeadline();
@@ -41,8 +42,8 @@ export function setLongTimeout(callback: () => void, delayInMilliseconds: number
 /**
  * Like setInterval, but supports delays above the native limit. Delays within the native limit use a plain setInterval.
  */
-export function setLongInterval(callback: () => void, delayInMilliseconds: number): LongTimer {
-    if (delayInMilliseconds <= MAX_NATIVE_DELAY_MILLISECONDS) {
+export function setLongInterval(callback: () => void, delayInMilliseconds: number, maxChunkInMilliseconds = MAX_NATIVE_DELAY_MILLISECONDS): LongTimer {
+    if (delayInMilliseconds <= maxChunkInMilliseconds) {
         const intervalId = setInterval(callback, delayInMilliseconds);
         return { clear: () => clearInterval(intervalId) };
     }
@@ -51,12 +52,16 @@ export function setLongInterval(callback: () => void, delayInMilliseconds: numbe
     let currentTimer: LongTimer;
 
     const scheduleNextTick = () => {
-        currentTimer = setLongTimeout(() => {
-            callback();
-            if (!isCleared) {
-                scheduleNextTick();
-            }
-        }, delayInMilliseconds);
+        currentTimer = setLongTimeout(
+            () => {
+                callback();
+                if (!isCleared) {
+                    scheduleNextTick();
+                }
+            },
+            delayInMilliseconds,
+            maxChunkInMilliseconds,
+        );
     };
     scheduleNextTick();
 
