@@ -24,8 +24,8 @@ jobs:
             - run: npm ci
             - uses: changesets/action@v2
               with:
-                  version: npx changeset version
-                  publish: npm run npm:publish
-                  createGithubReleases: true
+                  version-script: npx changeset version
+                  publish-script: npm run npm:publish
+                  create-github-releases: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
