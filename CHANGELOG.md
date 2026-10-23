@@ -1,5 +1,11 @@
 # node-red-contrib-controltimer
 
+## 0.5.3
+
+### Patch Changes
+
+- dc9cffd: Fix "NaN%" progress being shown when a configuration override is received while the timer is idle or stopped.
+
 ## 0.5.2
 
 ### Patch Changes
