@@ -528,9 +528,7 @@ describe('src/timer.ts', () => {
             assert.equal(counts['loop-timeout'], 1);
         });
 
-        // TODO(bugfix): the loop timeout is restarted in full on continue, so time spent running
-        // before a pause is forgotten. Confirm the intended semantics, then fix in a later change.
-        it('does not extend the loop timeout by pausing', { skip: 'known bug: bugfix is done later' }, () => {
+        it('does not extend the loop timeout by pausing', () => {
             const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, timerLoopTimeout: 2500 });
             timer.start();
             mock.timers.tick(1000);
@@ -539,6 +537,35 @@ describe('src/timer.ts', () => {
             timer.continue();
 
             mock.timers.tick(1499);
+            assert.equal(counts['loop-timeout'], 0);
+            mock.timers.tick(1);
+            assert.equal(counts['loop-timeout'], 1);
+        });
+
+        it('accumulates the loop timeout across several pauses', () => {
+            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, timerLoopTimeout: 2500 });
+            timer.start();
+            mock.timers.tick(1000);
+            timer.pause();
+            timer.continue();
+            mock.timers.tick(1000);
+            timer.pause();
+            timer.continue();
+
+            mock.timers.tick(499);
+            assert.equal(counts['loop-timeout'], 0);
+            mock.timers.tick(1);
+            assert.equal(counts['loop-timeout'], 1);
+        });
+
+        it('restarts the full loop timeout on RESET after a pause', () => {
+            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, timerLoopTimeout: 2500 });
+            timer.start();
+            mock.timers.tick(1000);
+            timer.pause();
+            timer.reset();
+
+            mock.timers.tick(2499);
             assert.equal(counts['loop-timeout'], 0);
             mock.timers.tick(1);
             assert.equal(counts['loop-timeout'], 1);
