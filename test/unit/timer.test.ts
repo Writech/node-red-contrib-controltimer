@@ -630,15 +630,18 @@ describe('src/timer.ts', () => {
             assert.equal(progress.at(-1), ' 50.0% of 2 minute(s)');
         });
 
-        // TODO(bugfix): setConfigOverride while idle emits a "NaN%" progress because no start
-        // timestamp exists yet. Fix in a later change.
-        it('does not report NaN progress when set while idle', { skip: 'known bug: bugfix is done later' }, () => {
+        it('reports no progress when an override is set while idle', () => {
             const { timer, progress } = createTimer({ isTimerProgressUpdateEnabled: true });
             timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
-            assert.ok(
-                progress.every((p) => !p.includes('NaN')),
-                `unexpected progress: ${JSON.stringify(progress)}`,
-            );
+            assert.deepEqual(progress, ['']);
+        });
+
+        it('reports no progress when an override is set while stopped', () => {
+            const { timer, progress } = createTimer({ isTimerProgressUpdateEnabled: true });
+            timer.start();
+            timer.stop();
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            assert.equal(progress.at(-1), '');
         });
     });
 
