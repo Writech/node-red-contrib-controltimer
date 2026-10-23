@@ -1,5 +1,11 @@
 # node-red-contrib-controltimer
 
+## 0.5.0
+
+### Minor Changes
+
+- 003b1bd: Require Node.js 18 or later.
+
 ## v0.4.1 (27.05.2023)
 - Bugfix: When the timer was in a paused state and received an override configuration, it failed to update the visible timer progress.
 
