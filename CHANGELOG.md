@@ -1,5 +1,11 @@
 # node-red-contrib-controltimer
 
+## 0.5.4
+
+### Patch Changes
+
+- 139d424: Fix timers with a duration, interval or loop timeout above about 24.8 days firing almost immediately.
+
 ## 0.5.3
 
 ### Patch Changes
