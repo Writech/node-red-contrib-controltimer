@@ -1,6 +1,7 @@
 #!/bin/bash
 source "$(dirname "$0")/_variables.sh"
 source "$(dirname "$0")/_require-docker.sh"
+source "$(dirname "$0")/_prepare-data-dir.sh"
 
 npm run node-red:stop-docker && \
 docker run \
