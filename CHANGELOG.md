@@ -1,5 +1,11 @@
 # node-red-contrib-controltimer
 
+## 0.5.2
+
+### Patch Changes
+
+- fa68ffa: Fix loop timeout being restarted in full when a paused loop is continued; time already spent running before the pause now counts towards the timeout.
+
 ## 0.5.1
 
 ### Patch Changes
