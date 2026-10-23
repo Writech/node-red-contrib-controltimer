@@ -58,11 +58,13 @@ jobs:
             - run: npm run test:unit
 
     integration-tests:
+        name: integration-tests (node ${{ matrix.node-version }}, node-red ${{ matrix.node-red-version }})
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
             matrix:
                 node-version: [22, 24]
+                node-red-version: ["3.1", "4.1", "5"]
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
@@ -70,6 +72,7 @@ jobs:
                   node-version: ${{ matrix.node-version }}
                   cache: npm
             - run: npm ci
+            - run: npm install --no-save node-red@${{ matrix.node-red-version }}
             - run: npm run test:integration
 
     coverage:
@@ -82,6 +85,18 @@ jobs:
                   cache: npm
             - run: npm ci
             - run: npm run test:coverage
+
+    # The one check to require in the branch ruleset. Matrix jobs have no parent check of their own,
+    # so adding jobs or matrix entries only needs this list updated here, not in the GitHub UI.
+    ci-passed:
+        if: always()
+        needs: [lint, typecheck-tests, build, unit-tests, integration-tests, coverage]
+        runs-on: ubuntu-latest
+        steps:
+            - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+              run: |
+                  echo "::error::A required job failed or was cancelled."
+                  exit 1
 
     changeset:
         # The "Version Packages" PR consumes the changesets, so it can't contain one.

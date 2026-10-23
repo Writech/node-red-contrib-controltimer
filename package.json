@@ -16,6 +16,7 @@
         "npm:publish": "./scripts/npm/publish.sh",
         "test": "./scripts/test/all.sh",
         "test:integration": "./scripts/test/integration.sh",
+        "test:node-red-versions": "./scripts/test/node-red-versions.sh",
         "test:unit": "./scripts/test/unit.sh",
         "test:coverage": "./scripts/test/coverage.sh",
         "test:build": "./scripts/test/build.sh",
@@ -42,7 +43,7 @@
     },
     "overrides": {
         "i18next": {
-            "typescript": "$typescript"
+            "typescript": "^7.0.2"
         }
     },
     "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
