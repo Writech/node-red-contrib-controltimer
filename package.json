@@ -43,7 +43,7 @@
     },
     "overrides": {
         "i18next": {
-            "typescript": "$typescript"
+            "typescript": "^7.0.2"
         }
     },
     "homepage": "https://github.com/Writech/node-red-contrib-controltimer#readme",
