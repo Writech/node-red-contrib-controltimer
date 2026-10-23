@@ -457,9 +457,7 @@ describe('src/timer.ts', () => {
             assert.equal(counts.timer, 2);
         });
 
-        // TODO(bugfix): continuing a paused loop resets the iteration counter, so the loop
-        // runs more iterations than timerMaxLoopIterations. Fix in a later change.
-        it('counts iterations from before a pause towards the maximum', { skip: 'known bug: bugfix is done later' }, () => {
+        it('counts iterations from before a pause towards the maximum', () => {
             const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, timerMaxLoopIterations: 3 });
             timer.start();
             mock.timers.tick(1000);

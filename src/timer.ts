@@ -225,23 +225,9 @@ export class Timer extends EventEmitter {
 
             this.startLoopTimeoutTimer();
 
-            return setInterval(() => {
-                this.emit('timer');
-
-                if (durationInMillisecondsOverride && durationInMillisecondsOverride !== this.timerDurationInMilliseconds) {
-                    this.resetTimer();
-                }
-
-                this.pausedTimerRunningMilliseconds = undefined;
-                this.timerStartedAtUnixTimestamp = Date.now();
-
-                this.currentLoopIteration = this.currentLoopIteration + 1;
-
-                if (this.currentLoopIteration === this.config.timerMaxLoopIterations) {
-                    this.stopTimer();
-                    this.emit('loop-max-iterations');
-                }
-            }, durationInMilliseconds);
+            const isResumedWithRemainingDuration =
+                durationInMillisecondsOverride !== undefined && durationInMillisecondsOverride !== this.timerDurationInMilliseconds;
+            return this.createLoopInterval(durationInMilliseconds, isResumedWithRemainingDuration);
         }
 
         if ((this.config.timerType === TIMER_TYPE.DELAY && !this.configOverride) || this.configOverride?.timerType === TIMER_TYPE.DELAY) {
@@ -255,6 +241,28 @@ export class Timer extends EventEmitter {
         }
 
         throw new Error(`Unexpected timer type "${this.configOverride ? this.configOverride.timerType : this.config.timerType}"`);
+    }
+
+    private createLoopInterval(durationInMilliseconds: number, isResumedWithRemainingDuration: boolean) {
+        return setInterval(() => {
+            this.emit('timer');
+
+            this.pausedTimerRunningMilliseconds = undefined;
+            this.timerStartedAtUnixTimestamp = Date.now();
+
+            if (isResumedWithRemainingDuration) {
+                // The interval was shortened to the time left after a pause; carry on with full-length iterations.
+                clearInterval(this.timerId);
+                this.timerId = this.createLoopInterval(this.timerDurationInMilliseconds, false);
+            }
+
+            this.currentLoopIteration = this.currentLoopIteration + 1;
+
+            if (this.currentLoopIteration === this.config.timerMaxLoopIterations) {
+                this.stopTimer();
+                this.emit('loop-max-iterations');
+            }
+        }, durationInMilliseconds);
     }
 
     private destroyTimers() {
