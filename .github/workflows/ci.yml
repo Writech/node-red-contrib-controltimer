@@ -11,7 +11,7 @@ jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - uses: actions/setup-node@v7
               with:
                   node-version-file: .nvmrc
@@ -22,7 +22,7 @@ jobs:
     typecheck-tests:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - uses: actions/setup-node@v7
               with:
                   node-version-file: .nvmrc
@@ -33,7 +33,7 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - uses: actions/setup-node@v7
               with:
                   node-version-file: .nvmrc
@@ -49,7 +49,7 @@ jobs:
             matrix:
                 node-version: [22, 24]
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - uses: actions/setup-node@v7
               with:
                   node-version: ${{ matrix.node-version }}
@@ -66,7 +66,7 @@ jobs:
                 node-version: [22, 24]
                 node-red-version: ["3.1", "4.1", "5"]
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - uses: actions/setup-node@v7
               with:
                   node-version: ${{ matrix.node-version }}
@@ -78,7 +78,7 @@ jobs:
     coverage:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - uses: actions/setup-node@v7
               with:
                   node-version-file: .nvmrc
@@ -106,7 +106,7 @@ jobs:
             !contains(github.event.pull_request.labels.*.name, 'no-changeset')
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
               with:
                   fetch-depth: 0
             - uses: actions/setup-node@v7
