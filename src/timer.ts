@@ -54,7 +54,6 @@ export class Timer extends EventEmitter {
         timerLoopTimeoutUnit: DurationUnit.MILLISECOND,
     };
 
-    // Accepts the unit in any case and in plural form too ("Minutes", "seconds").
     static parseDurationUnit(value: unknown) {
         if (typeof value !== 'string') {
             return undefined;
