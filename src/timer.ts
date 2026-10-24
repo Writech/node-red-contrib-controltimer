@@ -41,7 +41,16 @@ interface TimerConfig {
 }
 
 type ConfigOverride = Partial<
-    Pick<TimerConfig, 'timerType' | 'timerDuration' | 'timerDurationUnit' | 'timerMaxLoopIterations' | 'timerLoopTimeout' | 'timerLoopTimeoutUnit'>
+    Pick<
+        TimerConfig,
+        | 'timerType'
+        | 'timerDuration'
+        | 'timerDurationUnit'
+        | 'isTimerProgressUpdateEnabled'
+        | 'timerMaxLoopIterations'
+        | 'timerLoopTimeout'
+        | 'timerLoopTimeoutUnit'
+    >
 >;
 type UnvalidatedConfigOverride = { [Key in keyof ConfigOverride]?: unknown };
 
@@ -67,6 +76,7 @@ export class Timer extends EventEmitter {
 
     static parseConfigOverride(configOverride: UnvalidatedConfigOverride): ConfigOverride {
         const { timerType, timerDuration, timerMaxLoopIterations, timerLoopTimeout } = configOverride;
+        const { isTimerProgressUpdateEnabled } = configOverride;
         const parsedOverride: ConfigOverride = {};
 
         const isDurationGroupGiven = [timerType, timerDuration, configOverride.timerDurationUnit].some((value) => value !== undefined);
@@ -82,6 +92,14 @@ export class Timer extends EventEmitter {
             parsedOverride.timerType = timerType as TIMER_TYPE;
             parsedOverride.timerDuration = timerDuration;
             parsedOverride.timerDurationUnit = Timer.parseUnitOrThrow('timerDurationUnit', configOverride.timerDurationUnit);
+        }
+
+        if (isTimerProgressUpdateEnabled !== undefined) {
+            if (typeof isTimerProgressUpdateEnabled !== 'boolean') {
+                throw new Error(`Invalid isTimerProgressUpdateEnabled "${String(isTimerProgressUpdateEnabled)}", expected true or false`);
+            }
+
+            parsedOverride.isTimerProgressUpdateEnabled = isTimerProgressUpdateEnabled;
         }
 
         if (timerMaxLoopIterations !== undefined) {
@@ -376,7 +394,7 @@ export class Timer extends EventEmitter {
         clearInterval(this.progressUpdateIntervalTimerId);
         this.progressUpdateIntervalTimerId = undefined;
 
-        if (!this.config.isTimerProgressUpdateEnabled) {
+        if (!this.isTimerProgressUpdateEnabled) {
             return;
         }
 
@@ -418,7 +436,7 @@ export class Timer extends EventEmitter {
     }
 
     private getRunningTimerProgress() {
-        if (!this.config.isTimerProgressUpdateEnabled) {
+        if (!this.isTimerProgressUpdateEnabled) {
             return '';
         }
 
@@ -430,7 +448,7 @@ export class Timer extends EventEmitter {
     }
 
     private getPausedTimerProgress() {
-        if (!this.config.isTimerProgressUpdateEnabled) {
+        if (!this.isTimerProgressUpdateEnabled) {
             return '';
         }
 
@@ -453,6 +471,10 @@ export class Timer extends EventEmitter {
 
     private get timerType() {
         return this.configOverride?.timerType ?? this.config.timerType;
+    }
+
+    private get isTimerProgressUpdateEnabled() {
+        return this.configOverride?.isTimerProgressUpdateEnabled ?? this.config.isTimerProgressUpdateEnabled;
     }
 
     private get timerMaxLoopIterations() {

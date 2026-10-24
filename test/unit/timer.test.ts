@@ -109,6 +109,51 @@ describe('src/timer.ts', () => {
             assert.deepEqual(Timer.parseConfigOverride({ timerMaxLoopIterations: 0, timerLoopTimeout: 0 }), { timerMaxLoopIterations: 0, timerLoopTimeout: 0 });
         });
 
+        it('parses the progress option on its own', () => {
+            assert.deepEqual(Timer.parseConfigOverride({ isTimerProgressUpdateEnabled: true }), { isTimerProgressUpdateEnabled: true });
+            assert.deepEqual(Timer.parseConfigOverride({ isTimerProgressUpdateEnabled: false }), { isTimerProgressUpdateEnabled: false });
+        });
+
+        it('rejects a progress option that is not a boolean', () => {
+            for (const isTimerProgressUpdateEnabled of ['true', 1, 0, null, {}]) {
+                assert.throws(
+                    () => Timer.parseConfigOverride({ isTimerProgressUpdateEnabled }),
+                    /Invalid isTimerProgressUpdateEnabled/,
+                    `accepted ${String(isTimerProgressUpdateEnabled)}`,
+                );
+            }
+        });
+
+        it('turns the progress on for a delay timer', () => {
+            const { timer, progress } = createTimer({ isTimerProgressUpdateEnabled: false });
+            timer.setConfigOverride({ isTimerProgressUpdateEnabled: true });
+            timer.start();
+            mock.timers.tick(500);
+
+            assert.equal(progress.at(0), '');
+            assert.ok(progress.includes(' 0.0% of 1 second(s)'));
+            assert.equal(progress.at(-1), ' 50.0% of 1 second(s)');
+        });
+
+        it('turns the progress on for a loop timer', () => {
+            const { timer, progress } = createTimer({ timerType: TIMER_TYPE.LOOP, isTimerProgressUpdateEnabled: false });
+            timer.setConfigOverride({ isTimerProgressUpdateEnabled: true });
+            timer.start();
+            mock.timers.tick(250);
+
+            assert.equal(progress.at(-1), ' 25.0% of 1 second(s)');
+        });
+
+        it('turns the progress off, including while paused', () => {
+            const { timer, progress } = createTimer({ isTimerProgressUpdateEnabled: true });
+            timer.setConfigOverride({ isTimerProgressUpdateEnabled: false });
+            timer.start();
+            mock.timers.tick(500);
+            timer.pause();
+
+            assert.ok(progress.every((p) => p === ''));
+        });
+
         it('rejects invalid iterations', () => {
             for (const timerMaxLoopIterations of [-1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, '3', null]) {
                 assert.throws(

@@ -493,6 +493,38 @@ describe('src/controltimer.ts', () => {
             assert.equal(errors.length, 0);
         });
 
+        it('START with isTimerProgressUpdateEnabled shows the progress for this run only', async () => {
+            const { send, tick, statuses } = await createFlow({ isRunningTimerProgressVisible: false });
+
+            await send({ payload: 'START', isTimerProgressUpdateEnabled: true });
+            await tick(500);
+            assert.equal(statuses.at(-1)?.text, 'Running 50.0% of 1 second(s)');
+
+            await tick(500);
+            await send({ payload: 'START' });
+            await tick(500);
+            assert.equal(statuses.at(-1)?.text, 'Running');
+        });
+
+        it('START with isTimerProgressUpdateEnabled false hides the configured progress', async () => {
+            const { send, tick, statuses } = await createFlow({ isRunningTimerProgressVisible: true });
+
+            await send({ payload: 'START', isTimerProgressUpdateEnabled: false });
+            await tick(500);
+
+            assert.equal(statuses.at(-1)?.text, 'Running');
+        });
+
+        it('rejects START with a progress option that is not a boolean', async () => {
+            const { send, tick, triggered, errors } = await createFlow();
+
+            await send({ payload: 'START', isTimerProgressUpdateEnabled: 'yes' });
+            await tick(5000);
+
+            assert.equal(triggered.length, 0);
+            assert.match(errors[0] ?? '', /Invalid isTimerProgressUpdateEnabled "yes"/);
+        });
+
         it('does not carry loop options over to the next run', async () => {
             const { send, tick, triggered } = await createFlow({ timerType: TIMER_TYPE.LOOP, timerMaxLoopIterations: 5 });
 

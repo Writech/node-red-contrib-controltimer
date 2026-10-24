@@ -125,6 +125,7 @@ export const constants = {
     timerTypeOverridePropertyName: 'timerType',
     timerDurationOverridePropertyName: 'timerDuration',
     timerDurationUnitOverridePropertyName: 'timerDurationUnit',
+    isTimerProgressUpdateEnabledOverridePropertyName: 'isTimerProgressUpdateEnabled',
     timerMaxLoopIterationsOverridePropertyName: 'timerMaxLoopIterations',
     timerLoopTimeoutOverridePropertyName: 'timerLoopTimeout',
     timerLoopTimeoutUnitOverridePropertyName: 'timerLoopTimeoutUnit',

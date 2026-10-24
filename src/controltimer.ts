@@ -67,14 +67,14 @@ module.exports = function (RED: NodeAPI): void {
             const timerDurationUnitOverride = messageProperties[constants.timerDurationUnitOverridePropertyName] ?? null;
             const isDurationOverrideComplete = timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
 
-            // The duration properties only count when all three are present; each loop property counts on its own.
+            // The duration properties only count when all three are present; the other properties count on their own.
             const configOverride = {
                 ...(isDurationOverrideComplete && {
                     timerType: timerTypeOverride,
                     timerDuration: timerDurationOverride,
                     timerDurationUnit: timerDurationUnitOverride,
                 }),
-                ...getLoopOverride(messageProperties),
+                ...getOptionalOverride(messageProperties),
             };
             const isOverrideMessage = Object.keys(configOverride).length > 0;
 
@@ -140,17 +140,18 @@ module.exports = function (RED: NodeAPI): void {
     });
 };
 
-const getLoopOverride = (messageProperties: NodeMessageProperties) => {
-    const loopOverride: NodeMessageProperties = {};
+const getOptionalOverride = (messageProperties: NodeMessageProperties) => {
+    const optionalOverride: NodeMessageProperties = {};
     for (const propertyName of [
+        constants.isTimerProgressUpdateEnabledOverridePropertyName,
         constants.timerMaxLoopIterationsOverridePropertyName,
         constants.timerLoopTimeoutOverridePropertyName,
         constants.timerLoopTimeoutUnitOverridePropertyName,
     ]) {
         if (messageProperties[propertyName] !== undefined && messageProperties[propertyName] !== null) {
-            loopOverride[propertyName] = messageProperties[propertyName];
+            optionalOverride[propertyName] = messageProperties[propertyName];
         }
     }
 
-    return loopOverride;
+    return optionalOverride;
 };
