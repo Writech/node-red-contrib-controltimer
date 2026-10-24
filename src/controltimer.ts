@@ -60,7 +60,21 @@ module.exports = function (RED: NodeAPI): void {
             const isPauseActionMessage = messageProperties[config.actionPropertyName] === config.pauseActionName && config.isPauseActionEnabled;
             const isContinueActionMessage = messageProperties[config.actionPropertyName] === config.continueActionName && config.isContinueActionEnabled;
             const isStopActionMessage = messageProperties[config.actionPropertyName] === config.stopActionName && config.isStopActionEnabled;
-            const isUnknownMessage = !(isStartActionMessage || isResetActionMessage || isPauseActionMessage || isContinueActionMessage || isStopActionMessage);
+            const isStatusActionMessage = messageProperties[config.actionPropertyName] === config.statusActionName && config.isStatusActionEnabled;
+            const isUnknownMessage = !(
+                isStartActionMessage ||
+                isResetActionMessage ||
+                isPauseActionMessage ||
+                isContinueActionMessage ||
+                isStopActionMessage ||
+                isStatusActionMessage
+            );
+
+            if (isStatusActionMessage) {
+                node.send([null, Object.assign(RED.util.cloneMessage(message), { timer: timer.getStatus() })]);
+                done();
+                return;
+            }
 
             const timerTypeOverride = messageProperties[constants.timerTypeOverridePropertyName] ?? null;
             const timerDurationOverride = messageProperties[constants.timerDurationOverridePropertyName] ?? null;

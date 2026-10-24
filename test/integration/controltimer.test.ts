@@ -319,6 +319,108 @@ describe('src/controltimer.ts', () => {
         });
     });
 
+    describe('status action', () => {
+        it('replies on output 2 with the received message and the timer status', async () => {
+            const { send, tick, triggered, halted } = await createFlow();
+
+            await send({ payload: 'START' });
+            await tick(250);
+            await send({ payload: 'STATUS', topic: 'ask' });
+
+            assert.equal(triggered.length, 0);
+            assert.equal(halted.length, 1);
+            assert.equal(halted[0]?.payload, 'STATUS');
+            assert.equal(halted[0]?.topic, 'ask');
+            assert.deepEqual(halted[0]?.timer, {
+                state: 'RUNNING',
+                timerType: 'delay',
+                duration: 1000,
+                elapsed: 250,
+                remaining: 750,
+                progress: 25,
+                loopIteration: 0,
+                loopTimeoutRemaining: null,
+            });
+        });
+
+        it('replies while idle, paused and stopped', async () => {
+            const { send, tick, halted } = await createFlow();
+
+            await send({ payload: 'STATUS' });
+            await send({ payload: 'START' });
+            await tick(400);
+            await send({ payload: 'PAUSE' });
+            await send({ payload: 'STATUS' });
+            await send({ payload: 'STOP' });
+            await send({ payload: 'STATUS' });
+
+            const states = halted.filter((message) => message.payload === 'STATUS').map((message) => (message.timer as { state: string }).state);
+            assert.deepEqual(states, ['IDLE', 'PAUSED', 'STOPPED']);
+        });
+
+        it('does not start, reset or otherwise change the timer, even with the unknown message options on', async () => {
+            const { send, tick, triggered } = await createFlow({ startTimerOnReceivalOfUnknownMessage: true, resetTimerOnReceivalOfUnknownMessage: true });
+
+            await send({ payload: 'STATUS' });
+            await tick(5000);
+            assert.equal(triggered.length, 0);
+
+            await send({ payload: 'START' });
+            await tick(500);
+            await send({ payload: 'STATUS' });
+            await tick(500);
+            assert.equal(triggered.length, 1);
+        });
+
+        it('does not apply an override sent with it', async () => {
+            const { send, tick, triggered } = await createFlow();
+
+            await send({ payload: 'STATUS', timerType: TIMER_TYPE.DELAY, timerDuration: 5, timerDurationUnit: DurationUnit.SECOND });
+            await send({ payload: 'START' });
+            await tick(1000);
+
+            assert.equal(triggered.length, 1);
+        });
+
+        it('uses the configured action name', async () => {
+            const { send, halted } = await createFlow({ statusActionName: 'HOW_LONG' });
+
+            await send({ payload: 'HOW_LONG' });
+
+            assert.equal(halted.length, 1);
+            assert.ok(halted[0]?.timer);
+        });
+
+        it('is treated as an unknown message when disabled', async () => {
+            const { send, tick, halted, triggered } = await createFlow({ isStatusActionEnabled: false, startTimerOnReceivalOfUnknownMessage: true });
+
+            await send({ payload: 'STATUS' });
+            await tick(1000);
+
+            assert.equal(halted.length, 0);
+            assert.equal(triggered.length, 1);
+        });
+
+        it('reports the loop iteration and the time left until the loop timeout', async () => {
+            const { send, tick, halted } = await createFlow({
+                timerType: TIMER_TYPE.LOOP,
+                timerLoopTimeout: 10,
+                timerLoopTimeoutUnit: DurationUnit.SECOND,
+            });
+
+            await send({ payload: 'START' });
+            await tick(1000);
+            await tick(1000);
+            await tick(500);
+            await send({ payload: 'STATUS' });
+
+            const status = halted[0]?.timer as { loopIteration: number; loopTimeoutRemaining: number; elapsed: number };
+            assert.equal(status.loopIteration, 2);
+            assert.equal(status.elapsed, 500);
+            assert.equal(status.loopTimeoutRemaining, 7500);
+        });
+    });
+
     describe('overrides', () => {
         it('START with a full override uses the overridden duration and unit', async () => {
             const { send, tick, triggered } = await createFlow();

@@ -40,6 +40,17 @@ interface TimerConfig {
     timerLoopTimeoutUnit: DurationUnit;
 }
 
+export interface TimerStatus {
+    state: STATE;
+    timerType: TIMER_TYPE;
+    duration: number;
+    elapsed: number | null;
+    remaining: number | null;
+    progress: number | null;
+    loopIteration: number;
+    loopTimeoutRemaining: number | null;
+}
+
 type ConfigOverride = Partial<
     Pick<
         TimerConfig,
@@ -205,6 +216,35 @@ export class Timer extends EventEmitter {
 
     public getState() {
         return this.currentState;
+    }
+
+    public getStatus(): TimerStatus {
+        const isRunning = this.currentState === STATE.RUNNING;
+        const isPaused = this.currentState === STATE.PAUSED;
+        const duration = this.timerDurationInMilliseconds;
+        const status: TimerStatus = {
+            state: this.currentState,
+            timerType: this.timerType,
+            duration,
+            elapsed: null,
+            remaining: null,
+            progress: null,
+            loopIteration: this.currentLoopIteration,
+            loopTimeoutRemaining: null,
+        };
+
+        if (isRunning || isPaused) {
+            const elapsed = Math.min(this.getElapsedMilliseconds(), duration);
+            status.elapsed = elapsed;
+            status.remaining = duration - elapsed;
+            status.progress = (100 * elapsed) / duration;
+
+            if (this.timerType === TIMER_TYPE.LOOP && this.timerLoopTimeout > 0) {
+                status.loopTimeoutRemaining = Math.max(this.getTimerLoopTimeoutInMilliseconds() - this.getLoopTimeoutElapsedMilliseconds(), 0);
+            }
+        }
+
+        return status;
     }
 
     // ###########################
@@ -433,6 +473,23 @@ export class Timer extends EventEmitter {
 
         // Idle and stopped timers have no start timestamp, so there is no progress to show.
         return this.currentState === STATE.RUNNING ? this.getRunningTimerProgress() : '';
+    }
+
+    private getElapsedMilliseconds() {
+        const previousRunningDurationInMilliseconds = this.pausedTimerRunningMilliseconds ?? 0;
+        if (this.timerStartedAtUnixTimestamp === undefined) {
+            return previousRunningDurationInMilliseconds;
+        }
+
+        return Date.now() - this.timerStartedAtUnixTimestamp + previousRunningDurationInMilliseconds;
+    }
+
+    private getLoopTimeoutElapsedMilliseconds() {
+        if (this.loopTimeoutStartedAtUnixTimestamp === undefined) {
+            return this.loopTimeoutRunningMilliseconds;
+        }
+
+        return Date.now() - this.loopTimeoutStartedAtUnixTimestamp + this.loopTimeoutRunningMilliseconds;
     }
 
     private getRunningTimerProgress() {
