@@ -19,8 +19,8 @@ module.exports = function (RED: NodeAPI): void {
 
         const timer = Timer.getInstance({
             timerType: config.timerType,
-            duration: config.timerDuration,
-            durationUnit: config.timerDurationUnit,
+            timerDuration: config.timerDuration,
+            timerDurationUnit: config.timerDurationUnit,
             isTimerProgressUpdateEnabled: config.isRunningTimerProgressVisible,
             timerMaxLoopIterations: config.timerMaxLoopIterations,
             timerLoopTimeout: config.timerLoopTimeout,
@@ -68,16 +68,16 @@ module.exports = function (RED: NodeAPI): void {
             const isOverrideMessage = timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
 
             if (isStartActionMessage && isOverrideMessage) {
-                const configOverride = { timerType: timerTypeOverride, duration: timerDurationOverride, durationUnit: timerDurationUnitOverride };
-
                 try {
-                    Timer.validateConfigOverride(configOverride);
+                    timer.setConfigOverride({
+                        timerType: timerTypeOverride,
+                        timerDuration: timerDurationOverride,
+                        timerDurationUnit: timerDurationUnitOverride,
+                    });
                 } catch (error) {
                     done(error as Error);
                     return;
                 }
-
-                timer.setConfigOverride(configOverride);
             }
 
             if (timer.getState() === STATE.PAUSED) {

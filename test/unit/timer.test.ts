@@ -26,12 +26,14 @@ describe('src/timer.ts', () => {
     });
 
     describe('validateConfigOverride', () => {
-        const valid = { timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND };
+        const valid = { timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND };
 
         it('accepts a valid override, including fractional durations', () => {
             assert.doesNotThrow(() => Timer.validateConfigOverride(valid));
-            assert.doesNotThrow(() => Timer.validateConfigOverride({ ...valid, duration: 0.5 }));
-            assert.doesNotThrow(() => Timer.validateConfigOverride({ timerType: TIMER_TYPE.LOOP, duration: 100, durationUnit: DurationUnit.MILLISECOND }));
+            assert.doesNotThrow(() => Timer.validateConfigOverride({ ...valid, timerDuration: 0.5 }));
+            assert.doesNotThrow(() =>
+                Timer.validateConfigOverride({ timerType: TIMER_TYPE.LOOP, timerDuration: 100, timerDurationUnit: DurationUnit.MILLISECOND }),
+            );
         });
 
         it('rejects an unknown timer type', () => {
@@ -39,19 +41,19 @@ describe('src/timer.ts', () => {
         });
 
         it('rejects a duration that is not a positive finite number', () => {
-            for (const duration of [0, -1, Number.NaN, Number.POSITIVE_INFINITY, '3', null, undefined, {}]) {
-                assert.throws(() => Timer.validateConfigOverride({ ...valid, duration }), /Invalid timerDuration/, `accepted ${String(duration)}`);
+            for (const timerDuration of [0, -1, Number.NaN, Number.POSITIVE_INFINITY, '3', null, undefined, {}]) {
+                assert.throws(() => Timer.validateConfigOverride({ ...valid, timerDuration }), /Invalid timerDuration/, `accepted ${String(timerDuration)}`);
             }
         });
 
         it('rejects an unknown duration unit', () => {
-            assert.throws(() => Timer.validateConfigOverride({ ...valid, durationUnit: 'fortnight' }), /Invalid timerDurationUnit "fortnight"/);
+            assert.throws(() => Timer.validateConfigOverride({ ...valid, timerDurationUnit: 'fortnight' }), /Invalid timerDurationUnit "fortnight"/);
         });
 
         it('is applied by setConfigOverride, which keeps the previous override on failure', () => {
             const { timer } = createTimer({ isTimerProgressUpdateEnabled: true });
             timer.setConfigOverride(valid);
-            assert.throws(() => timer.setConfigOverride({ ...valid, duration: -1 }), /Invalid timerDuration/);
+            assert.throws(() => timer.setConfigOverride({ ...valid, timerDuration: -1 }), /Invalid timerDuration/);
 
             timer.start();
             mock.timers.tick(2999);
@@ -115,7 +117,7 @@ describe('src/timer.ts', () => {
         });
 
         it('converts the configured unit', () => {
-            const { timer, counts } = createTimer({ duration: 2, durationUnit: DurationUnit.MINUTE });
+            const { timer, counts } = createTimer({ timerDuration: 2, timerDurationUnit: DurationUnit.MINUTE });
             timer.start();
             mock.timers.tick(119_999);
             assert.equal(counts.timer, 0);
@@ -329,7 +331,7 @@ describe('src/timer.ts', () => {
     describe('config override', () => {
         it('uses the overridden duration and unit', () => {
             const { timer, counts } = createTimer();
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
             timer.start();
 
             mock.timers.tick(2999);
@@ -340,7 +342,7 @@ describe('src/timer.ts', () => {
 
         it('uses the overridden timer type', () => {
             const { timer, counts } = createTimer();
-            timer.setConfigOverride({ timerType: TIMER_TYPE.LOOP, duration: 100, durationUnit: DurationUnit.MILLISECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.LOOP, timerDuration: 100, timerDurationUnit: DurationUnit.MILLISECOND });
             timer.start();
 
             mock.timers.tick(350);
@@ -349,7 +351,7 @@ describe('src/timer.ts', () => {
 
         it('is cleared by a stop', () => {
             const { timer, counts } = createTimer();
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
             timer.start();
             timer.stop();
             timer.start();
@@ -360,7 +362,7 @@ describe('src/timer.ts', () => {
 
         it('emits the current state when set', () => {
             const { timer, states } = createTimer();
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
             assert.deepEqual(states, [STATE.IDLE]);
         });
     });
@@ -611,7 +613,7 @@ describe('src/timer.ts', () => {
     describe('config override edge cases', () => {
         it('is cleared after a delay finishes', () => {
             const { timer, counts } = createTimer();
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
             timer.start();
             mock.timers.tick(3000);
             assert.equal(counts.timer, 1);
@@ -623,7 +625,7 @@ describe('src/timer.ts', () => {
 
         it('is cleared by hardReset', () => {
             const { timer, counts } = createTimer();
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
             timer.hardReset();
             timer.start();
             mock.timers.tick(1000);
@@ -633,7 +635,7 @@ describe('src/timer.ts', () => {
         it('applies to a running timer on reset', () => {
             const { timer, counts } = createTimer();
             timer.start();
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
             timer.reset();
 
             mock.timers.tick(2999);
@@ -647,7 +649,7 @@ describe('src/timer.ts', () => {
             timer.start();
             mock.timers.tick(400);
             timer.pause();
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
             timer.continue();
 
             mock.timers.tick(2599);
@@ -658,7 +660,7 @@ describe('src/timer.ts', () => {
 
         it('reports progress using the overridden duration and unit', () => {
             const { timer, progress } = createTimer({ isTimerProgressUpdateEnabled: true });
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 2, durationUnit: DurationUnit.MINUTE });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 2, timerDurationUnit: DurationUnit.MINUTE });
             timer.start();
             assert.equal(progress.at(-1), ' 0.0% of 2 minute(s)');
 
@@ -668,7 +670,7 @@ describe('src/timer.ts', () => {
 
         it('reports no progress when an override is set while idle', () => {
             const { timer, progress } = createTimer({ isTimerProgressUpdateEnabled: true });
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
             assert.deepEqual(progress, ['']);
         });
 
@@ -676,7 +678,7 @@ describe('src/timer.ts', () => {
             const { timer, progress } = createTimer({ isTimerProgressUpdateEnabled: true });
             timer.start();
             timer.stop();
-            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, duration: 3, durationUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND });
             assert.equal(progress.at(-1), '');
         });
     });
@@ -711,21 +713,21 @@ describe('src/timer.ts', () => {
         });
 
         it('fires a zero-duration delay immediately', () => {
-            const { timer, counts } = createTimer({ duration: 0 });
+            const { timer, counts } = createTimer({ timerDuration: 0 });
             timer.start();
             mock.timers.tick(1);
             assert.equal(counts.timer, 1);
         });
 
         it('fires a negative-duration delay immediately', () => {
-            const { timer, counts } = createTimer({ duration: -5 });
+            const { timer, counts } = createTimer({ timerDuration: -5 });
             timer.start();
             mock.timers.tick(1);
             assert.equal(counts.timer, 1);
         });
 
         it('does not fire early for durations above the setTimeout limit', () => {
-            const { timer, counts } = createTimer({ duration: 600, durationUnit: DurationUnit.HOUR });
+            const { timer, counts } = createTimer({ timerDuration: 600, timerDurationUnit: DurationUnit.HOUR });
             timer.start();
             mock.timers.tick(1000);
             assert.equal(counts.timer, 0);
@@ -739,7 +741,7 @@ describe('src/timer.ts', () => {
         });
 
         it('continues a long duration after a pause', () => {
-            const { timer, counts } = createTimer({ duration: 600, durationUnit: DurationUnit.HOUR });
+            const { timer, counts } = createTimer({ timerDuration: 600, timerDurationUnit: DurationUnit.HOUR });
             timer.start();
             mock.timers.tick(100 * 60 * 60 * 1000);
             timer.pause();
@@ -753,7 +755,7 @@ describe('src/timer.ts', () => {
         });
 
         it('loops with an interval above the setTimeout limit', () => {
-            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, duration: 600, durationUnit: DurationUnit.HOUR });
+            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, timerDuration: 600, timerDurationUnit: DurationUnit.HOUR });
             timer.start();
             mock.timers.tick(1000);
             assert.equal(counts.timer, 0);
@@ -767,8 +769,8 @@ describe('src/timer.ts', () => {
         it('supports a loop timeout above the setTimeout limit', () => {
             const { timer, counts } = createTimer({
                 timerType: TIMER_TYPE.LOOP,
-                duration: 1,
-                durationUnit: DurationUnit.HOUR,
+                timerDuration: 1,
+                timerDurationUnit: DurationUnit.HOUR,
                 timerLoopTimeout: 600,
                 timerLoopTimeoutUnit: DurationUnit.HOUR,
             });
@@ -798,8 +800,8 @@ type TimerConfig = ConstructorParameters<typeof Timer>[0];
 
 const baseConfig: TimerConfig = {
     timerType: TIMER_TYPE.DELAY,
-    duration: 1,
-    durationUnit: DurationUnit.SECOND,
+    timerDuration: 1,
+    timerDurationUnit: DurationUnit.SECOND,
     isTimerProgressUpdateEnabled: false,
     timerMaxLoopIterations: 0,
     timerLoopTimeout: 0,
