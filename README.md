@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `node-red-contrib-controltimer` is a versatile Node-RED timer node that supports both looping and delay behavior. It allows interaction through action messages, enabling actions such as starting, resetting, stopping, pausing, and continuing the timer. This node has two outputs: the first one emits a message when the timer is triggered (either the delay expires or the interval is reached), while the second one emits a message when the running timer is stopped or paused.
+The `node-red-contrib-controltimer` is a versatile Node-RED timer node that supports both looping and delay behavior. It allows interaction through action messages, enabling actions such as starting, resetting, stopping, pausing, and continuing the timer. This node has two outputs: the first one emits a message when the timer is triggered (either the delay expires or the interval is reached), while the second one (`timer-events`) emits a message when the running timer is stopped or paused, when a loop times out or reaches its maximum iterations, and as the reply to a `STATUS` action.
 
 The timer can be explicitly reset by using the `RESET` action, causing it to restart the countdown from the beginning. Alternatively, if the `Reset timer on reception of START action` option is enabled, sending a `START` action will also reset the timer. Moreover, when the `Reset timer on reception of unknown message` option is enabled, the timer will be reset upon receiving an unknown message.
 
@@ -44,6 +44,25 @@ You can also override the progress display for both timer types, and the loop op
 ```
 
 If a value is invalid, the node reports an error (catchable with a Catch node) and the message is not acted on.
+
+## Timer status
+
+Send the `STATUS` action to find out how the timer is doing. The node replies on the `timer-events` output with the message it received, plus a `timer` object. The action never changes the timer, so it is safe to send at any time.
+
+```javascript
+msg.timer = {
+    state: 'RUNNING', // 'IDLE', 'RUNNING', 'PAUSED', 'STOPPED'
+    timerType: 'delay', // 'delay', 'loop'
+    duration: 60000, // in milliseconds
+    elapsed: 15000, // in milliseconds, null when idle or stopped
+    remaining: 45000, // in milliseconds, null when idle or stopped
+    progress: 25, // percentage, null when idle or stopped
+    loopIteration: 0, // number of completed iterations of a loop timer
+    loopTimeoutRemaining: null, // in milliseconds, null when there is no loop timeout
+};
+```
+
+For loop timers `elapsed`, `remaining` and `progress` describe the current iteration. All times take pauses and overrides into account.
 
 ## Example flow diagram
 
@@ -386,9 +405,9 @@ $ npm install --save node-red-contrib-controltimer
 | `Timer duration`                             | Defines the timer duration in specified (`Timer duration unit`) units.                                                                                 | `5`                   |
 | `Loop timeout unit`                          | Defines timer loop timeout unit. Available options are `Milliseconds`, `Seconds`, `Minutes` and `Hours`.                                               | `Seconds`             |
 | `Loop timeout`                               | Defines the timer loop timeout in specified (`Loop timeout unit`) units. `0` means no timeout.                                                         | `0`                   |
-| `Loop timeout message`                       | Defines message that is emitted via `timer-halted` output upon timeout.                                                                                | `LOOP_TIMEOUT`        |
+| `Loop timeout message`                       | Defines message that is emitted via `timer-events` output upon timeout.                                                                                | `LOOP_TIMEOUT`        |
 | `Loop max iterations`                        | Defines timer loop max iterations limit. `0` means no limit.                                                                                           | `0`                   |
-| `Loop max iterations message`                | Defines message that is emitted via `timer-halted` output upon max iterations are reached.                                                             | `MAX_LOOP_ITERATIONS` |
+| `Loop max iterations message`                | Defines message that is emitted via `timer-events` output upon max iterations are reached.                                                             | `MAX_LOOP_ITERATIONS` |
 | `Is running timer progress visible`          | If `true` it will display the timer's progress in node's status area as percentages. A good option for debugging long running tasks.                   | `false`               |
 | `Output received message on timer trigger`   | If `true` it will emit the message the node received when timer triggers. If `false` it will emit an empty message.                                    | `true`                |
 | `Output received message on timer halt`      | If `true` it will emit the message the node received when timer is halted. If `false` it will emit an empty message.                                   | `true`                |
@@ -398,18 +417,20 @@ $ npm install --save node-red-contrib-controltimer
 | `Continue timer on receival of START action` | If `true` the timer is continued upon receival of `START` action.                                                                                      | `false`               |
 | `Is debug mode enabled`                      | If `true` node will log errors into debug console                                                                                                      | `false`               |
 | `Timer triggered message`                    | Defines message that is emitted via `timer-triggered` output when timer is triggered and if `Output received message on timer trigger` is not enabled. | `TIMER_TRIGGERED`     |
-| `Timer triggered message`                    | Defines message that is emitted via `timer-halted` output when timer is halted and if `Output received message on timer halt` is not enabled.          | `TIMER_HALTED`        |
+| `Timer triggered message`                    | Defines message that is emitted via `timer-events` output when timer is halted and if `Output received message on timer halt` is not enabled.          | `TIMER_HALTED`        |
 | `Is start action enabled`                    | If `true` node is permitted to receive Start actions                                                                                                   | `true`                |
 | `Is stop action enabled`                     | If `true` node is permitted to receive Stop actions                                                                                                    | `true`                |
 | `Is reset action enabled`                    | If `true` node is permitted to receive Reset actions                                                                                                   | `true`                |
 | `Is pause action enabled`                    | If `true` node is permitted to receive Pause actions                                                                                                   | `true`                |
 | `Is continue action enabled`                 | If `true` node is permitted to receive Continue actions                                                                                                | `true`                |
+| `Is status action enabled`                   | If `true` node is permitted to receive Status actions                                                                                                  | `true`                |
 | `Action property name`                       | Defines the property on a received message on which the action string to interact with timer can be found.                                             | `payload`             |
 | `Start action name`                          | Defines the action string that will `START` the timer.                                                                                                 | `START`               |
 | `Stop action name`                           | Defines the action string that will `STOP` the timer.                                                                                                  | `STOP`                |
 | `Reset action name`                          | Defines the action string that will `RESET` the timer.                                                                                                 | `RESET`               |
 | `Pause action name`                          | Defines the action string that will `PAUSE` the timer.                                                                                                 | `PAUSE`               |
 | `Continue action name`                       | Defines the action string that will `CONTINUE` the paused timer.                                                                                       | `CONTINUE`            |
+| `Status action name`                         | Defines the action string that makes the node reply with the timer status.                                                                             | `STATUS`              |
 
 _\* An unknown message refers to a message with a payload that is not part of the defined and enabled set of action strings. For example, it could be a message without a defined `Action property name` or a message with a `Action property name` value that does not match any of the enabled action names. If a disabled action, such as the `PAUSE` action, is received, it is considered an unknown message according to the settings._
 

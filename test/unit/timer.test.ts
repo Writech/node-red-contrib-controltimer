@@ -253,6 +253,133 @@ describe('src/timer.ts', () => {
         });
     });
 
+    describe('getStatus', () => {
+        it('reports only the duration while idle', () => {
+            const { timer } = createTimer({ timerDuration: 2 });
+
+            assert.deepEqual(timer.getStatus(), {
+                state: STATE.IDLE,
+                timerType: TIMER_TYPE.DELAY,
+                duration: 2000,
+                elapsed: null,
+                remaining: null,
+                progress: null,
+                loopIteration: 0,
+                loopTimeoutRemaining: null,
+            });
+        });
+
+        it('reports elapsed time, remaining time and progress while running', () => {
+            const { timer } = createTimer();
+            timer.start();
+            mock.timers.tick(250);
+
+            const status = timer.getStatus();
+            assert.equal(status.state, STATE.RUNNING);
+            assert.equal(status.duration, 1000);
+            assert.equal(status.elapsed, 250);
+            assert.equal(status.remaining, 750);
+            assert.equal(status.progress, 25);
+        });
+
+        it('reports the same values while paused, however long the pause lasts', () => {
+            const { timer } = createTimer();
+            timer.start();
+            mock.timers.tick(400);
+            timer.pause();
+            mock.timers.tick(60_000);
+
+            const status = timer.getStatus();
+            assert.equal(status.state, STATE.PAUSED);
+            assert.equal(status.elapsed, 400);
+            assert.equal(status.remaining, 600);
+            assert.equal(status.progress, 40);
+        });
+
+        it('keeps counting from where it paused after a continue', () => {
+            const { timer } = createTimer();
+            timer.start();
+            mock.timers.tick(400);
+            timer.pause();
+            timer.continue();
+            mock.timers.tick(100);
+
+            const status = timer.getStatus();
+            assert.equal(status.elapsed, 500);
+            assert.equal(status.remaining, 500);
+        });
+
+        it('has no times once the timer is stopped', () => {
+            const { timer } = createTimer();
+            timer.start();
+            mock.timers.tick(400);
+            timer.stop();
+
+            const status = timer.getStatus();
+            assert.equal(status.state, STATE.STOPPED);
+            assert.equal(status.elapsed, null);
+            assert.equal(status.remaining, null);
+            assert.equal(status.progress, null);
+        });
+
+        it('uses the overridden duration', () => {
+            const { timer } = createTimer();
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 2, timerDurationUnit: DurationUnit.MINUTE });
+            timer.start();
+            mock.timers.tick(30_000);
+
+            const status = timer.getStatus();
+            assert.equal(status.duration, 120_000);
+            assert.equal(status.remaining, 90_000);
+            assert.equal(status.progress, 25);
+        });
+
+        it('reports the position within the current loop iteration and the iteration count', () => {
+            const { timer } = createTimer({ timerType: TIMER_TYPE.LOOP });
+            timer.start();
+            mock.timers.tick(1000);
+            mock.timers.tick(1000);
+            mock.timers.tick(300);
+
+            const status = timer.getStatus();
+            assert.equal(status.timerType, TIMER_TYPE.LOOP);
+            assert.equal(status.loopIteration, 2);
+            assert.equal(status.elapsed, 300);
+            assert.equal(status.remaining, 700);
+        });
+
+        it('reports the time left until the loop timeout, and keeps it while paused', () => {
+            const { timer } = createTimer({ timerType: TIMER_TYPE.LOOP, timerLoopTimeout: 5, timerLoopTimeoutUnit: DurationUnit.SECOND });
+            timer.start();
+            mock.timers.tick(1500);
+            assert.equal(timer.getStatus().loopTimeoutRemaining, 3500);
+
+            timer.pause();
+            mock.timers.tick(60_000);
+            assert.equal(timer.getStatus().loopTimeoutRemaining, 3500);
+        });
+
+        it('has no loop timeout remaining when there is no loop timeout', () => {
+            const { timer } = createTimer({ timerType: TIMER_TYPE.LOOP });
+            timer.start();
+            mock.timers.tick(1500);
+
+            assert.equal(timer.getStatus().loopTimeoutRemaining, null);
+        });
+
+        it('does not change the timer', () => {
+            const { timer, counts, states } = createTimer();
+            timer.start();
+            mock.timers.tick(500);
+            const statesBefore = states.length;
+            timer.getStatus();
+            mock.timers.tick(500);
+
+            assert.equal(states.length, statesBefore + 1);
+            assert.equal(counts.timer, 1);
+        });
+    });
+
     describe('initial state', () => {
         it('starts in the idle state', () => {
             const { timer } = createTimer();

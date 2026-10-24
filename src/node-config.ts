@@ -18,6 +18,7 @@ export type StopActionNameType = 'str';
 export type ResetActionNameType = 'str';
 export type PauseActionNameType = 'str';
 export type ContinueActionNameType = 'str';
+export type StatusActionNameType = 'str';
 
 export interface Props {
     name: string;
@@ -56,6 +57,7 @@ export interface Props {
     isResetActionEnabled: boolean;
     isPauseActionEnabled: boolean;
     isContinueActionEnabled: boolean;
+    isStatusActionEnabled: boolean;
     actionPropertyNameType: ActionPropertyNameType;
     actionPropertyName: string;
     startActionNameType: StartActionNameType;
@@ -68,6 +70,8 @@ export interface Props {
     pauseActionName: string;
     continueActionNameType: ContinueActionNameType;
     continueActionName: string;
+    statusActionNameType: StatusActionNameType;
+    statusActionName: string;
 }
 
 export const defaults: Props = {
@@ -107,6 +111,7 @@ export const defaults: Props = {
     isResetActionEnabled: true,
     isPauseActionEnabled: true,
     isContinueActionEnabled: true,
+    isStatusActionEnabled: true,
     actionPropertyNameType: 'str',
     actionPropertyName: 'payload',
     startActionNameType: 'str',
@@ -119,6 +124,8 @@ export const defaults: Props = {
     pauseActionName: 'PAUSE',
     continueActionNameType: 'str',
     continueActionName: 'CONTINUE',
+    statusActionNameType: 'str',
+    statusActionName: 'STATUS',
 };
 
 export const constants = {
