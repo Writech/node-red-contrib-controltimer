@@ -29,6 +29,21 @@ When you override the configuration of a node, the information displayed on the 
 }
 ```
 
+`timerType`, `timerDuration`, and `timerDurationUnit` are only used when all three are present. `timerDuration` must be a number greater than 0. Units are not case sensitive and may be plural, for example `Minutes` or `seconds`.
+
+For loop timers you can also override the loop options. Each of them can be sent on its own, and `0` switches the limit or the timeout off for that run.
+
+```javascript
+{
+    payload: 'START',
+    timerMaxLoopIterations: 5, // whole number, 0 means no limit
+    timerLoopTimeout: 30, // number, 0 means no timeout
+    timerLoopTimeoutUnit: 'second', // 'millisecond', 'second', 'minute', 'hour'
+}
+```
+
+If a value is invalid, the node reports an error (catchable with a Catch node) and the message is not acted on.
+
 ## Example flow diagram
 
 <details>  

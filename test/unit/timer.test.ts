@@ -95,6 +95,119 @@ describe('src/timer.ts', () => {
         });
     });
 
+    describe('loop options in the override', () => {
+        it('parses the loop options on their own and leaves the duration properties out', () => {
+            assert.deepEqual(Timer.parseConfigOverride({ timerMaxLoopIterations: 3 }), { timerMaxLoopIterations: 3 });
+            assert.deepEqual(Timer.parseConfigOverride({ timerLoopTimeout: 0.5, timerLoopTimeoutUnit: 'Seconds' }), {
+                timerLoopTimeout: 0.5,
+                timerLoopTimeoutUnit: DurationUnit.SECOND,
+            });
+            assert.deepEqual(Timer.parseConfigOverride({}), {});
+        });
+
+        it('accepts 0 for no limit and no timeout', () => {
+            assert.deepEqual(Timer.parseConfigOverride({ timerMaxLoopIterations: 0, timerLoopTimeout: 0 }), { timerMaxLoopIterations: 0, timerLoopTimeout: 0 });
+        });
+
+        it('rejects invalid iterations', () => {
+            for (const timerMaxLoopIterations of [-1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, '3', null]) {
+                assert.throws(
+                    () => Timer.parseConfigOverride({ timerMaxLoopIterations }),
+                    /Invalid timerMaxLoopIterations/,
+                    `accepted ${String(timerMaxLoopIterations)}`,
+                );
+            }
+        });
+
+        it('rejects an invalid loop timeout or unit', () => {
+            for (const timerLoopTimeout of [-1, Number.NaN, Number.POSITIVE_INFINITY, '3', null]) {
+                assert.throws(() => Timer.parseConfigOverride({ timerLoopTimeout }), /Invalid timerLoopTimeout/, `accepted ${String(timerLoopTimeout)}`);
+            }
+            assert.throws(() => Timer.parseConfigOverride({ timerLoopTimeoutUnit: 'fortnights' }), /Invalid timerLoopTimeoutUnit "fortnights"/);
+        });
+
+        it('requires timerType, timerDuration and timerDurationUnit together', () => {
+            assert.throws(() => Timer.parseConfigOverride({ timerDuration: 3 }), /Invalid timerType "undefined"/);
+            assert.throws(() => Timer.parseConfigOverride({ timerType: TIMER_TYPE.LOOP, timerDuration: 3 }), /Invalid timerDurationUnit "undefined"/);
+        });
+
+        it('overrides the maximum number of iterations without touching the duration', () => {
+            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, timerMaxLoopIterations: 10 });
+            timer.setConfigOverride({ timerMaxLoopIterations: 2 });
+            timer.start();
+            mock.timers.tick(10_000);
+
+            assert.equal(counts.timer, 2);
+            assert.equal(counts['loop-max-iterations'], 1);
+        });
+
+        it('overrides the loop timeout and its unit', () => {
+            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP });
+            timer.setConfigOverride({ timerLoopTimeout: 2.5, timerLoopTimeoutUnit: 'seconds' });
+            timer.start();
+
+            mock.timers.tick(2499);
+            assert.equal(counts['loop-timeout'], 0);
+            mock.timers.tick(1);
+            assert.equal(counts['loop-timeout'], 1);
+        });
+
+        it('overrides only the loop timeout value and keeps the configured unit', () => {
+            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, timerLoopTimeout: 10, timerLoopTimeoutUnit: DurationUnit.SECOND });
+            timer.setConfigOverride({ timerLoopTimeout: 3 });
+            timer.start();
+
+            mock.timers.tick(2999);
+            assert.equal(counts['loop-timeout'], 0);
+            mock.timers.tick(1);
+            assert.equal(counts['loop-timeout'], 1);
+        });
+
+        it('lets 0 switch off a configured limit and timeout', () => {
+            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, timerMaxLoopIterations: 2, timerLoopTimeout: 2500 });
+            timer.setConfigOverride({ timerMaxLoopIterations: 0, timerLoopTimeout: 0 });
+            timer.start();
+            mock.timers.tick(10_000);
+
+            assert.equal(counts.timer, 10);
+            assert.equal(counts['loop-max-iterations'], 0);
+            assert.equal(counts['loop-timeout'], 0);
+            assert.equal(timer.getState(), STATE.RUNNING);
+        });
+
+        it('can be combined with a timerType override that turns a delay into a loop', () => {
+            const { timer, counts } = createTimer();
+            timer.setConfigOverride({ timerType: TIMER_TYPE.LOOP, timerDuration: 100, timerDurationUnit: DurationUnit.MILLISECOND, timerMaxLoopIterations: 3 });
+            timer.start();
+            mock.timers.tick(10_000);
+
+            assert.equal(counts.timer, 3);
+            assert.equal(counts['loop-max-iterations'], 1);
+        });
+
+        it('is cleared again once the run ends', () => {
+            const { timer, counts } = createTimer({ timerType: TIMER_TYPE.LOOP, timerMaxLoopIterations: 5 });
+            timer.setConfigOverride({ timerMaxLoopIterations: 2 });
+            timer.start();
+            mock.timers.tick(10_000);
+            assert.equal(counts.timer, 2);
+
+            timer.start();
+            mock.timers.tick(10_000);
+            assert.equal(counts.timer, 7);
+        });
+
+        it('is ignored by a delay timer', () => {
+            const { timer, counts } = createTimer();
+            timer.setConfigOverride({ timerMaxLoopIterations: 3, timerLoopTimeout: 100 });
+            timer.start();
+            mock.timers.tick(1000);
+
+            assert.equal(counts.timer, 1);
+            assert.equal(counts['loop-timeout'], 0);
+        });
+    });
+
     describe('initial state', () => {
         it('starts in the idle state', () => {
             const { timer } = createTimer();

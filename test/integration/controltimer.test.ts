@@ -383,6 +383,142 @@ describe('src/controltimer.ts', () => {
             assert.equal(errors.length, 0);
         });
 
+        it('START with only timerMaxLoopIterations stops the loop after that many triggers', async () => {
+            const { send, tick, triggered, halted } = await createFlow({ timerType: TIMER_TYPE.LOOP });
+
+            await send({ payload: 'START', timerMaxLoopIterations: 3 });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 3);
+            assert.deepEqual(payloads(halted), ['TIMER_HALTED', 'MAX_LOOP_ITERATIONS']);
+        });
+
+        it('START with only timerLoopTimeout and timerLoopTimeoutUnit overrides the loop timeout', async () => {
+            const { send, tick, triggered, halted } = await createFlow({ timerType: TIMER_TYPE.LOOP });
+
+            await send({ payload: 'START', timerLoopTimeout: 2.5, timerLoopTimeoutUnit: 'seconds' });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 2);
+            assert.deepEqual(payloads(halted), ['TIMER_HALTED', 'LOOP_TIMEOUT']);
+        });
+
+        it('START with a duration override and loop options applies both', async () => {
+            const { send, tick, triggered, halted } = await createFlow();
+
+            await send({
+                payload: 'START',
+                timerType: TIMER_TYPE.LOOP,
+                timerDuration: 100,
+                timerDurationUnit: DurationUnit.MILLISECOND,
+                timerMaxLoopIterations: 4,
+            });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 4);
+            assert.deepEqual(payloads(halted), ['TIMER_HALTED', 'MAX_LOOP_ITERATIONS']);
+        });
+
+        it('applies loop options even when the duration properties are incomplete', async () => {
+            const { send, tick, triggered, halted } = await createFlow({ timerType: TIMER_TYPE.LOOP });
+
+            await send({ payload: 'START', timerDuration: 5, timerMaxLoopIterations: 2 });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 2);
+            assert.deepEqual(payloads(halted), ['TIMER_HALTED', 'MAX_LOOP_ITERATIONS']);
+        });
+
+        it('ignores loop options on messages that are not START', async () => {
+            const { send, tick, triggered } = await createFlow({ timerType: TIMER_TYPE.LOOP });
+
+            await send({ payload: 'START' });
+            await send({ payload: 'PAUSE', timerMaxLoopIterations: 1 });
+            await send({ payload: 'CONTINUE' });
+            await tick(5000);
+
+            assert.ok(triggered.length >= 4);
+        });
+
+        it('START with loop options while running restarts the loop with them', async () => {
+            const { send, tick, triggered, halted } = await createFlow({ timerType: TIMER_TYPE.LOOP });
+
+            await send({ payload: 'START' });
+            await tick(2500);
+            await send({ payload: 'START', timerMaxLoopIterations: 2 });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 4);
+            assert.deepEqual(payloads(halted).slice(-1), ['MAX_LOOP_ITERATIONS']);
+        });
+
+        it('treats null loop options as not sent', async () => {
+            const { send, tick, triggered, errors } = await createFlow({ timerType: TIMER_TYPE.LOOP, timerMaxLoopIterations: 2 });
+
+            await send({ payload: 'START', timerMaxLoopIterations: null, timerLoopTimeout: null, timerLoopTimeoutUnit: null });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 2);
+            assert.equal(errors.length, 0);
+        });
+
+        it('switches off a configured iteration limit and loop timeout with 0', async () => {
+            const { send, tick, triggered, halted } = await createFlow({ timerType: TIMER_TYPE.LOOP, timerMaxLoopIterations: 2, timerLoopTimeout: 2500 });
+
+            await send({ payload: 'START', timerMaxLoopIterations: 0, timerLoopTimeout: 0 });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 10);
+            assert.equal(halted.length, 0);
+        });
+
+        it('keeps the configured loop timeout unit when only the value is sent', async () => {
+            const { send, tick, halted } = await createFlow({ timerType: TIMER_TYPE.LOOP, timerLoopTimeout: 10, timerLoopTimeoutUnit: DurationUnit.SECOND });
+
+            await send({ payload: 'START', timerLoopTimeout: 3 });
+            await tick(2999);
+            assert.equal(halted.length, 0);
+            await tick(1);
+            assert.deepEqual(payloads(halted), ['TIMER_HALTED', 'LOOP_TIMEOUT']);
+        });
+
+        it('ignores loop options on a delay timer', async () => {
+            const { send, tick, triggered, halted, errors } = await createFlow();
+
+            await send({ payload: 'START', timerMaxLoopIterations: 3, timerLoopTimeout: 100 });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 1);
+            assert.equal(halted.length, 0);
+            assert.equal(errors.length, 0);
+        });
+
+        it('does not carry loop options over to the next run', async () => {
+            const { send, tick, triggered } = await createFlow({ timerType: TIMER_TYPE.LOOP, timerMaxLoopIterations: 5 });
+
+            await send({ payload: 'START', timerMaxLoopIterations: 2 });
+            await tick(10_000);
+            await send({ payload: 'START' });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 7);
+        });
+
+        it('rejects START with an invalid loop option: reports an error and does not start', async () => {
+            const { send, tick, triggered, errors } = await createFlow({ timerType: TIMER_TYPE.LOOP });
+
+            await send({ payload: 'START', timerMaxLoopIterations: 1.5 });
+            await send({ payload: 'START', timerLoopTimeout: -1 });
+            await send({ payload: 'START', timerLoopTimeoutUnit: 'fortnights' });
+            await tick(10_000);
+
+            assert.equal(triggered.length, 0);
+            assert.equal(errors.length, 3);
+            assert.match(errors[0] ?? '', /Invalid timerMaxLoopIterations "1.5"/);
+            assert.match(errors[1] ?? '', /Invalid timerLoopTimeout "-1"/);
+            assert.match(errors[2] ?? '', /Invalid timerLoopTimeoutUnit "fortnights"/);
+        });
+
         it('rejects START with an invalid override: reports an error and does not start', async () => {
             const { send, tick, triggered, errors } = await createFlow();
 

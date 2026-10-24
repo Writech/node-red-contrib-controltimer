@@ -65,15 +65,22 @@ module.exports = function (RED: NodeAPI): void {
             const timerTypeOverride = messageProperties[constants.timerTypeOverridePropertyName] ?? null;
             const timerDurationOverride = messageProperties[constants.timerDurationOverridePropertyName] ?? null;
             const timerDurationUnitOverride = messageProperties[constants.timerDurationUnitOverridePropertyName] ?? null;
-            const isOverrideMessage = timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
+            const isDurationOverrideComplete = timerTypeOverride !== null && timerDurationOverride !== null && timerDurationUnitOverride !== null;
+
+            // The duration properties only count when all three are present; each loop property counts on its own.
+            const configOverride = {
+                ...(isDurationOverrideComplete && {
+                    timerType: timerTypeOverride,
+                    timerDuration: timerDurationOverride,
+                    timerDurationUnit: timerDurationUnitOverride,
+                }),
+                ...getLoopOverride(messageProperties),
+            };
+            const isOverrideMessage = Object.keys(configOverride).length > 0;
 
             if (isStartActionMessage && isOverrideMessage) {
                 try {
-                    timer.setConfigOverride({
-                        timerType: timerTypeOverride,
-                        timerDuration: timerDurationOverride,
-                        timerDurationUnit: timerDurationUnitOverride,
-                    });
+                    timer.setConfigOverride(configOverride);
                 } catch (error) {
                     done(error as Error);
                     return;
@@ -131,4 +138,19 @@ module.exports = function (RED: NodeAPI): void {
             done();
         });
     });
+};
+
+const getLoopOverride = (messageProperties: NodeMessageProperties) => {
+    const loopOverride: NodeMessageProperties = {};
+    for (const propertyName of [
+        constants.timerMaxLoopIterationsOverridePropertyName,
+        constants.timerLoopTimeoutOverridePropertyName,
+        constants.timerLoopTimeoutUnitOverridePropertyName,
+    ]) {
+        if (messageProperties[propertyName] !== undefined && messageProperties[propertyName] !== null) {
+            loopOverride[propertyName] = messageProperties[propertyName];
+        }
+    }
+
+    return loopOverride;
 };
