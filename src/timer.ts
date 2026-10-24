@@ -40,8 +40,19 @@ interface TimerConfig {
     timerLoopTimeoutUnit: DurationUnit;
 }
 
-type ConfigOverride = Pick<TimerConfig, 'timerType' | 'timerDuration' | 'timerDurationUnit'>;
-type UnvalidatedConfigOverride = { [Key in keyof ConfigOverride]: unknown };
+type ConfigOverride = Partial<
+    Pick<
+        TimerConfig,
+        | 'timerType'
+        | 'timerDuration'
+        | 'timerDurationUnit'
+        | 'isTimerProgressUpdateEnabled'
+        | 'timerMaxLoopIterations'
+        | 'timerLoopTimeout'
+        | 'timerLoopTimeoutUnit'
+    >
+>;
+type UnvalidatedConfigOverride = { [Key in keyof ConfigOverride]?: unknown };
 
 export class Timer extends EventEmitter {
     static defaultConfig: TimerConfig = {
@@ -64,24 +75,63 @@ export class Timer extends EventEmitter {
     }
 
     static parseConfigOverride(configOverride: UnvalidatedConfigOverride): ConfigOverride {
-        const { timerType, timerDuration } = configOverride;
+        const { timerType, timerDuration, timerMaxLoopIterations, timerLoopTimeout } = configOverride;
+        const { isTimerProgressUpdateEnabled } = configOverride;
+        const parsedOverride: ConfigOverride = {};
 
-        if (!Object.values(TIMER_TYPE).includes(timerType as TIMER_TYPE)) {
-            throw new Error(`Invalid timerType "${String(timerType)}", expected one of: ${Object.values(TIMER_TYPE).join(', ')}`);
+        const isDurationGroupGiven = [timerType, timerDuration, configOverride.timerDurationUnit].some((value) => value !== undefined);
+        if (isDurationGroupGiven) {
+            if (!Object.values(TIMER_TYPE).includes(timerType as TIMER_TYPE)) {
+                throw new Error(`Invalid timerType "${String(timerType)}", expected one of: ${Object.values(TIMER_TYPE).join(', ')}`);
+            }
+
+            if (typeof timerDuration !== 'number' || !Number.isFinite(timerDuration) || timerDuration <= 0) {
+                throw new Error(`Invalid timerDuration "${String(timerDuration)}", expected a number greater than 0`);
+            }
+
+            parsedOverride.timerType = timerType as TIMER_TYPE;
+            parsedOverride.timerDuration = timerDuration;
+            parsedOverride.timerDurationUnit = Timer.parseUnitOrThrow('timerDurationUnit', configOverride.timerDurationUnit);
         }
 
-        if (typeof timerDuration !== 'number' || !Number.isFinite(timerDuration) || timerDuration <= 0) {
-            throw new Error(`Invalid timerDuration "${String(timerDuration)}", expected a number greater than 0`);
+        if (isTimerProgressUpdateEnabled !== undefined) {
+            if (typeof isTimerProgressUpdateEnabled !== 'boolean') {
+                throw new Error(`Invalid isTimerProgressUpdateEnabled "${String(isTimerProgressUpdateEnabled)}", expected true or false`);
+            }
+
+            parsedOverride.isTimerProgressUpdateEnabled = isTimerProgressUpdateEnabled;
         }
 
-        const timerDurationUnit = Timer.parseDurationUnit(configOverride.timerDurationUnit);
-        if (!timerDurationUnit) {
-            throw new Error(
-                `Invalid timerDurationUnit "${String(configOverride.timerDurationUnit)}", expected one of: ${Object.values(DurationUnit).join(', ')} (plural also accepted)`,
-            );
+        if (timerMaxLoopIterations !== undefined) {
+            if (typeof timerMaxLoopIterations !== 'number' || !Number.isInteger(timerMaxLoopIterations) || timerMaxLoopIterations < 0) {
+                throw new Error(`Invalid timerMaxLoopIterations "${String(timerMaxLoopIterations)}", expected a whole number of 0 or more (0 means no limit)`);
+            }
+
+            parsedOverride.timerMaxLoopIterations = timerMaxLoopIterations;
         }
 
-        return { timerType: timerType as TIMER_TYPE, timerDuration, timerDurationUnit };
+        if (timerLoopTimeout !== undefined) {
+            if (typeof timerLoopTimeout !== 'number' || !Number.isFinite(timerLoopTimeout) || timerLoopTimeout < 0) {
+                throw new Error(`Invalid timerLoopTimeout "${String(timerLoopTimeout)}", expected a number of 0 or more (0 means no timeout)`);
+            }
+
+            parsedOverride.timerLoopTimeout = timerLoopTimeout;
+        }
+
+        if (configOverride.timerLoopTimeoutUnit !== undefined) {
+            parsedOverride.timerLoopTimeoutUnit = Timer.parseUnitOrThrow('timerLoopTimeoutUnit', configOverride.timerLoopTimeoutUnit);
+        }
+
+        return parsedOverride;
+    }
+
+    private static parseUnitOrThrow(propertyName: string, value: unknown) {
+        const unit = Timer.parseDurationUnit(value);
+        if (!unit) {
+            throw new Error(`Invalid ${propertyName} "${String(value)}", expected one of: ${Object.values(DurationUnit).join(', ')} (plural also accepted)`);
+        }
+
+        return unit;
     }
 
     static getInstance(config: TimerConfig) {
@@ -259,7 +309,7 @@ export class Timer extends EventEmitter {
     private createAndGetTimer(durationInMillisecondsOverride?: number) {
         const durationInMilliseconds = durationInMillisecondsOverride ?? this.timerDurationInMilliseconds;
 
-        if ((this.config.timerType === TIMER_TYPE.LOOP && !this.configOverride) || this.configOverride?.timerType === TIMER_TYPE.LOOP) {
+        if (this.timerType === TIMER_TYPE.LOOP) {
             this.pausedTimerRunningMilliseconds = durationInMillisecondsOverride ? this.pausedTimerRunningMilliseconds : undefined;
             this.timerStartedAtUnixTimestamp = Date.now();
 
@@ -270,7 +320,7 @@ export class Timer extends EventEmitter {
             return this.createLoopInterval(durationInMilliseconds, isResumedWithRemainingDuration);
         }
 
-        if ((this.config.timerType === TIMER_TYPE.DELAY && !this.configOverride) || this.configOverride?.timerType === TIMER_TYPE.DELAY) {
+        if (this.timerType === TIMER_TYPE.DELAY) {
             this.pausedTimerRunningMilliseconds = durationInMillisecondsOverride ? this.pausedTimerRunningMilliseconds : undefined;
             this.timerStartedAtUnixTimestamp = Date.now();
 
@@ -280,7 +330,7 @@ export class Timer extends EventEmitter {
             }, durationInMilliseconds);
         }
 
-        throw new Error(`Unexpected timer type "${this.configOverride ? this.configOverride.timerType : this.config.timerType}"`);
+        throw new Error(`Unexpected timer type "${this.timerType}"`);
     }
 
     private createLoopInterval(durationInMilliseconds: number, isResumedWithRemainingDuration: boolean) {
@@ -298,7 +348,7 @@ export class Timer extends EventEmitter {
 
             this.currentLoopIteration = this.currentLoopIteration + 1;
 
-            if (this.currentLoopIteration === this.config.timerMaxLoopIterations) {
+            if (this.currentLoopIteration === this.timerMaxLoopIterations) {
                 this.stopTimer();
                 this.emit('loop-max-iterations');
             }
@@ -329,7 +379,7 @@ export class Timer extends EventEmitter {
             this.loopTimeoutRunningMilliseconds = 0;
         }
 
-        if (this.config.timerLoopTimeout === 0) {
+        if (this.timerLoopTimeout === 0) {
             return;
         }
 
@@ -344,7 +394,7 @@ export class Timer extends EventEmitter {
         clearInterval(this.progressUpdateIntervalTimerId);
         this.progressUpdateIntervalTimerId = undefined;
 
-        if (!this.config.isTimerProgressUpdateEnabled) {
+        if (!this.isTimerProgressUpdateEnabled) {
             return;
         }
 
@@ -386,7 +436,7 @@ export class Timer extends EventEmitter {
     }
 
     private getRunningTimerProgress() {
-        if (!this.config.isTimerProgressUpdateEnabled) {
+        if (!this.isTimerProgressUpdateEnabled) {
             return '';
         }
 
@@ -398,7 +448,7 @@ export class Timer extends EventEmitter {
     }
 
     private getPausedTimerProgress() {
-        if (!this.config.isTimerProgressUpdateEnabled) {
+        if (!this.isTimerProgressUpdateEnabled) {
             return '';
         }
 
@@ -419,12 +469,32 @@ export class Timer extends EventEmitter {
         return this.configOverride?.timerDurationUnit ?? this.config.timerDurationUnit;
     }
 
+    private get timerType() {
+        return this.configOverride?.timerType ?? this.config.timerType;
+    }
+
+    private get isTimerProgressUpdateEnabled() {
+        return this.configOverride?.isTimerProgressUpdateEnabled ?? this.config.isTimerProgressUpdateEnabled;
+    }
+
+    private get timerMaxLoopIterations() {
+        return this.configOverride?.timerMaxLoopIterations ?? this.config.timerMaxLoopIterations;
+    }
+
+    private get timerLoopTimeout() {
+        return this.configOverride?.timerLoopTimeout ?? this.config.timerLoopTimeout;
+    }
+
+    private get timerLoopTimeoutUnit() {
+        return this.configOverride?.timerLoopTimeoutUnit ?? this.config.timerLoopTimeoutUnit;
+    }
+
     private get timerDurationInMilliseconds() {
         return Timer.getDurationInMilliseconds(this.timerDuration, this.timerDurationUnit);
     }
 
     private getTimerLoopTimeoutInMilliseconds() {
-        return Timer.getDurationInMilliseconds(this.config.timerLoopTimeout, this.config.timerLoopTimeoutUnit);
+        return Timer.getDurationInMilliseconds(this.timerLoopTimeout, this.timerLoopTimeoutUnit);
     }
 
     static getDurationInMilliseconds(duration: number, durationUnit: DurationUnit) {
