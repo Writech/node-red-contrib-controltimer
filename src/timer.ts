@@ -32,31 +32,64 @@ export enum DurationUnit {
 
 interface TimerConfig {
     timerType: TIMER_TYPE;
-    duration: number;
-    durationUnit: DurationUnit;
+    timerDuration: number;
+    timerDurationUnit: DurationUnit;
     isTimerProgressUpdateEnabled: boolean;
     timerMaxLoopIterations: number;
     timerLoopTimeout: number;
     timerLoopTimeoutUnit: DurationUnit;
 }
 
+type ConfigOverride = Pick<TimerConfig, 'timerType' | 'timerDuration' | 'timerDurationUnit'>;
+type UnvalidatedConfigOverride = { [Key in keyof ConfigOverride]: unknown };
+
 export class Timer extends EventEmitter {
     static defaultConfig: TimerConfig = {
         timerType: TIMER_TYPE.DELAY,
-        duration: 5,
-        durationUnit: DurationUnit.SECOND,
+        timerDuration: 5,
+        timerDurationUnit: DurationUnit.SECOND,
         isTimerProgressUpdateEnabled: true,
         timerMaxLoopIterations: 0,
         timerLoopTimeout: 0,
         timerLoopTimeoutUnit: DurationUnit.MILLISECOND,
     };
 
+    static parseDurationUnit(value: unknown) {
+        if (typeof value !== 'string') {
+            return undefined;
+        }
+
+        const normalizedValue = value.trim().toLowerCase();
+        return Object.values(DurationUnit).find((unit) => normalizedValue === unit || normalizedValue === `${unit}s`);
+    }
+
+    static parseConfigOverride(configOverride: UnvalidatedConfigOverride): ConfigOverride {
+        const { timerType, timerDuration } = configOverride;
+
+        if (!Object.values(TIMER_TYPE).includes(timerType as TIMER_TYPE)) {
+            throw new Error(`Invalid timerType "${String(timerType)}", expected one of: ${Object.values(TIMER_TYPE).join(', ')}`);
+        }
+
+        if (typeof timerDuration !== 'number' || !Number.isFinite(timerDuration) || timerDuration <= 0) {
+            throw new Error(`Invalid timerDuration "${String(timerDuration)}", expected a number greater than 0`);
+        }
+
+        const timerDurationUnit = Timer.parseDurationUnit(configOverride.timerDurationUnit);
+        if (!timerDurationUnit) {
+            throw new Error(
+                `Invalid timerDurationUnit "${String(configOverride.timerDurationUnit)}", expected one of: ${Object.values(DurationUnit).join(', ')} (plural also accepted)`,
+            );
+        }
+
+        return { timerType: timerType as TIMER_TYPE, timerDuration, timerDurationUnit };
+    }
+
     static getInstance(config: TimerConfig) {
         return new Timer(config);
     }
 
     private config: TimerConfig = Timer.defaultConfig;
-    private configOverride?: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>;
+    private configOverride?: ConfigOverride;
 
     private currentState: STATE = STATE.IDLE;
     private timerId?: LongTimer;
@@ -114,8 +147,8 @@ export class Timer extends EventEmitter {
         this.loopTimeoutRunningMilliseconds = 0;
     }
 
-    public setConfigOverride(configOverride: Pick<TimerConfig, 'timerType' | 'duration' | 'durationUnit'>) {
-        this.configOverride = configOverride; // TODO: Validate configOverride
+    public setConfigOverride(configOverride: UnvalidatedConfigOverride) {
+        this.configOverride = Timer.parseConfigOverride(configOverride);
 
         this.emit('state', { state: this.currentState, progress: this.getProgressForCurrentState() });
     }
@@ -379,11 +412,11 @@ export class Timer extends EventEmitter {
     }
 
     private get timerDuration() {
-        return this.configOverride?.duration ?? this.config.duration;
+        return this.configOverride?.timerDuration ?? this.config.timerDuration;
     }
 
     private get timerDurationUnit() {
-        return this.configOverride?.durationUnit ?? this.config.durationUnit;
+        return this.configOverride?.timerDurationUnit ?? this.config.timerDurationUnit;
     }
 
     private get timerDurationInMilliseconds() {
