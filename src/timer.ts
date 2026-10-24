@@ -54,8 +54,18 @@ export class Timer extends EventEmitter {
         timerLoopTimeoutUnit: DurationUnit.MILLISECOND,
     };
 
-    static validateConfigOverride(configOverride: UnvalidatedConfigOverride): asserts configOverride is ConfigOverride {
-        const { timerType, timerDuration, timerDurationUnit } = configOverride;
+    // Accepts the unit in any case and in plural form too ("Minutes", "seconds").
+    static parseDurationUnit(value: unknown) {
+        if (typeof value !== 'string') {
+            return undefined;
+        }
+
+        const normalizedValue = value.trim().toLowerCase();
+        return Object.values(DurationUnit).find((unit) => normalizedValue === unit || normalizedValue === `${unit}s`);
+    }
+
+    static parseConfigOverride(configOverride: UnvalidatedConfigOverride): ConfigOverride {
+        const { timerType, timerDuration } = configOverride;
 
         if (!Object.values(TIMER_TYPE).includes(timerType as TIMER_TYPE)) {
             throw new Error(`Invalid timerType "${String(timerType)}", expected one of: ${Object.values(TIMER_TYPE).join(', ')}`);
@@ -65,9 +75,14 @@ export class Timer extends EventEmitter {
             throw new Error(`Invalid timerDuration "${String(timerDuration)}", expected a number greater than 0`);
         }
 
-        if (!Object.values(DurationUnit).includes(timerDurationUnit as DurationUnit)) {
-            throw new Error(`Invalid timerDurationUnit "${String(timerDurationUnit)}", expected one of: ${Object.values(DurationUnit).join(', ')}`);
+        const timerDurationUnit = Timer.parseDurationUnit(configOverride.timerDurationUnit);
+        if (!timerDurationUnit) {
+            throw new Error(
+                `Invalid timerDurationUnit "${String(configOverride.timerDurationUnit)}", expected one of: ${Object.values(DurationUnit).join(', ')} (plural also accepted)`,
+            );
         }
+
+        return { timerType: timerType as TIMER_TYPE, timerDuration, timerDurationUnit };
     }
 
     static getInstance(config: TimerConfig) {
@@ -134,8 +149,7 @@ export class Timer extends EventEmitter {
     }
 
     public setConfigOverride(configOverride: UnvalidatedConfigOverride) {
-        Timer.validateConfigOverride(configOverride);
-        this.configOverride = configOverride;
+        this.configOverride = Timer.parseConfigOverride(configOverride);
 
         this.emit('state', { state: this.currentState, progress: this.getProgressForCurrentState() });
     }

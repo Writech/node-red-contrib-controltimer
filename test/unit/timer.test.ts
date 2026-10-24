@@ -25,29 +25,61 @@ describe('src/timer.ts', () => {
         });
     });
 
-    describe('validateConfigOverride', () => {
+    describe('parseConfigOverride', () => {
         const valid = { timerType: TIMER_TYPE.DELAY, timerDuration: 3, timerDurationUnit: DurationUnit.SECOND };
 
         it('accepts a valid override, including fractional durations', () => {
-            assert.doesNotThrow(() => Timer.validateConfigOverride(valid));
-            assert.doesNotThrow(() => Timer.validateConfigOverride({ ...valid, timerDuration: 0.5 }));
+            assert.doesNotThrow(() => Timer.parseConfigOverride(valid));
+            assert.doesNotThrow(() => Timer.parseConfigOverride({ ...valid, timerDuration: 0.5 }));
             assert.doesNotThrow(() =>
-                Timer.validateConfigOverride({ timerType: TIMER_TYPE.LOOP, timerDuration: 100, timerDurationUnit: DurationUnit.MILLISECOND }),
+                Timer.parseConfigOverride({ timerType: TIMER_TYPE.LOOP, timerDuration: 100, timerDurationUnit: DurationUnit.MILLISECOND }),
             );
         });
 
         it('rejects an unknown timer type', () => {
-            assert.throws(() => Timer.validateConfigOverride({ ...valid, timerType: 'repeat' }), /Invalid timerType "repeat", expected one of: loop, delay/);
+            assert.throws(() => Timer.parseConfigOverride({ ...valid, timerType: 'repeat' }), /Invalid timerType "repeat", expected one of: loop, delay/);
         });
 
         it('rejects a duration that is not a positive finite number', () => {
             for (const timerDuration of [0, -1, Number.NaN, Number.POSITIVE_INFINITY, '3', null, undefined, {}]) {
-                assert.throws(() => Timer.validateConfigOverride({ ...valid, timerDuration }), /Invalid timerDuration/, `accepted ${String(timerDuration)}`);
+                assert.throws(() => Timer.parseConfigOverride({ ...valid, timerDuration }), /Invalid timerDuration/, `accepted ${String(timerDuration)}`);
             }
         });
 
         it('rejects an unknown duration unit', () => {
-            assert.throws(() => Timer.validateConfigOverride({ ...valid, timerDurationUnit: 'fortnight' }), /Invalid timerDurationUnit "fortnight"/);
+            for (const timerDurationUnit of ['fortnight', 'fortnights', 's', 'secondss', '', 5, null, undefined]) {
+                assert.throws(
+                    () => Timer.parseConfigOverride({ ...valid, timerDurationUnit }),
+                    /Invalid timerDurationUnit/,
+                    `accepted ${String(timerDurationUnit)}`,
+                );
+            }
+        });
+
+        it('accepts plural and differently cased duration units and returns the canonical unit', () => {
+            const expected: [string, DurationUnit][] = [
+                ['milliseconds', DurationUnit.MILLISECOND],
+                ['seconds', DurationUnit.SECOND],
+                ['Minutes', DurationUnit.MINUTE],
+                ['HOURS', DurationUnit.HOUR],
+                [' hour ', DurationUnit.HOUR],
+                ['second', DurationUnit.SECOND],
+            ];
+            for (const [input, unit] of expected) {
+                assert.equal(Timer.parseConfigOverride({ ...valid, timerDurationUnit: input }).timerDurationUnit, unit, input);
+            }
+        });
+
+        it('uses the canonical unit for timing and progress when a plural unit is overridden', () => {
+            const { timer, progress } = createTimer({ isTimerProgressUpdateEnabled: true });
+            timer.setConfigOverride({ timerType: TIMER_TYPE.DELAY, timerDuration: 2, timerDurationUnit: 'Minutes' });
+            timer.start();
+
+            assert.equal(progress.at(-1), ' 0.0% of 2 minute(s)');
+            mock.timers.tick(2 * 60 * 1000 - 1);
+            assert.equal(timer.getState(), STATE.RUNNING);
+            mock.timers.tick(1);
+            assert.equal(timer.getState(), STATE.IDLE);
         });
 
         it('is applied by setConfigOverride, which keeps the previous override on failure', () => {

@@ -372,6 +372,17 @@ describe('src/controltimer.ts', () => {
             assert.equal(triggered.length, 1);
         });
 
+        it('START with a plural, differently cased unit uses the matching unit', async () => {
+            const { send, tick, triggered, errors } = await createFlow();
+
+            await send({ payload: 'START', timerType: TIMER_TYPE.DELAY, timerDuration: 2, timerDurationUnit: 'Seconds' });
+            await tick(1999);
+            assert.equal(triggered.length, 0);
+            await tick(1);
+            assert.equal(triggered.length, 1);
+            assert.equal(errors.length, 0);
+        });
+
         it('rejects START with an invalid override: reports an error and does not start', async () => {
             const { send, tick, triggered, errors } = await createFlow();
 
